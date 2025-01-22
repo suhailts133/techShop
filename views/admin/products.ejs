@@ -1,0 +1,156 @@
+<% layout("../layouts/adminboilerplate") %>
+<title>
+    <%= title %>
+</title>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center">Products</h2>
+        </div>
+    </div>
+
+    <!-- Add New Button -->
+    <div class="row mt-3">
+        <div class="col-12 d-flex justify-content-end">
+            <a href="/admin/products/add" class="btn btn-success">Add New Product</a>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <form action="/admin/products/" method="get">
+                <div class="input-group position-relative">
+                    <input type="text" name="search" class="form-control" placeholder="Search products..."
+                        value="<%= search || '' %>" id="searchInput" />
+
+                    <a href="/admin/products/" class="text-decoration-none" style="cursor: pointer; color: #aaa;">
+                        <span class="reset-icon">&#10005;</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-primary ms-2">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Variants</th>
+                        <th>Stock Quantity</th>
+                        <th>Price</th>
+                        <th>Sale Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (productData.length === 0) { %>
+                        <tr>
+                            <td colspan="7" class="text-center">No products found</td>
+                        </tr>
+                    <% } else { %>
+                        <% for (let i = 0; i < productData.length; i++) { %>
+                            <tr>
+                                <td><%= productData[i].productName %></td>
+                                <td>
+                                    <% productData[i].variants.forEach(variant => { %>
+                                        <span class="badge bg-secondary">
+                                            <%= variant.color %> - <%= variant.size %>
+                                        </span>
+                                        <br>
+                                    <% }) %>
+                                </td>
+                                <td>
+                                    <% let totalQuantity = 0; %>
+                                    <% productData[i].variants.forEach(variant => { %>
+                                        <% totalQuantity += variant.quantity; %>
+                                    <% }) %>
+                                    <%= totalQuantity %>
+                                </td>
+                                <td>
+                                    <% let productPrice = productData[i].variants[0].price; %>
+                                    <%= productPrice %>
+                                </td>
+                                <td>
+                                    <% let salePrice = productData[i].variants[0].salePrice; %>
+                                    <%= salePrice %>
+                                </td>
+                                <td>
+                                    <% if (productData[i].isBlocked) { %>
+                                        <span class="badge bg-danger">Blocked</span>
+                                    <% } else { %>
+                                        <span class="badge bg-success">Available</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <!-- Edit Button -->
+                                    <button class="btn btn-small btn-warning ms-2">
+                                        <a href="/admin/products/edit?id=<%= productData[i]._id %>"
+                                            class="text-decoration-none text-dark">Edit</a>
+                                    </button>
+
+                                    <!-- Manage Variants Button -->
+                                    <button class="btn btn-small btn-info ms-2">
+                                        <a href="/admin/products/manageVariants?id=<%= productData[i]._id %>"
+                                            class="text-decoration-none text-light">Manage Variants</a>
+                                    </button>
+
+                                    <!-- Block/Unblock Button -->
+                                    <% if (productData[i].isBlocked) { %>
+                                        <button class="btn btn-small btn-success ms-2">
+                                            <a href="/admin/products/unblock?id=<%= productData[i]._id %>"
+                                                class="text-decoration-none text-light">Unblock</a>
+                                        </button>
+                                    <% } else { %>
+                                        <button class="btn btn-small btn-danger ms-2">
+                                            <a href="/admin/products/block?id=<%= productData[i]._id %>"
+                                                class="text-decoration-none text-light">Block</a>
+                                        </button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap Pagination -->
+    <div class="row mt-3">
+        <div class="col-12 d-flex justify-content-center">
+            <nav>
+                <ul class="pagination">
+                    <% if (page > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/products/?search=<%= search || '' %>&page=<%= page - 1 %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+
+                    <% for (let i = 1; i <= totalPages; i++) { %> 
+                        <li class="page-item <%= page === i ? 'active' : '' %>">
+                            <a class="page-link" href="/admin/products/?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+
+                    <% if (page < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/products/?search=<%= search || '' %>&page=<%= page + 1 %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

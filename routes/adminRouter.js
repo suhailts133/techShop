@@ -6,6 +6,7 @@ const adminController = require("../controllers/admin/adminController.js")
 const customerController = require("../controllers/admin/customerController.js")
 const categoryController = require("../controllers/admin/categoryController.js")
 const brandController = require("../controllers/admin/brandController.js")
+const productController = require("../controllers/admin/productController.js")
 // authentication middlewares
 const {adminCheckAuth, adminCheckAuthLogin} = require("../middlewares/auth.js")
 // multer 
@@ -44,7 +45,10 @@ router.get("/brands/list", adminCheckAuth, brandController.brandList)
 router.get("/brands/unlist", adminCheckAuth, brandController.brandUnlist)
 router.get("/brands/edit", adminCheckAuth, brandController.loadEditBrand);
 router.post("/brands/edit", adminCheckAuth, uploadBrand.single("image"),brandController.editBrand);
-
+// products
+router.get("/products", productController.productInfo);
+router.get("/products/add", productController.loadAddProductPage);
+router.post("/products/add", uploadProduct.array("images",3), productController.addProduct)
 
 router.get("/logout", adminController.logout)
 

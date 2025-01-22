@@ -1,0 +1,26 @@
+.error-message {
+    color: red;
+}
+
+.image-upload-container {
+    margin-bottom: 1rem;
+}
+
+.image-crop-container {
+    display: none;
+    margin-top: 1rem;
+}
+
+.cropped-preview {
+    margin-top: 1rem;
+    max-width: 100%;
+}
+
+.thumbnail {
+    margin: 10px;
+    display: inline-block;
+}
+
+.variant-section {
+    margin-bottom: 1rem;
+}
