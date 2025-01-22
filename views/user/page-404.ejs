@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #3a6186, #89253e);
+      color: #fff;
+    }
+    .container {
+      text-align: center;
+    }
+    .error-code {
+      font-size: 8rem;
+      font-weight: bold;
+      text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+    }
+    .message {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+    }
+    .description {
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+    .button {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      background: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+    .button:hover {
+      background: #ff3b2f;
+    }
+    .illustration {
+      max-width: 300px;
+      margin: 2rem auto;
+    }
+    .illustration img {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-code">404</div>
+    <div class="message">Oops! Page Not Found</div>
+    <div class="description">Sorry, the page you are looking for does not exist. It might have been moved or deleted.</div>
+    <a href="/" class="button">Go Back Home</a>
+    <div class="illustration">
+      <img src="https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif" alt="404 Illustration"> 
+    </div>
+  </div>
+</body>
+</html>

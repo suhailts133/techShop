@@ -1,0 +1,127 @@
+<% layout("../layouts/adminboilerplate") %>
+<title>
+    <%= title %>
+</title>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-center">Brands</h2>
+        </div>
+    </div>
+
+    <!-- Add New Button -->
+    <div class="row mt-3">
+        <div class="col-12 d-flex justify-content-end">
+            <a href="/admin/brands/add" class="btn btn-success">Add New</a>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <form action="/admin/brands/" method="get">
+                <div class="input-group position-relative">
+                    <input type="text" name="search" class="form-control" placeholder="Search brands..."
+                        value="<%= search || '' %>" id="searchInput" />
+
+                    <a href="/admin/brands/" class="text-decoration-none" style="cursor: pointer; color: #aaa;">
+                        <span class="reset-icon">&#10005;</span>
+                    </a>
+
+                    <button type="submit" class="btn btn-primary ms-2">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brands Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Logo</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (brandData.length === 0) { %>
+                        <tr>
+                            <td colspan="4" class="text-center">No brands found</td>
+                        </tr>
+                    <% } else { %>
+                        <% for (let i = 0; i < brandData.length; i++) { %>
+                            <tr>
+                                <td><%= brandData[i].brandName %></td>
+                                <td>
+                                    <img src="/uploads/brands/<%= brandData[i].logo %>" alt="<%= brandData[i].brandName %> Logo" class="img-thumbnail" style="max-width: 50px;">
+                                </td>
+                                <td>
+                                    <% if (brandData[i].isListed) { %>
+                                        <span class="badge bg-success">Listed</span>
+                                    <% } else { %>
+                                        <span class="badge bg-danger">Unlisted</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <!-- List/Unlist Button -->
+                                    <% if (brandData[i].isListed) { %>
+                                        <button class="btn btn-small btn-danger">
+                                            <a href="/admin/brands/unlist?id=<%= brandData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
+                                                class="text-decoration-none text-light">Unlist</a>
+                                        </button>
+                                    <% } else { %>
+                                        <button class="btn btn-small btn-success">
+                                            <a href="/admin/brands/list?id=<%= brandData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
+                                                class="text-decoration-none text-light">List</a>
+                                        </button>
+                                    <% } %>
+
+                                    <!-- Edit Button -->
+                                    <button class="btn btn-small btn-warning ms-2">
+                                        <a href="/admin/brands/edit?id=<%= brandData[i]._id %>"
+                                            class="text-decoration-none text-dark">Edit</a>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bootstrap Pagination -->
+    <div class="row mt-3">
+        <div class="col-12 d-flex justify-content-center">
+            <nav>
+                <ul class="pagination">
+                    <% if (page > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/brands/?search=<%= search || '' %>&page=<%= page - 1 %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+
+                    <% for (let i = 1; i <= totalPages; i++) { %> 
+                        <li class="page-item <%= page === i ? 'active' : '' %>">
+                            <a class="page-link" href="/admin/brands/?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+
+                    <% if (page < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/admin/brands/?search=<%= search || '' %>&page=<%= page + 1 %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+<% layout("../layouts/boilerplate") %>
+<title><%= title %></title>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">Add Brand</h3>
+
+                    <form id="addBrandForm" method="post" action="/admin/brands/add" enctype="multipart/form-data" novalidate>
+                        <!-- Brand Name -->
+                        <div class="mb-3">
+                            <label for="brandName" class="form-label">Brand Name</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="brandName" 
+                                name="brandName" 
+                                placeholder="Enter brand name" 
+                                required 
+                            >
+                            <div class="invalid-feedback">
+                                Please enter a brand name.
+                            </div>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                        </div>
+
+                        <!-- Image -->
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Logo</label>
+                            <input 
+                                type="file" 
+                                class="form-control" 
+                                id="image" 
+                                name="image" 
+                                accept="image/*" 
+                                required 
+                            >
+                            <div class="invalid-feedback">
+                                Please upload a brand logo.
+                            </div>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-dark">Add Brand</button>
+                        </div>
+
+                        <!-- Back Link -->
+                        <div class="mt-3 text-center">
+                            <p><a href="/admin/brands">Back to Brands</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/addBrand.js"></script>

@@ -1,0 +1,28 @@
+<% layout("../layouts/profileboilerPlate") %>
+<%= title  %>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <div class="container mt-5">
+            <!-- Profile Header -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <!-- User Information -->
+                    <div class="text-center">
+                        <h3><%= user.name %></h3> <!-- Display the user's name -->
+                        <p class="text-muted">Welcome to your profile page</p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
+                        <a href="/profile/loadChangePasswordCheck" class="btn btn-secondary">Change Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

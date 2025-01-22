@@ -1,0 +1,164 @@
+<% layout("../layouts/profileboilerPlate") %>
+<title><%= title %></title>
+
+<!-- Main Content Area -->
+<div class="content">
+  <div class="container mt-5">
+    <!-- Edit Address Header -->
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <!-- Title -->
+        <div class="text-center">
+          <h3>Edit Address</h3>
+          <p class="text-muted">Edit the details of the address</p>
+        </div>
+
+        <hr>
+
+        <!-- Edit Address Form -->
+        <form id="editAddressForm" method="post" action="/profile/address/edit?addressId=<%= address._id %>" novalidate>
+          <!-- Address Type -->
+          <div class="mb-3">
+            <label for="addressType" class="form-label">Address Type</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="addressType" 
+              name="address[addressType]" 
+              placeholder="e.g., Home, Office, Work" 
+              value="<%= address.addressType %>" 
+              required>
+            <div class="invalid-feedback">Please enter the address type (e.g., Home, Office, Work).</div>
+          </div>
+
+          <!-- Full Name -->
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="name" 
+              name="address[name]" 
+              placeholder="Enter full name" 
+              value="<%= address.name %>" 
+              required>
+            <div class="invalid-feedback">Please enter the name of the person.</div>
+          </div>
+
+          <!-- House Address -->
+          <div class="mb-3">
+            <label for="houseAddress" class="form-label">House Address</label>
+            <textarea 
+              class="form-control" 
+              id="houseAddress" 
+              name="address[houseAddress]" 
+              placeholder="Enter the full address" 
+              rows="3" 
+              required><%= address.houseAddress %></textarea>
+            <div class="invalid-feedback">Please enter the house address.</div>
+          </div>
+
+          <!-- Landmark -->
+          <div class="mb-3">
+            <label for="landMark" class="form-label">Landmark</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="landMark" 
+              name="address[landMark]" 
+              placeholder="Enter nearby landmark" 
+              value="<%= address.landMark %>" 
+              required>
+            <div class="invalid-feedback">Please provide a landmark.</div>
+          </div>
+
+          <!-- State -->
+          <div class="mb-3">
+            <label for="state" class="form-label">State</label>
+            <select class="form-select" id="state" name="address[state]" required>
+              <option value="" disabled>Select your state</option>
+              <option value="Andhra Pradesh" <%= address.state === 'Andhra Pradesh' ? 'selected' : '' %>>Andhra Pradesh</option>
+              <option value="Arunachal Pradesh" <%= address.state === 'Arunachal Pradesh' ? 'selected' : '' %>>Arunachal Pradesh</option>
+              <option value="Assam" <%= address.state === 'Assam' ? 'selected' : '' %>>Assam</option>
+              <option value="Bihar" <%= address.state === 'Bihar' ? 'selected' : '' %>>Bihar</option>
+              <option value="Chhattisgarh" <%= address.state === 'Chhattisgarh' ? 'selected' : '' %>>Chhattisgarh</option>
+              <option value="Goa" <%= address.state === 'Goa' ? 'selected' : '' %>>Goa</option>
+              <option value="Gujarat" <%= address.state === 'Gujarat' ? 'selected' : '' %>>Gujarat</option>
+              <option value="Haryana" <%= address.state === 'Haryana' ? 'selected' : '' %>>Haryana</option>
+              <option value="Himachal Pradesh" <%= address.state === 'Himachal Pradesh' ? 'selected' : '' %>>Himachal Pradesh</option>
+              <option value="Jharkhand" <%= address.state === 'Jharkhand' ? 'selected' : '' %>>Jharkhand</option>
+              <option value="Karnataka" <%= address.state === 'Karnataka' ? 'selected' : '' %>>Karnataka</option>
+              <option value="Kerala" <%= address.state === 'Kerala' ? 'selected' : '' %>>Kerala</option>
+              <option value="Madhya Pradesh" <%= address.state === 'Madhya Pradesh' ? 'selected' : '' %>>Madhya Pradesh</option>
+              <option value="Maharashtra" <%= address.state === 'Maharashtra' ? 'selected' : '' %>>Maharashtra</option>
+              <option value="Manipur" <%= address.state === 'Manipur' ? 'selected' : '' %>>Manipur</option>
+              <option value="Meghalaya" <%= address.state === 'Meghalaya' ? 'selected' : '' %>>Meghalaya</option>
+              <option value="Mizoram" <%= address.state === 'Mizoram' ? 'selected' : '' %>>Mizoram</option>
+              <option value="Nagaland" <%= address.state === 'Nagaland' ? 'selected' : '' %>>Nagaland</option>
+              <option value="Odisha" <%= address.state === 'Odisha' ? 'selected' : '' %>>Odisha</option>
+              <option value="Punjab" <%= address.state === 'Punjab' ? 'selected' : '' %>>Punjab</option>
+              <option value="Rajasthan" <%= address.state === 'Rajasthan' ? 'selected' : '' %>>Rajasthan</option>
+              <option value="Sikkim" <%= address.state === 'Sikkim' ? 'selected' : '' %>>Sikkim</option>
+              <option value="Tamil Nadu" <%= address.state === 'Tamil Nadu' ? 'selected' : '' %>>Tamil Nadu</option>
+              <option value="Telangana" <%= address.state === 'Telangana' ? 'selected' : '' %>>Telangana</option>
+              <option value="Tripura" <%= address.state === 'Tripura' ? 'selected' : '' %>>Tripura</option>
+              <option value="Uttar Pradesh" <%= address.state === 'Uttar Pradesh' ? 'selected' : '' %>>Uttar Pradesh</option>
+              <option value="Uttarakhand" <%= address.state === 'Uttarakhand' ? 'selected' : '' %>>Uttarakhand</option>
+              <option value="West Bengal" <%= address.state === 'West Bengal' ? 'selected' : '' %>>West Bengal</option>
+            </select>
+            <div class="invalid-feedback">Please select a state.</div>
+          </div>
+
+          <!-- Pincode -->
+          <div class="mb-3">
+            <label for="pincode" class="form-label">Pincode</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="pincode" 
+              name="address[pincode]" 
+              placeholder="Enter pincode" 
+              value="<%= address.pincode %>" 
+              required>
+            <div class="invalid-feedback">Please enter a valid 6-digit pincode.</div>
+          </div>
+
+          <!-- Phone -->
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="phone" 
+              name="address[phone]" 
+              placeholder="Enter phone number" 
+              value="<%= address.phone %>" 
+              required>
+            <div class="invalid-feedback">Please enter a valid phone number.</div>
+          </div>
+
+          <!-- Alternate Phone -->
+          <div class="mb-3">
+            <label for="altPhone" class="form-label">Alternate Phone</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="altPhone" 
+              name="address[altPhone]" 
+              placeholder="Enter alternate phone number" 
+              value="<%= address.altPhone %>" 
+              required>
+            <div class="invalid-feedback">Please enter a valid alternate phone number.</div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="d-grid">
+            <button type="submit" class="btn btn-dark">Update Address</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/addAddress.js"></script>

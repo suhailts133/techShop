@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .otp-input {
+      width: 3rem;
+      height: 3rem;
+      font-size: 1.5rem;
+      text-align: center;
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+    }
+    .otp-input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <h3 class="text-center mb-4">Email Verification</h3>
+        <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validateOTPForm()">
+          <div class="d-flex justify-content-between mb-3">
+            <!-- OTP inputs -->
+            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 0)" required>
+            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 1)" required>
+            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 2)" required>
+            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 3)" required>
+            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 4)" required>
+            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 5)" required>
+          </div>
+          <!-- Hidden input to hold the full OTP -->
+          <input type="hidden" id="otp" name="otp">
+          <button type="submit" class="btn btn-dark w-100">Verify OTP</button>
+          <div class="d-flex justify-content-between mt-3">
+            <div id="otpTimer" class="d-flex align-items-center">
+              <span id="timerValue" class="fw-bold">60</span> seconds remaining
+            </div>
+            <button type="button" id="resendOTPButton" class="btn btn-secondary" onclick="resendOTP()" disabled>Resend OTP</button>
+          </div>
+        </form>
+        <div class="text-center mt-3">
+          <p class="text-muted">Already verified? <a href="/login">Login now</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/otp.js"></script>
+</body>
+</html>

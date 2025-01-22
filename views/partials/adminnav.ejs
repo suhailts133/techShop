@@ -1,0 +1,56 @@
+ <!-- Sidebar -->
+ <div class="sidebar">
+    <div class="text-center mb-4">
+        <h4 class="text-light">TechNest</h4>
+    </div>
+    <nav>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/users">Customers</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/categories">Category</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/brands">Brands</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/addProducts">Add Product</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/products">Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/coupon">Coupon</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/banner">Banner</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/orderList">Orders</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/logout">LogOut</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <% if(admin) {%>
+                <span class="navbar-brand"><%= admin.name %></span>
+                <% } else {%>
+                <span class="navbar-brand">noraml name</span>
+                    <% } %>
+            <div class="ms-auto">
+                <a href="/admin/logout" class="btn btn-small btn-danger">Logout</a>
+            </div>
+        </div>
+    </nav>

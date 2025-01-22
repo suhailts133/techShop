@@ -1,0 +1,41 @@
+<% layout("../layouts/profileboilerPlate") %>
+<title><%= title  %></title>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6"> 
+      <h3 class="text-center mb-4">Edit Profile</h3>
+      <form id="editProfile" class="validated-form" method="post" action="/profile/edit" novalidate>
+        <!-- Name -->
+        <div class="mb-3">
+          <label for="name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="name" name="name" required pattern="^[a-zA-Z]+(\s[a-zA-Z]+)*$">
+          <div class="invalid-feedback">
+          </div>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        
+        <!-- Phone -->
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone</label>
+          <input type="text" class="form-control" id="phone" name="phone" required pattern="^\d{10}$">
+          <div class="invalid-feedback">
+            
+          </div>
+          <div class="valid-feedback">
+            Looks good!
+          </div>
+        </div>
+        <!-- Submit Button -->
+        <div class="d-grid">
+          <button type="submit" class="btn btn-dark">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<script src="/js/editProfile.js"></script>
