@@ -44,7 +44,7 @@
                         <th>Product Name</th>
                         <th>Variants</th>
                         <th>Stock Quantity</th>
-                        <th>Price</th>
+                        <th>Regular Price</th>
                         <th>Sale Price</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -68,19 +68,25 @@
                                     <% }) %>
                                 </td>
                                 <td>
-                                    <% let totalQuantity = 0; %>
-                                    <% productData[i].variants.forEach(variant => { %>
-                                        <% totalQuantity += variant.quantity; %>
+                                    <% productData[i].variants.forEach((variant, idx) => { %>
+                                        <div>
+                                            <%= variant.quantity %> <%= idx === 0 ? '' : '' %>
+                                        </div>
                                     <% }) %>
-                                    <%= totalQuantity %>
                                 </td>
                                 <td>
-                                    <% let productPrice = productData[i].variants[0].price; %>
-                                    <%= productPrice %>
+                                    <% productData[i].variants.forEach((variant, idx) => { %>
+                                        <div>
+                                            <%= variant.price %> <%= idx === 0 ? '' : '' %>
+                                        </div>
+                                    <% }) %>
                                 </td>
                                 <td>
-                                    <% let salePrice = productData[i].variants[0].salePrice; %>
-                                    <%= salePrice %>
+                                    <% productData[i].variants.forEach((variant, idx) => { %>
+                                        <div>
+                                            <%= variant.salePrice %> <%= idx === 0 ? '' : '' %>
+                                        </div>
+                                    <% }) %>
                                 </td>
                                 <td>
                                     <% if (productData[i].isBlocked) { %>
@@ -97,10 +103,7 @@
                                     </button>
 
                                     <!-- Manage Variants Button -->
-                                    <button class="btn btn-small btn-info ms-2">
-                                        <a href="/admin/products/manageVariants?id=<%= productData[i]._id %>"
-                                            class="text-decoration-none text-light">Manage Variants</a>
-                                    </button>
+                                    
 
                                     <!-- Block/Unblock Button -->
                                     <% if (productData[i].isBlocked) { %>

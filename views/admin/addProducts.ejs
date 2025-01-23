@@ -17,7 +17,7 @@
         <div class="mb-3">
             <label class="form-label">Brand</label>
             <select class="form-select" name="brand" required>
-                <% for (let i=0; i<brand.length; i++) { %>
+                <% for (let i = 0; i < brand.length; i++) { %>
                     <option value="<%= brand[i].brandName %>"><%= brand[i].brandName %></option>
                 <% } %>
             </select>
@@ -35,7 +35,7 @@
         <div class="mb-3">
             <label class="form-label">Category</label>
             <select class="form-select" name="category" required>
-                <% for (let i=0; i<category.length; i++) { %>
+                <% for (let i = 0; i < category.length; i++) { %>
                     <option value="<%= category[i].name %>"><%= category[i].name %></option>
                 <% } %>
             </select>
@@ -44,31 +44,31 @@
 
         <!-- Variants Section -->
         <div id="variants-container">
-            <div class="variant-section" id="variant1">
+            <div class="variant-section" id="variant0">
                 <h5>Variant 1</h5>
                 <div class="mb-3">
                     <label class="form-label">Color</label>
-                    <input type="text" name="variants[0].color" class="form-control" placeholder="Color" required>
+                    <input type="text" name="variants[0][color]" class="form-control" placeholder="Color" required>
                     <div class="invalid-feedback">Color is required for this variant.</div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Size</label>
-                    <input type="text" name="variants[0].size" class="form-control" placeholder="Size" required>
+                    <input type="text" name="variants[0][size]" class="form-control" placeholder="Size" required>
                     <div class="invalid-feedback">Size is required for this variant.</div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Price</label>
-                    <input type="number" name="variants[0].price" class="form-control" placeholder="Price" required>
+                    <input type="number" name="variants[0][price]" class="form-control" placeholder="Price" required>
                     <div class="invalid-feedback">Price is required for this variant.</div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Sale Price</label>
-                    <input type="number" name="variants[0].salePrice" class="form-control" placeholder="Sale Price" required>
+                    <input type="number" name="variants[0][salePrice]" class="form-control" placeholder="Sale Price" required>
                     <div class="invalid-feedback">Sale Price is required for this variant.</div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Quantity</label>
-                    <input type="number" name="variants[0].quantity" class="form-control" placeholder="Quantity" required>
+                    <input type="number" name="variants[0][quantity]" class="form-control" placeholder="Quantity" required>
                     <div class="invalid-feedback">Quantity is required for this variant.</div>
                 </div>
             </div>
@@ -98,6 +98,7 @@
         <button type="submit" class="btn btn-success mt-4">Submit</button>
     </form>
 </section>
+
 
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 <script src="/js/cropperAndVarients.js"></script>

@@ -47,27 +47,27 @@ const croppers = [];
             <h5>Variant ${variantCount + 1}</h5>
             <div class="mb-3">
                 <label class="form-label">Color</label>
-                <input type="text" name="variants[${variantCount}].color" class="form-control" placeholder="Color" required>
+                <input type="text" name="variants[${variantCount}][color]" class="form-control" placeholder="Color" required>
                 <div class="invalid-feedback">Color is required for this variant.</div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Size</label>
-                <input type="text" name="variants[${variantCount}].size" class="form-control" placeholder="Size" required>
+                <input type="text" name="variants[${variantCount}][size]" class="form-control" placeholder="Size" required>
                 <div class="invalid-feedback">Size is required for this variant.</div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Price</label>
-                <input type="number" name="variants[${variantCount}].price" class="form-control" placeholder="Price" required>
+                <input type="number" name="variants[${variantCount}][price]" class="form-control" placeholder="Price" required>
                 <div class="invalid-feedback">Price is required for this variant.</div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Sale Price</label>
-                <input type="number" name="variants[${variantCount}].salePrice" class="form-control" placeholder="Sale Price" required>
+                <input type="number" name="variants[${variantCount}][salePrice]" class="form-control" placeholder="Sale Price" required>
                 <div class="invalid-feedback">Sale Price is required for this variant.</div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Quantity</label>
-                <input type="number" name="variants[${variantCount}].quantity" class="form-control" placeholder="Quantity" required>
+                <input type="number" name="variants[${variantCount}][quantity]" class="form-control" placeholder="Quantity" required>
                 <div class="invalid-feedback">Quantity is required for this variant.</div>
             </div>
         `;

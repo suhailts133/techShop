@@ -46,9 +46,13 @@ router.get("/brands/unlist", adminCheckAuth, brandController.brandUnlist)
 router.get("/brands/edit", adminCheckAuth, brandController.loadEditBrand);
 router.post("/brands/edit", adminCheckAuth, uploadBrand.single("image"),brandController.editBrand);
 // products
-router.get("/products", productController.productInfo);
-router.get("/products/add", productController.loadAddProductPage);
-router.post("/products/add", uploadProduct.array("images",3), productController.addProduct)
+router.get("/products", adminCheckAuth, productController.productInfo);
+router.get("/products/add", adminCheckAuth, productController.loadAddProductPage);
+router.post("/products/add", adminCheckAuth,  uploadProduct.array("images",3), productController.addProduct)
+router.get("/products/edit" , adminCheckAuth,  productController.editProductPage);
+router.post("/products/edit", adminCheckAuth, uploadProduct.array("images",3), productController.editProduct)
+router.get("/products/unblock", adminCheckAuth, productController.unblockProduct)
+router.get("/products/block", adminCheckAuth,  productController.blockProduct)
 
 router.get("/logout", adminController.logout)
 

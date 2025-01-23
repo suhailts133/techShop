@@ -1,0 +1,109 @@
+<%- layout("../layouts/adminboilerplate") %>
+<title>
+    <%= title %>
+</title>
+
+<section class="container mt-5">
+    <h2 class="text-center">Edit Product - <%= product.productName %></h2>
+    <form method="post" action="/admin/products/edit?id=<%= product._id %>" enctype="multipart/form-data" id="productForm" novalidate>
+        
+        <!-- Product Name -->
+        <div class="mb-3">
+            <label for="product_name" class="form-label">Product Name</label>
+            <input type="text" name="productName" class="form-control" id="product_name" value="<%= product.productName %>" required>
+            <div class="invalid-feedback">Product name is required.</div>
+        </div>
+
+        <!-- Brand -->
+        <div class="mb-3">
+            <label class="form-label">Brand</label>
+            <select class="form-select" name="brand" required>
+                <% brand.forEach(brandItem => { %>
+                    <option value="<%= brandItem.brandName %>" <%= product.brand === brandItem.brandName ? 'selected' : '' %>><%= brandItem.brandName %></option>
+                <% }) %>
+            </select>
+            <div class="invalid-feedback">Brand is required.</div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" rows="4" required><%= product.description %></textarea>
+            <div class="invalid-feedback">Description is required.</div>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="category" required>
+                <% category.forEach(cat => { %>
+                    <option value="<%= cat.name %>" <%= product.category === cat.name ? 'selected' : '' %>><%= cat.name %></option>
+                <% }) %>
+            </select>
+            <div class="invalid-feedback">Category is required.</div>
+        </div>
+
+        <!-- Variants Section -->
+        <div id="variants-container">
+            <% product.variants.forEach((variant, index) => { %>
+                <div class="variant-section" id="variant<%= index %>">
+                    <h5>Variant <%= index + 1 %></h5>
+                    <div class="mb-3">
+                        <label class="form-label">Color</label>
+                        <input type="text" name="variants[<%= index %>][color]" class="form-control" value="<%= variant.color %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Size</label>
+                        <input type="text" name="variants[<%= index %>][size]" class="form-control" value="<%= variant.size %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Price</label>
+                        <input type="number" name="variants[<%= index %>][price]" class="form-control" value="<%= variant.price %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sale Price</label>
+                        <input type="number" name="variants[<%= index %>][salePrice]" class="form-control" value="<%= variant.salePrice %>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" name="variants[<%= index %>][quantity]" class="form-control" value="<%= variant.quantity %>" required>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeVariant(<%= index %>)">Delete Variant</button>
+                    <hr>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Button to Add More Variants -->
+        <button type="button" class="btn btn-secondary" onclick="addVariant()">Add More Variants</button>
+
+        <!-- Image Upload -->
+        <div>
+            <label class="form-label">Upload Images (Max: 3)</label>
+            <div id="imageUploads">
+                <% for (let i = 1; i <= 3; i++) { %>
+                    <div class="image-upload-container">
+                        <% if (product.productImage[i - 1]) { %>
+                            <div class="current-image">
+                                <img src="/uploads/products/<%= product.productImage[i - 1] %>" alt="Current image" class="img-fluid" style="max-width: 200px; margin-bottom: 10px;">
+                                <button type="button" class="btn btn-danger" onclick="removeImage(<%= i - 1 %>)">Remove Image</button>
+                            </div>
+                        <% } %>
+                        <input class="form-control" type="file" name="images" id="input<%= i %>" accept="image/png, image/jpeg, image/webp" onchange="initializeCropper(<%= i %>)">
+                        <div class="image-crop-container" id="crop-container<%= i %>">
+                            <img id="crop-image<%= i %>" class="img-fluid">
+                            <button type="button" class="btn btn-primary mt-2" onclick="saveCrop(<%= i %>)">Save</button>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-success mt-4">Update Product</button>
+    </form>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+<script src="/js/editproduct.js"></script>
+<script src="/js/productValidation.js"></script>
