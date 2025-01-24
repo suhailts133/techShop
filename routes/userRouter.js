@@ -6,6 +6,8 @@ const router = express.Router();
 // controllers
 const userController = require("../controllers/user/userController.js");
 const forgetPasswordController = require("../controllers/user/forgetPasswordController.js")
+const productController = require("../controllers/user/productController.js")
+const checkOutController = require("../controllers/user/checkOutController.js")
 const { checkAuth } = require("../middlewares/auth.js")
 
 // home route
@@ -42,6 +44,17 @@ router.post("/forgetPassowordOtp", forgetPasswordController.verifyForgetPassword
 router.get("/changePassword", forgetPasswordController.changePasswordpage);
 router.post("/changePassword", forgetPasswordController.changePassword);
 
+// product Details
+router.get("/productDetails", productController.getProductDetails);
+router.post("/updateVariant", productController.updateVariantDetails)
+// add to cart
+router.post("/addToCart", productController.addToCart);
+//checkout
+router.get("/checkout", checkOutController.loadCheckOutPage)
+router.post("/checkout", checkOutController.checkOut)
+
+
+router.get("/orders", checkOutController.orderConfirmed)
 
 router.get("/pageNotFound", userController.pageError)
 module.exports = router

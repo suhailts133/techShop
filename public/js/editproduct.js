@@ -19,8 +19,8 @@ function initializeCropper(index) {
 
             // Initialize a new cropper for the selected image
             croppers[index] = new Cropper(image, {
-                aspectRatio: 13 / 17, // Adjust aspect ratio if needed
-                viewMode: 1,
+                aspectRatio: NaN, // Adjust aspect ratio if needed
+                // viewMode: 1,
             });
         };
         reader.readAsDataURL(input.files[0]);

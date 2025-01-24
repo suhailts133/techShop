@@ -16,8 +16,8 @@ const croppers = [];
                 }
 
                 croppers[index] = new Cropper(image, {
-                    aspectRatio: 13/17,
-                    viewMode: 1,
+                    aspectRatio: NaN,
+                    // viewMode: 1,
                 });
             };
             reader.readAsDataURL(input.files[0]);

@@ -1,0 +1,62 @@
+<% layout("../layouts/profileboilerPlate") %>
+<title><%= title %></title>
+
+<div class="content">
+    <div class="container mt-5">
+        <h1 class="mb-4">Your Orders</h1>
+
+        <% if (orders.length > 0) { %>
+            <div class="row">
+                <% orders.forEach(order => { %>
+                    <% order.items.forEach(item => { %>
+                        <div class="col-12 mb-4">
+                            <div class="card shadow-sm">
+                                <div class="row g-0 align-items-center">
+                                    <!-- Product Image -->
+                                    <div class="col-3 col-md-2">
+                                        <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>">
+                                            <img src="/uploads/products/<%= item.productId.productImage[0] %>" 
+                                                 class="img-fluid rounded-start" 
+                                                 alt="<%= item.productId.productName %>" 
+                                                 style="max-width: 100%; height: auto;">
+                                        </a>
+                                    </div>
+
+                                    <!-- Product Details -->
+                                    <div class="col-6 col-md-8">
+                                        <div class="card-body">
+                                            <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>" class="text-decoration-none text-dark">
+                                                <h5 class="card-title"><%= item.productId.productName %></h5>
+                                            </a>
+                                            <p class="mb-2"><strong>Variant:</strong> <%= item.variantDetails.color %> - <%= item.variantDetails.size %></p>
+                                            <p class="mb-0"><strong>Quantity:</strong> <%= item.quantity %></p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Status -->
+                                    <div class="col-3 col-md-2 text-center">
+                                        <span class="badge 
+                                            <%= order.orderStatus === 'Pending' ? 'bg-warning text-dark' : '' %>
+                                            <%= order.orderStatus === 'Shipped' ? 'bg-info text-white' : '' %>
+                                            <%= order.orderStatus === 'Delivered' ? 'bg-success text-white' : '' %>
+                                            <%= order.orderStatus === 'Return Requested' ? 'bg-secondary text-white' : '' %>
+                                            <%= order.orderStatus === 'Return Accepted' ? 'bg-danger text-white' : '' %>
+                                            <%= order.orderStatus === 'Returned' ? 'bg-primary text-white' : '' %>">
+                                            <%= order.orderStatus %>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p class="text-center">You have no orders yet.</p>
+        <% } %>
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
+</div>

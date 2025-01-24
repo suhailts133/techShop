@@ -1,0 +1,39 @@
+<%- layout("../layouts/adminboilerplate") %>
+<title>
+    <%= title %>
+</title>
+
+<div class="container mt-5">
+  <h2>Order Details - <%= order.orderId %></h2>
+  <p><strong>User:</strong> <%= order.userId.name %></p>
+  <p><strong>Shipping Address:</strong> <%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></p>
+  <p><strong>Status:</strong> <%= order.orderStatus %></p>
+
+  <h4>Items:</h4>
+  <ul class="list-group">
+    <% order.items.forEach(item => { %>
+      <li class="list-group-item">
+        <strong><%= item.productId.productName %></strong> - Qty: <%= item.quantity %> - ₹<%= item.price.toFixed(2) %>
+      </li> 
+    <% }) %>
+  </ul>
+
+  <% if(order.orderStatus === "Return Requested") {%>
+    <h2>Return Reason</h2>
+    <p><strong>Resaon</strong> <%= order.returnReason%></p>
+    <%}%>
+
+  <h4 class="mt-4">Update Status</h4>
+  <form action="/admin/orders/view/update?id=<%= order._id %>" method="POST">
+    <select name="status" class="form-select">
+      <option value="Pending" <%= order.orderStatus === "Pending" ? "selected" : "" %>>Pending</option>
+      <option value="Shipped" <%= order.orderStatus === "Shipped" ? "selected" : "" %>>Shipped</option>
+      <option value="Delivered" <%= order.orderStatus === "Delivered" ? "selected" : "" %>>Delivered</option>
+      <option value="Return Accepted" <%= order.orderStatus === "Return Accepted" ? "selected" : "" %>>Return Accepted</option>
+      <option value="Returned" <%= order.orderStatus === "Returned" ? "selected" : "" %>>Returned</option>
+    </select>
+    <button type="submit" class="btn btn-primary mt-3">Update Status</button>
+  </form>
+</div>
+
+

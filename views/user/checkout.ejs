@@ -1,0 +1,92 @@
+<% layout("../layouts/boilerplate") %>
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Checkout</h2>
+    <form action="/checkout" method="POST">
+        <div class="row">
+            <!-- Left Section: Address and Payment -->
+            <div class="col-lg-8">
+                <!-- Shipping Address Section -->
+                <div class="mb-4">
+                    <h4 class="mb-3">Shipping Address</h4>
+                    <% if (user.address && user.address.length > 0) { %>
+                        <div class="address-list">
+                            <% user.address.forEach(address => { %>
+                                <div class="address-card border rounded p-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label>
+                                            <input 
+                                                type="radio" 
+                                                name="shippingAddress" 
+                                                value="<%= address._id %>" 
+                                                class="form-check-input me-2"
+                                                required
+                                            >
+                                            <strong><%= address.addressType %></strong>
+                                        </label>
+                                        <a href="/profile/address/edit?addressId=<%= address._id %>" class="btn btn-sm btn-secondary">Edit</a>
+                                    </div>
+                                    <p class="mb-1">
+                                        <%= address.houseAddress %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                                    </p>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <div class="no-address text-center border p-4 rounded">
+                            <h5 class="mb-3">No address found</h5>
+                            <p class="mb-3">You need to add an address to proceed with the checkout.</p>
+                            <a href="/profile/address" class="btn btn-primary">Add Address</a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Payment Method Section -->
+                <div>
+                    <h4 class="mb-3">Payment Method</h4>
+                    <div class="payment-methods">
+                        <div class="form-check mb-2">
+                            <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input" checked>
+                            <label for="cod" class="form-check-label">Cash on Delivery</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input type="radio" name="paymentMethod" value="Card" id="card" class="form-check-input">
+                            <label for="card" class="form-check-label">Credit/Debit Card</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="paymentMethod" value="UPI" id="upi" class="form-check-input">
+                            <label for="upi" class="form-check-label">UPI</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: Order Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary p-4 border rounded">
+                    <h4 class="mb-4 text-center">Order Summary</h4>
+                    <ul class="list-group mb-3">
+                        <% cart.items.forEach(item => { %>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong><%= item.productId.productName %></strong>
+                                    <div class="text-muted small">Qty: <%= item.quantity %></div>
+                                </div>
+                                <span class="fw-bold">₹<%= item.totalPrice.toFixed(2) %></span>
+                            </li>
+                        <% }) %>
+                    </ul>
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                        <strong class="fs-5">Total:</strong>
+                        <strong class="fs-5">₹<%= cart.totalAmount.toFixed(2) %></strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="mt-4 text-center">
+            <button type="submit" class="btn btn-success btn-lg">Place Order</button>
+        </div>
+    </form>
+</div>

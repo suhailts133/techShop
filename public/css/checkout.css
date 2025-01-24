@@ -1,0 +1,151 @@
+/* General Styles for Checkout Page */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h2, h4 {
+    color: #333;
+}
+
+/* Order Summary Section */
+.order-summary {
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.order-summary h4 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.order-summary .list-group-item {
+    border: none;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-summary .list-group-item strong {
+    font-size: 1rem;
+    color: #333;
+}
+
+.order-summary .list-group-item .text-muted {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.order-summary .list-group-item + .list-group-item {
+    border-top: 1px solid #ddd;
+}
+
+.order-summary .bg-light {
+    background-color: #f8f9fa !important;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #000;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+/* Shipping Address Section */
+.address-card {
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.address-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.address-card label {
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+}
+
+.no-address {
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Payment Method Section */
+.payment-methods {
+    margin-top: 15px;
+}
+
+.payment-methods .form-check {
+    margin-bottom: 10px;
+}
+
+.payment-methods .form-check-input {
+    margin-right: 10px;
+}
+
+.payment-methods .form-check-label {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Buttons */
+.btn {
+    font-size: 1rem;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-transform: uppercase;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Layout and Responsiveness */
+@media (max-width: 768px) {
+    .order-summary {
+        margin-top: 20px;
+    }
+
+    .address-card {
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}

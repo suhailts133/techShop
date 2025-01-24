@@ -1,5 +1,7 @@
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt")
+const Category = require("../../models/categorySchema.js");
+const Product = require("../../models/productSchema.js")
 
 // external files and functions
 const User = require("../../models/userSchema.js") // user model
@@ -8,8 +10,21 @@ const { generateOtp, securePassword, sendVerificationEmail } = require("../../he
 // load homepage
 const loadHomePage = async (req, res) => {
     try {
+        const categories = await Category.find({ isListed: true });
+        let ProductData = await Product.find({
+            isBlocked: false,
+            category: { $in: categories.map(category => category._id) },
+            variants: { $elemMatch: { quantity: { $gt: 0 } } }
+
+        })
         console.log("session from loadhome", req.session.user)
-        res.render("home", { user: req.session.user || null, title:"home" });
+
+        if (req.session.user) {
+            return res.render("home", { user: req.session.user || null, title: "home", products: ProductData });
+        }else{
+            return res.render("home", { title: "home", products: ProductData });
+            
+        }
     } catch (error) {
         console.log("error while loading the home page", error.message)
         res.redirect("/pageNotFound");
@@ -19,7 +34,7 @@ const loadHomePage = async (req, res) => {
 // loading registration page
 const loadSignup = async (req, res) => {
     try {
-        return res.render('signup', {title:"Sign up"})
+        return res.render('signup', { title: "Sign up" })
     } catch (error) {
         console.log("Sign up page loading error", error.message);
         res.status(500).send("Server error")
@@ -54,9 +69,9 @@ const signup = async (req, res) => {
             return res.json("email-error");
         }
         // set otp in the session after sending the otp use this for otp verification
-        req.session.userOtp = otp;  
+        req.session.userOtp = otp;
         // set userdata in the session so that it can be use adding to db after otp verification
-        req.session.userData = { name, phone, email, password };  
+        req.session.userData = { name, phone, email, password };
 
         res.redirect("/otp");  // redirect to otp page
         console.log("otp sent", otp)
@@ -81,11 +96,11 @@ const verifyOtp = async (req, res) => {
         const { otp } = req.body;
         console.log("verify otp for new user")
         // check the otp form the otp page with the otp in the session
-        if (otp === req.session.userOtp) { 
+        if (otp === req.session.userOtp) {
             const user = req.session.userData;  // user data form the session
             const passwordHash = await securePassword(user.password);  // hash the password using secure fn
             // add the new user in db 
-            const newUser = new User({ 
+            const newUser = new User({
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
@@ -94,7 +109,7 @@ const verifyOtp = async (req, res) => {
             });
             await newUser.save();  // save the user
             // Set user session 
-            req.session.user = { id: newUser._id, name: newUser.name, email:newUser.email};  //name is used for displaying username
+            req.session.user = { id: newUser._id, name: newUser.name, email: newUser.email };  //name is used for displaying username
             console.log("session from verify otp", req.session.user)
             req.session.userOtp = null;   // destroying the session  otp
             req.session.userData = null;  // destroying the session  userData
@@ -132,7 +147,7 @@ const resendOtp = async (req, res) => {
 // load login page
 const loadLogin = async (req, res) => {
     try {
-        res.render("login", {title:"login"})
+        res.render("login", { title: "login" })
     } catch (error) {
         console.error("error while loadin login page", error.message)
         res.redirect("/pageNotFound");
@@ -153,7 +168,7 @@ const login = async (req, res) => {
         }
         /* if the user is signed in with google there wont be any password stored in the db for the particular user
         so check wheather the particular user has a password */
-        if (!findUser.password) {  
+        if (!findUser.password) {
             req.flash("error", "incorrect credential if you are using google login/signup use google login");
             return res.redirect("/login")
         }
@@ -162,7 +177,7 @@ const login = async (req, res) => {
             req.flash("error", "incorrect credential if you are using google login/signup use google login")
             return res.redirect("/login");
         }
-        req.session.user = { id: findUser._id, name: findUser.name };  // set the user details in the session name is used for the home page
+        req.session.user = { id: findUser._id, name: findUser.name, email:findUser.email};  // set the user details in the session name is used for the home page
         console.log("session from login", req.session.user)
         res.redirect("/");
     } catch (error) {
@@ -195,7 +210,7 @@ const pageError = async (req, res) => {
     try {
         res.render("page-404");
     } catch (error) {
-        console.log("error while loading the page 404 page",error.message
+        console.log("error while loading the page 404 page", error.message
         )
     }
 }

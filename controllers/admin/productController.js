@@ -4,18 +4,18 @@ const Brand = require("../../models/brandSchema.js");
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
-const { json } = require("stream/consumers");
+
 
 const productInfo = async (req, res) => {
     try {
         let search = "";
-        if (req.query.search) {  
+        if (req.query.search) {
             search = req.query.search;
         }
         // pagination
         const page = parseInt(req.query.page) || 1;
-        const limit = 5;  
-        const skip = (page - 1) * limit;  
+        const limit = 5;
+        const skip = (page - 1) * limit;
 
         const productData = await Product.find({
             $or: [   // search for a user 
@@ -24,13 +24,13 @@ const productInfo = async (req, res) => {
         })
             .skip(skip)
             .limit(limit)
-            .sort({createdAt:-1})
+            .sort({ createdAt: -1 })
             .lean()
 
-            console.log(JSON.stringify(productData, null, 2))
-        const totalCount = await Category.countDocuments();  
-        const totalPages = Math.ceil(totalCount / limit);   
-        
+        console.log(JSON.stringify(productData, null, 2))
+        const totalCount = await Product.countDocuments();
+        const totalPages = Math.ceil(totalCount / limit);
+
         res.render("products", {
             admin: req.session.admin,
             title: "products",
@@ -46,11 +46,11 @@ const productInfo = async (req, res) => {
 
 const loadAddProductPage = async (req, res) => {
     try {
-        const brand = await Brand.find({isListed:true});
-        const category = await Category.find({isListed:true})
-        res.render("addProducts", {title:"Add Product",brand,category})
+        const brand = await Brand.find({ isListed: true });
+        const category = await Category.find({ isListed: true })
+        res.render("addProducts", { title: "Add Product", brand, category })
     } catch (error) {
-        console.log("error while loadin add new product page",error.message)
+        console.log("error while loadin add new product page", error.message)
     }
 }
 
@@ -83,7 +83,7 @@ const addProduct = async (req, res) => {
 
                 try {
                     await sharp(originalImagePath)
-                        .resize({ width: 440, height: 440 })
+                        .resize({ width: 600, height: 600, fit: "cover" })
                         .toFile(resizedImagePath);
 
                     images.push(uniqueFilename);
@@ -145,7 +145,7 @@ const editProductPage = async (req, res) => {
             brand: brands
         });
     } catch (error) {
-        console.error("error while loadin edit product page",error.message);
+        console.error("error while loadin edit product page", error.message);
         res.status(500).send('Server error');
     }
 };
@@ -195,7 +195,7 @@ const editProduct = async (req, res) => {
 
                 try {
                     await sharp(originalImagePath)
-                        .resize({ width: 440, height: 440 })
+                        .resize({ width: 600, height: 600, fit: "cover" })
                         .toFile(resizedImagePath);
 
                     images.push(uniqueFilename);

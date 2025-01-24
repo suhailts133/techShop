@@ -1,0 +1,33 @@
+<% layout("../layouts/boilerplate") %>
+
+<div class="container mt-5">
+  <!-- Order Confirmation Title -->
+  <div class="text-center mb-4">
+    <h1 class="display-4">Thank You for Shopping with Us!</h1>
+  </div>
+
+  <!-- Order Details Section -->
+  <div class="card p-4 shadow-sm mb-5">
+    <div class="card-body">
+      <h2 class="card-title text-center mb-3">Order ID: <%= order.orderId %></h2>
+      <h4 class="card-subtitle text-center mb-4">Order Total: ₹<%= order.totalAmount.toFixed(2) %></h4>
+
+      <h5><strong>Shipping Address:</strong></h5>
+      <p><%= order.shippingAddress.addressType %></p>
+        <p><%= order.shippingAddress.houseAddress %>,<%= order.shippingAddress.landMark %></p>
+      <p>State: <%= order.shippingAddress.state %></p>
+      <p>Pincode: <%= order.shippingAddress.pincode %></p>
+    </div>
+  </div>
+
+  <!-- Thank You Message -->
+  <div class="text-center mt-5">
+    <p class="lead">Thank you for your purchase! Your order is being processed and will be shipped soon. We appreciate your business.</p>
+    <p>If you have any questions, feel free to <a href="/contact">contact us</a>.</p>
+  </div>
+
+  <!-- Button to Home Page -->
+  <div class="text-center mt-4">
+    <a href="/" class="btn btn-primary btn-lg">Back to Home</a>
+  </div>
+</div>
