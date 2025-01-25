@@ -1,0 +1,112 @@
+<% layout("../layouts/boilerplate") %>
+<title><%= title %></title>
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- Filter Sidebar -->
+    <div class="col-md-3">
+      <a href="/shop" type="button" class="btn btn-warning btn-sm text-light">Reset filter</a>
+      
+      <!-- Categories Section -->
+      <div class="mb-4">
+        <h5>Categories</h5>
+        <ul class="list-group">
+          <% for (let i = 0; i < category.length; i++) { %>
+            <li class="list-group-item">
+              <a href="/filter?category=<%= category[i]._id%>" class="text-decoration-none text-dark"><%= category[i].name %></a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+
+      <!-- Brands Section -->
+      <div class="mb-4">
+        <h5>Brands</h5>
+        <ul class="list-group">
+          <% for (let i = 0; i < brand.length; i++) { %>
+            <li class="list-group-item">
+              <a href="/filter?brand=<%= brand[i]._id%>" class="text-decoration-none text-dark"><%= brand[i].brandName %></a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+
+      <!-- Sort by Price & Name Section -->
+      <div class="mb-4">
+        <h5>Sort By</h5>
+        <form action="/filter" method="GET">
+          <div class="btn-group-vertical w-100">
+            <button type="submit" name="sort" value="price-asc" class="btn btn-outline-dark">Sort by Price: Low to High</button>
+            <button type="submit" name="sort" value="price-desc" class="btn btn-outline-dark">Sort by Price: High to Low</button>
+            <button type="submit" name="sort" value="name-asc" class="btn btn-outline-dark">Sort by Name: A-Z</button>
+            <button type="submit" name="sort" value="name-desc" class="btn btn-outline-dark">Sort by Name: Z-A</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Products Section -->
+    <div class="col-md-9">
+      <div class="row">
+        <% if (products.length > 0) { %>
+          <% products.forEach(product => { %>
+            <div class="col-md-4 mb-4">
+              <div class="card">
+                <a href="/productDetails?id=<%= product._id %>">
+                  <img src="/uploads/products/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>">
+                </a>
+                <div class="card-body">
+                  <h6 class="card-title"><%= product.productName %></h6>
+                  <% if (product.variants && product.variants.length > 0) { 
+                    const variant = product.variants.find(v => v.quantity > 0); 
+                    if (variant) { %>
+                      <p class="card-text">
+                        <span class="text-success">₹<%= variant.salePrice %></span> 
+                        <span class="text-danger"><s>₹<%= variant.price %></s></span>
+                      </p>
+                  <% } } %>
+                  <button class="btn btn-light btn-sm" title="Add to Wishlist">
+                    <i class="bi bi-heart"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <p class="text-center">No products found!</p>
+        <% } %>
+      </div>
+
+      <!-- Pagination -->
+      <<!-- Pagination -->
+<div class="row mt-3">
+  <div class="col-12 d-flex justify-content-center">
+    <nav>
+      <ul class="pagination">
+        <% if (page > 1) { %>
+          <li class="page-item">
+            <a class="page-link" href="/shop?page=<%= page - 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        <% } %>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= page === i ? 'active' : '' %>">
+            <a class="page-link" href="/shop?page=<%= i %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>"><%= i %></a>
+          </li>
+        <% } %>
+        <% if (page < totalPages) { %>
+          <li class="page-item">
+            <a class="page-link" href="/shop?page=<%= page + 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+    </div>
+  </div>
+</div>

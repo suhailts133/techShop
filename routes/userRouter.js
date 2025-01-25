@@ -8,10 +8,14 @@ const userController = require("../controllers/user/userController.js");
 const forgetPasswordController = require("../controllers/user/forgetPasswordController.js")
 const productController = require("../controllers/user/productController.js")
 const checkOutController = require("../controllers/user/checkOutController.js")
+const shoppingPageController = require("../controllers/user/shoppingPageController.js")
 const { checkAuth } = require("../middlewares/auth.js")
 
 // home route
 router.get("/", userController.loadHomePage);
+// shop page
+router.get("/shop", shoppingPageController.loadShoppingPage)
+router.get("/filter", shoppingPageController.filterProducts)
 // signup route
 router.get("/signup", checkAuth, userController.loadSignup)
 router.post("/signup", userController.signup)
