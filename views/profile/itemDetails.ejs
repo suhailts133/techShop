@@ -1,0 +1,45 @@
+<% layout("../layouts/profileboilerPlate") %>
+<title><%= title %></title>
+
+<div class="content">
+    <div class="container mt-5">
+        <h1 class="mb-4">Order Item Details</h1>
+
+        <!-- Item Details -->
+        <div class="mb-4">
+            <h5>Product: <%= item.productId.productName %></h5>
+            <img src="/uploads/products/<%= item.productId.productImage[0] %>" class="img-fluid" style="max-width: 200px;">
+            
+            <!-- Check if variantDetails exists -->
+            <% if (item.variantDetails && item.variantDetails.color) { %>
+                <p><strong>Variant:</strong> Color: <%= item.variantDetails.color %>, Size: <%= item.variantDetails.size %></p>
+            <% } else { %>
+                <p><strong>Variant:</strong> N/A</p>
+            <% } %>
+            
+            <p><strong>Quantity:</strong> <%= item.quantity %></p>
+            <p><strong>Price:</strong> ₹<%= item.price.toFixed(2) %></p>
+            <p><strong>status:</strong> <%= item.orderStatus %></p>
+
+        </div>
+
+        <!-- Return Request Form (only if item status is Delivered) -->
+        <% if (item.orderStatus === "Delivered") { %>
+            <div class="mb-4">
+                <h5>Request a Return</h5>
+                <form action="/profile/orders/returnItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for Return</label>
+                        <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Submit Return Request</button>
+                </form>
+            </div>
+        <% } %>
+
+        <!-- Back to Orders -->
+        <div class="text-center mt-4">
+            <a href="/profile/orders" class="btn btn-secondary">Back to Orders</a>
+        </div>
+    </div>
+</div>

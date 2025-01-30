@@ -22,6 +22,10 @@ const forgetPasswordOtpSend = async (req, res) => {
             req.flash("error", "user does not exist please sign up");
             return res.redirect("/signup");
         }
+        if(!findUser.password){
+            req.flash("error", "This account is signed up with google");
+            return res.redirect("/login");
+        }
         const otp = generateOtp(); // generate the otp
 
         const emailSent = await sendVerificationEmail(email, otp); // send otp to the mail 

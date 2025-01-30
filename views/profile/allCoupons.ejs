@@ -1,0 +1,82 @@
+<% layout("../layouts/profileboilerPlate") %>
+    <title>
+        <%= title %>
+    </title>
+
+
+    <div class="content">
+        <div class="container mt-5">
+            
+  <% if (coupons.length === 0) { %>
+    <div class="alert alert-info">You don't have any coupons available</div>
+  <% } else { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <% coupons.forEach(coupon => { %>
+        <div class="col">
+          <div class="card h-100 <%= coupon.status === 'Used' ? 'bg-light' : coupon.status === 'Expired' ? 'border-danger' : 'border-success' %>">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0"><%= coupon.code %></h5>
+                <span class="badge <%= coupon.status === 'Used' ? 'bg-secondary' : coupon.status === 'Expired' ? 'bg-danger' : 'bg-success' %>">
+                  <%= coupon.status %>
+                </span>
+              </div>
+              
+              <div class="mb-3">
+                <div class="fw-bold">Discount:</div>
+                ₹<%= coupon.discount %>
+              </div>
+              
+              <div class="mb-3">
+                <div class="fw-bold">Minimum Purchase:</div>
+                ₹<%= coupon.minPurchase %>
+              </div>
+              
+              <div class="text-muted small">
+                <% if (coupon.status === 'Active') { %>
+                  Expires: <%= moment(coupon.expiresAt).format('MMM Do YYYY') %>
+                <% } else if (coupon.status === 'Expired') { %>
+                  Expired: <%= moment(coupon.expiresAt).format('MMM Do YYYY') %>
+                <% } %>
+              </div>
+              <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal" onclick="deleteCoupon('<%= coupon.couponI %>')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+        </div>
+    </div>
+
+
+
+    
+    <!-- Delete Confirmation Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this address? This action cannot be undone.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function deleteCartItem(itemId) {
+                const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+                confirmDeleteBtn.href = `#`;
+            }
+        </script>

@@ -8,6 +8,8 @@ const customerController = require("../controllers/admin/customerController.js")
 const categoryController = require("../controllers/admin/categoryController.js")
 const brandController = require("../controllers/admin/brandController.js")
 const productController = require("../controllers/admin/productController.js")
+const couponController = require("../controllers/admin/couponController.js")
+
 // authentication middlewares
 const {adminCheckAuth, adminCheckAuthLogin} = require("../middlewares/auth.js")
 // multer 
@@ -19,7 +21,7 @@ const uploadProduct = multer({storage:storage.storageForProducts})
 
 // login loading
 router.get("/", adminCheckAuthLogin, adminController.adminLoadLogin);
-router.post("/", adminController.adminLogin);
+router.post("/",adminCheckAuthLogin, adminController.adminLogin);
 
 router.get("/dashboard", adminCheckAuth, adminController.loadDashboard)
 
@@ -30,36 +32,48 @@ router.get("/users/unBlockCustomer",adminCheckAuth, customerController.customerU
 
 // category routes
 
-router.get("/categories",  categoryController.categoryInfo) // displaying category data
-router.get("/categories/add",  categoryController.loadAddCategory) // loadin the add category
-router.post("/categories/add", categoryController.addCategory) // addin the category
-router.get("/categories/unlist", categoryController.categoryUnlist)  // unlist a category
-router.get("/categories/list",  categoryController.categoryList)  // list a category
-router.get("/categories/edit",  categoryController.loadEditCategory);
-router.post("/categories/edit",  categoryController.editCategory);
+router.get("/categories",  adminCheckAuth, categoryController.categoryInfo) // displaying category data
+router.get("/categories/add", adminCheckAuth, categoryController.loadAddCategory) // loadin the add category
+router.post("/categories/add", adminCheckAuth, categoryController.addCategory) // addin the category
+router.get("/categories/unlist", adminCheckAuth, categoryController.categoryUnlist)  // unlist a category
+router.get("/categories/list", adminCheckAuth, categoryController.categoryList)  // list a category
+router.get("/categories/edit", adminCheckAuth, categoryController.loadEditCategory);  
+router.post("/categories/edit", adminCheckAuth, categoryController.editCategory);
 
 // brands
-router.get("/brands",  brandController.brandInfo);
-router.get("/brands/add",  brandController.loadAddBrandPage)
-router.post("/brands/add", uploadBrand.single("image"), brandController.addBrand)
-router.get("/brands/list", brandController.brandList)
-router.get("/brands/unlist", brandController.brandUnlist)
-router.get("/brands/edit",  brandController.loadEditBrand);
-router.post("/brands/edit",  uploadBrand.single("image"),brandController.editBrand);
+router.get("/brands",  adminCheckAuth,brandController.brandInfo);
+router.get("/brands/add", adminCheckAuth, brandController.loadAddBrandPage)
+router.post("/brands/add", adminCheckAuth,uploadBrand.single("image"), brandController.addBrand)
+router.get("/brands/list",adminCheckAuth, brandController.brandList)
+router.get("/brands/unlist",adminCheckAuth, brandController.brandUnlist)
+router.get("/brands/edit", adminCheckAuth, brandController.loadEditBrand);
+router.post("/brands/edit",adminCheckAuth,  uploadBrand.single("image"),brandController.editBrand);
 // products
-router.get("/products", productController.productInfo);
-router.get("/products/add" , productController.loadAddProductPage);
-router.post("/products/add",   uploadProduct.array("images",3), productController.addProduct)
-router.get("/products/edit" ,  productController.editProductPage);
-router.post("/products/edit", uploadProduct.array("images",3), productController.editProduct)
-router.get("/products/unblock", productController.unblockProduct)
-router.get("/products/block",  productController.blockProduct)
+router.get("/products", adminCheckAuth, productController.productInfo);
+router.get("/products/add" , adminCheckAuth, productController.loadAddProductPage);
+router.post("/products/add", adminCheckAuth,  uploadProduct.array("images",3), productController.addProduct)
+router.get("/products/edit" , adminCheckAuth, productController.editProductPage);
+router.post("/products/edit",  adminCheckAuth, uploadProduct.array("images",3), productController.editProduct)
+router.get("/products/unblock", adminCheckAuth, productController.unblockProduct)
+router.get("/products/block", adminCheckAuth, productController.blockProduct)
 
 // order Mangemnet;
-router.get("/orders", orderController.orderManagment);
-router.get("/orders/view", orderController.orderDetails)
-router.post("/orders/view/update", orderController.updateStatus)
+router.get("/orders",adminCheckAuth, orderController.orderManagment);  
+router.get("/orders/view",adminCheckAuth, orderController.orderDetails)
+router.post("/orders/view/update", adminCheckAuth, orderController.updateStatus)  // to update the staus of the entire order
+router.get("/orders/itemDetails", adminCheckAuth, orderController.itemDetails)
+router.post("/orders/itemDetails/update", adminCheckAuth, orderController.updateItemStatus)  // to update the status of a single order item
 
 router.get("/logout", adminController.logout)
+
+// coupon 
+router.get("/coupon", couponController.allCoupons);
+router.get("/coupon/add", couponController.loadAddCoupon);
+router.post("/coupon/add", couponController.addCoupon);
+router.get("/coupon/edit", couponController.loadEditCoupon);
+router.post("/coupon/edit", couponController.editCoupon);
+router.get("/coupon/activate", couponController.toggleCouponStatus);
+router.get("/coupon/deactivate", couponController.toggleCouponStatus);
+router.get("/coupon/delete", couponController.deleteCoupon);
 
 module.exports = router

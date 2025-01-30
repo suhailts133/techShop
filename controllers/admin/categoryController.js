@@ -75,7 +75,7 @@ const loadAddCategory = async (req, res) => {
 
 const addCategory = async (req, res) => {
     try {
-        const { name, description } = req.body;
+        const { name, description,categoryOffer } = req.body;
         const trimmedName = name?.trim() || "";
         const trimmedDescription = description?.trim() || "";
 
@@ -86,6 +86,10 @@ const addCategory = async (req, res) => {
        
         if (trimmedName.length < 3 || trimmedDescription.length < 3) {
             req.flash("error", "Name and description must be at least 3 characters long");
+            return res.redirect("/admin/categories/add");
+        }
+        if(categoryOffer < 0){
+            req.flash("error", "category offer must be either zero or a positive number")
             return res.redirect("/admin/categories/add");
         }
 
@@ -99,7 +103,8 @@ const addCategory = async (req, res) => {
 
         const newCategory = new Category({
             name: loweredName,
-            description: trimmedDescription
+            description: trimmedDescription,
+            categoryOffer: categoryOffer
         });
         await newCategory.save();
 
@@ -125,7 +130,7 @@ const loadEditCategory = async (req, res) => {
 const editCategory = async (req, res) => {
     try {
         const { id } = req.query;
-        const { name, description } = req.body;
+        const { name, description, categoryOffer  } = req.body;
         if (!name.trim() || !description.trim()) {
             req.flash("error", "name or description is empty")
             return res.redirect(`/admin/categories/edit?id=${id}`);
@@ -138,9 +143,14 @@ const editCategory = async (req, res) => {
             req.flash("error", "category already exists")
             return res.redirect(`/admin/categories/edit?id=${id}` );
         }
+        if(categoryOffer < 0){
+            req.flash("error", "category offer must be either zero or a positive number")
+            return res.redirect(`/admin/categories/edit?id=${id}` );
+        }
         await Category.findByIdAndUpdate(id, {
             name: name.trim(),
             description: description.trim(),
+            categoryOffer: categoryOffer
         });
         req.flash("success", "added new category")
         res.redirect('/admin/categories');
@@ -153,10 +163,6 @@ const editCategory = async (req, res) => {
 
 
 
-// const editCategory = async (req, res) => {
-//     const {id} = req.query;
-//     const {}
-// }
 
 module.exports = {
     categoryInfo,

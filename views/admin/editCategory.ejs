@@ -1,4 +1,4 @@
-<% layout("../layouts/boilerplate") %>
+<% layout("../layouts/adminboilerplate") %>
 <title><%= title  %></title>
 
 <div class="container mt-5">
@@ -40,6 +40,18 @@
                             ><%= categoryData.description %></textarea>
                             <div class="invalid-feedback">
                                 Please provide a description for the category.
+                            </div>
+                            <div class="valid-feedback">
+                                Looks good!
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="categoryOffer" class="form-label">Category Offer in %</label>
+                            <input type="number" name="categoryOffer" class="form-control" id="categoryOffer" value="<%= categoryData.categoryOffer %>" required>
+                            <div class="invalid-feedback">category offer is required.</div>
+                            <div class="invalid-feedback">
+                                Please provide category offer
                             </div>
                             <div class="valid-feedback">
                                 Looks good!

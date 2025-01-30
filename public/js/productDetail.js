@@ -2,8 +2,6 @@
 function updateMainImage(imagePath) {
     document.getElementById('main-image').src = imagePath;
 }
-
-// Handle variant selection
 function updateVariantDetails() {
     const variantSelect = document.getElementById('variant');
     const variantId = variantSelect.value;
@@ -23,16 +21,42 @@ function updateVariantDetails() {
             // Update price, regular price, and available quantity dynamically
             document.getElementById('price').textContent = `${response.salePrice}`;
             document.getElementById('regular-price').textContent = `${response.price}`;
-            document.getElementById('quantity').textContent = response.quantity;
 
-            // Reset selected quantity to 1
-            document.getElementById('selected-quantity').textContent = '1';
+            const quantityElement = document.getElementById('quantity');
+            const selectedQuantityElement = document.getElementById('selected-quantity');
+            const decreaseButton = document.querySelector('button[onclick="changeQuantity(-1)"]');
+            const increaseButton = document.querySelector('button[onclick="changeQuantity(1)"]');
+            const addToCartButton = document.querySelector('button[onclick="addToCart()"]');
+
+            // Handle quantity updates
+            if (response.quantity === 0) {
+                // Update UI to show "Out of Stock"
+                quantityElement.textContent = 'Out of Stock';
+                quantityElement.classList.add('text-danger', 'fw-bold');
+                selectedQuantityElement.textContent = '0';
+
+                // Disable buttons
+                decreaseButton.disabled = true;
+                increaseButton.disabled = true;
+                addToCartButton.disabled = true;
+            } else {
+                // Update quantity and reset UI
+                quantityElement.textContent = response.quantity;
+                quantityElement.classList.remove('text-danger', 'fw-bold');
+                selectedQuantityElement.textContent = '1';
+
+                // Enable buttons
+                decreaseButton.disabled = false;
+                increaseButton.disabled = false;
+                addToCartButton.disabled = false;
+            }
         },
         error: function (error) {
             console.error('Error fetching variant details:', error);
         }
     });
 }
+
 
 function changeQuantity(amount) {
     const quantityEl = document.getElementById('selected-quantity');
@@ -77,12 +101,13 @@ function addToCart() {
         productImage: productImage  // Only the image filename
     };
     console.log(data);
-
+ 
     // Send the data to the backend via POST request
     fetch('/addToCart', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         },
         body: JSON.stringify(data)
     })
@@ -90,7 +115,7 @@ function addToCart() {
         .then(data => {
             const messageEl = document.getElementById('cart-message');
             const message = data.message || 'An unexpected error occurred.';
-
+    
             if (data.success) {
                 // Show success message
                 messageEl.innerHTML = `
@@ -100,7 +125,8 @@ function addToCart() {
 
                 if (data.redirectTo) {
                     setTimeout(() => {
-                        window.location.href = data.redirectTo;  // Redirect to login page
+                        console.log('Redirecting to:', data.redirectTo);
+                        window.location.href = data.redirectTo;  // Redirect to wishlist page
                     }, 2000); // You can adjust the timeout
                 }
             } else {
@@ -113,6 +139,7 @@ function addToCart() {
                 // If the response has a redirectTo URL, redirect to the login page
                 if (data.redirectTo) {
                     setTimeout(() => {
+                        console.log('Redirecting to:', data.redirectTo);
                         window.location.href = data.redirectTo;  // Redirect to login page
                     }, 2000); // You can adjust the timeout
                 }
@@ -130,7 +157,7 @@ function addToCart() {
             const messageEl = document.getElementById('cart-message');
             messageEl.innerHTML = `
             <div class="alert alert-danger" role="alert">
-                An error occurred while adding the product to the cart. Please try again later.
+                An error occurred while adding the product to the cart. Please try again later. lol
             </div>`;
 
             // Clear the message after 3 seconds

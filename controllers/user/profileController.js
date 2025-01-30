@@ -47,6 +47,9 @@ const changePasswordCheck = async (req, res) => {
         const { password } = req.body;
         const { id } = req.session.user;
         const findUser = await User.findById(id);
+        if(!findUser.password){
+            req.flash("error", "check if your account is loggined with googele")
+        }
         const passwordMatch = await bcrypt.compare(password, findUser.password);
         if (!passwordMatch) {
             req.flash("error", "wrong password click forget password if you dont remember the password");
@@ -197,7 +200,7 @@ const cartPage = async (req, res) => {
         const findCart = await Cart.findOne({ userId: id }).populate({
             path: 'items.productId',
         });
-        console.log(findCart)
+        // console.log(findCart)
         if (!findCart) {
             req.flash("error", "cart is empty ");
             return res.redirect("/")

@@ -13,7 +13,9 @@
   <ul class="list-group">
     <% order.items.forEach(item => { %>
       <li class="list-group-item">
-        <strong><%= item.productId.productName %></strong> - Qty: <%= item.quantity %> - ₹<%= item.price.toFixed(2) %>
+        <a href="/admin/orders/itemDetails?orderId=<%= order._id %>&itemId=<%= item._id %>" class="text-decoration-none">
+          <strong><%= item.productId.productName %></strong>
+        </a>   - Qty: <%= item.quantity %> - ₹<%= item.price.toFixed(2) %>
       </li> 
     <% }) %>
   </ul>

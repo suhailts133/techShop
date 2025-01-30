@@ -1,8 +1,5 @@
 <%- layout("../layouts/adminboilerplate") %>
-<title>
-    <%= title %>
-</title>
-
+<title><%= title %></title>
 
 <div class="container mt-5">
   <h2 class="mb-4">Manage Orders</h2>
@@ -21,19 +18,45 @@
       <% orders.forEach(order => { %>
         <tr>
           <td><%= order.orderId %></td>
-          <td><%= order.userId.name %></td>
           <td>₹<%= order.totalAmount.toFixed(2) %></td>
           <td><%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></td>
           <td><%= order.orderStatus %></td>
           <td>
             <a href="/admin/orders/view?id=<%= order._id %>" class="btn btn-info btn-sm">View</a>
-            <form action="/admin/orders?id=<%= order._id %>/delete" method="POST" class="d-inline-block">
-              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-            </form>
           </td>
         </tr>
       <% }) %>
     </tbody>
   </table>
-</div>
 
+  <!-- Pagination Section -->
+  <div class="row mt-3">
+    <div class="col-12 d-flex justify-content-center">
+      <nav>
+        <ul class="pagination">
+          <% if (page > 1) { %>
+            <li class="page-item">
+              <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= page - 1 %>" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+          <% } %>
+
+          <% for (let i = 1; i <= totalPages; i++) { %> 
+            <li class="page-item <%= page === i ? 'active' : '' %>">
+              <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
+            </li>
+          <% } %>
+
+          <% if (page < totalPages) { %>
+            <li class="page-item">
+              <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= page + 1 %>" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

@@ -42,6 +42,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Product Name</th>
+                        <th>Product Offer</th>
                         <th>Variants</th>
                         <th>Stock Quantity</th>
                         <th>Regular Price</th>
@@ -59,6 +60,7 @@
                         <% for (let i = 0; i < productData.length; i++) { %>
                             <tr>
                                 <td><%= productData[i].productName %></td>
+                                <td><%= productData[i].productOffer%> %</td>
                                 <td>
                                     <% productData[i].variants.forEach(variant => { %>
                                         <span class="badge bg-secondary">

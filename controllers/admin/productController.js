@@ -108,6 +108,7 @@ const addProduct = async (req, res) => {
         // Create a new product with variants
         const newProduct = new Product({
             productName: products.productName,
+            productOffer: products.productOffer,
             description: products.description,
             brand: products.brand,
             category: category._id,
@@ -220,6 +221,7 @@ const editProduct = async (req, res) => {
         // Update the product details
         product.productName = updatedData.productName;
         product.description = updatedData.description;
+        product.productOffer =  updatedData.productOffer;
         product.brand = updatedData.brand;
         product.category = category._id;
         product.productImage = images; // Update images

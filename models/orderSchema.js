@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
+const { Schema } = mongoose
 
 const orderSchema = new mongoose.Schema({
     orderId: {
@@ -7,21 +8,24 @@ const orderSchema = new mongoose.Schema({
         default: () => uuidv4(), // Unique order ID
         unique: true
     },
+    couponRefrence: {
+        type: Schema.Types.ObjectId,
+        ref: "Coupon"
+    },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
     items: [
         {
-          
             productId: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: Schema.Types.ObjectId,
                 ref: "Product",
                 required: true
             },
             variantId: {
-                type: mongoose.Schema.Types.ObjectId,
+                type: Schema.Types.ObjectId,
             },
             quantity: {
                 type: Number,
@@ -31,6 +35,22 @@ const orderSchema = new mongoose.Schema({
                 type: Number,
                 required: true
             },
+            orderStatus: {  // Order status for each item
+                type: String,
+                enum: [
+                    "Pending",
+                    "Shipped",
+                    "Delivered",
+                    "Return Requested",
+                    "Return Accepted",
+                    "Returned"
+                ],
+                default: "Pending"
+            },
+            returnReason: {  // Added returnReason for each item
+                type: String,
+                required: function () { return this.orderStatus === 'Return Requested'; } // Only required if orderStatus is "Return Requested"
+            }
         },
     ],
     totalAmount: {
@@ -38,7 +58,7 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
     shippingAddress: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Address",
         required: true
     },
@@ -47,7 +67,11 @@ const orderSchema = new mongoose.Schema({
         enum: ["COD", "Card", "UPI"],
         required: true
     },
-    orderStatus: {
+    paymentId: { // Added paymentId field
+        type: String,
+        required: function () { return this.paymentMethod !== 'COD'; } // Required for non-COD payments
+    },
+    orderStatus: {  // Overall order status
         type: String,
         enum: [
             "Pending",
@@ -58,10 +82,6 @@ const orderSchema = new mongoose.Schema({
             "Returned"
         ],
         default: "Pending"
-    },
-    returnReason:{
-        type:String,
-        required:true
     },
     createdAt: {
         type: Date,

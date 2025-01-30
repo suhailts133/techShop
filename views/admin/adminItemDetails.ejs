@@ -1,0 +1,35 @@
+<%- layout("../layouts/adminboilerplate") %>
+<title><%= title %></title>
+
+<div class="container mt-5">
+  <h2>Item Details - <%= item.productId.productName %></h2>
+  <p><strong>Order ID:</strong> <%= order.orderId %></p>
+  <p><strong>Variant:</strong> 
+    <% if (item.productId.variants && item.variantId) { %>
+      <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()); %>
+      Color: <%= variant?.color || "N/A" %>, Size: <%= variant?.size || "N/A" %>
+    <% } else { %>
+      N/A
+    <% } %>
+  </p>
+  <p><strong>Quantity:</strong> <%= item.quantity %></p>
+  <p><strong>Price:</strong> ₹<%= item.price.toFixed(2) %></p>
+
+  <% if (item.orderStatus === "Return Requested") { %>
+    <h5 class="mt-4">Return Reason</h5>
+    <p><strong>Reason:</strong> <%= item.returnReason %></p>
+  <% } %>
+
+  <h4 class="mt-4">Update Status</h4>
+  <form action="/admin/orders/itemDetails/update?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+    <select name="status" class="form-select">
+      <option value="Pending" <%= item.orderStatus === "Pending" ? "selected" : "" %>>Pending</option>
+      <option value="Shipped" <%= item.orderStatus === "Shipped" ? "selected" : "" %>>Shipped</option>
+      <option value="Delivered" <%= item.orderStatus === "Delivered" ? "selected" : "" %>>Delivered</option>
+      <option value="Delivered" <%= item.orderStatus === "Return Requested" ? "selected" : "" %>>Return Requested</option>
+      <option value="Return Accepted" <%= item.orderStatus === "Return Accepted" ? "selected" : "" %>>Return Accepted</option>
+      <option value="Returned" <%= item.orderStatus === "Returned" ? "selected" : "" %>>Returned</option>
+    </select>
+    <button type="submit" class="btn btn-primary mt-3">Update Status</button>
+  </form>
+</div>

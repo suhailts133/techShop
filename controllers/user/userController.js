@@ -2,10 +2,11 @@ const env = require("dotenv").config();
 const bcrypt = require("bcrypt")
 const Category = require("../../models/categorySchema.js");
 const Product = require("../../models/productSchema.js")
-
+const fuzzy = require("fuzzy");
 // external files and functions
 const User = require("../../models/userSchema.js") // user model
 const { generateOtp, securePassword, sendVerificationEmail } = require("../../helpers/userAuthendication.js") // authentication helper
+const Coupon = require("../../models/couponsSchema.js")
 
 // load homepage
 const loadHomePage = async (req, res) => {
@@ -16,18 +17,37 @@ const loadHomePage = async (req, res) => {
             category: { $in: categories.map(category => category._id) },
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
 
-        })
+        }).limit(8)
         console.log("session from loadhome", req.session.user)
 
         if (req.session.user) {
             return res.render("home", { user: req.session.user || null, title: "home", products: ProductData });
-        }else{
+        } else {
             return res.render("home", { title: "home", products: ProductData });
-            
+
         }
     } catch (error) {
         console.log("error while loading the home page", error.message)
         res.redirect("/pageNotFound");
+    }
+}
+
+
+const searchRecomendation = async (req, res) => {
+    try {
+        const { text } = req.body;
+
+        const products = await Product.find();
+        let options = {
+            extract: function (el) { return el.productName }
+        };
+        let results = fuzzy.filter(text, products, options);
+        let matches = results.map(function (el) { return el.string });
+        console.log(matches)
+        const allDetails = await Product.find({ productName: { $in: matches } }, { productName: 1, _id: 1 })
+        res.json(allDetails)
+    } catch (error) {
+        console.log("error on search recomdation", error.message)
     }
 }
 
@@ -45,7 +65,7 @@ const loadSignup = async (req, res) => {
 // verifying user deatil while registering
 const signup = async (req, res) => {
     try {
-        const { name, phone, email, password, confirmPassword } = req.body;
+        const { name, phone, email, password, confirmPassword, Referalcode } = req.body;
 
         if (password !== confirmPassword) { // checking password and confirm password is same
             req.flash("error", "password does not match")
@@ -60,6 +80,14 @@ const signup = async (req, res) => {
             req.flash("error", "the email already exists")
             return res.redirect("/signup");
         }
+
+        if (Referalcode) {
+            const userReferalCode = await User.findOne({ Referalcode: Referalcode });
+            if (!userReferalCode) {
+                req.flash("error", "unknown referal code");
+                return res.redirect("/signup");
+            }
+        }
         const otp = generateOtp(); // generate the otp
 
         const emailSent = await sendVerificationEmail(email, otp); // send otp to the mail 
@@ -71,7 +99,7 @@ const signup = async (req, res) => {
         // set otp in the session after sending the otp use this for otp verification
         req.session.userOtp = otp;
         // set userdata in the session so that it can be use adding to db after otp verification
-        req.session.userData = { name, phone, email, password };
+        req.session.userData = { name, phone, email, password, Referalcode };
 
         res.redirect("/otp");  // redirect to otp page
         console.log("otp sent", otp)
@@ -94,7 +122,6 @@ const loadOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
-        console.log("verify otp for new user")
         // check the otp form the otp page with the otp in the session
         if (otp === req.session.userOtp) {
             const user = req.session.userData;  // user data form the session
@@ -108,7 +135,23 @@ const verifyOtp = async (req, res) => {
                 googleId: null
             });
             await newUser.save();  // save the user
+            if(user.Referalcode){
+                newUser.wallet += 200  // 200 is the amount given to the user if it has a referal code
+                await newUser.save()
+            }
+            const signupCoupon = await Coupon.findOne({ code: "3D92AF2A" });
+            newUser.coupons.push({
+                couponId: signupCoupon._id,
+                expiresAt: new Date(Date.now() + signupCoupon.validityDuration * 24 * 60 * 60 * 1000)
+            })
+            await newUser.save();
             // Set user session 
+            const findUser = await User.findOne({ Referalcode: user.Referalcode });
+            if (findUser) {
+                findUser.redeemedUsers.push(newUser._id);
+                findUser.wallet += 500 // 500 is the referal amount
+                await findUser.save()
+            }
             req.session.user = { id: newUser._id, name: newUser.name, email: newUser.email };  //name is used for displaying username
             console.log("session from verify otp", req.session.user)
             req.session.userOtp = null;   // destroying the session  otp
@@ -177,7 +220,7 @@ const login = async (req, res) => {
             req.flash("error", "incorrect credential if you are using google login/signup use google login")
             return res.redirect("/login");
         }
-        req.session.user = { id: findUser._id, name: findUser.name, email:findUser.email};  // set the user details in the session name is used for the home page
+        req.session.user = { id: findUser._id, name: findUser.name, email: findUser.email };  // set the user details in the session name is used for the home page
         console.log("session from login", req.session.user)
         res.redirect("/");
     } catch (error) {
@@ -225,5 +268,6 @@ module.exports = {
     loadLogin,
     login,
     logout,
-    pageError
+    pageError,
+    searchRecomendation
 }

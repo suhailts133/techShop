@@ -3,10 +3,13 @@ const Address = require("../../models/addressSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
 const Product = require("../../models/productSchema.js")
+const Coupon = require("../../models/couponsSchema.js")
 
+const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
-
 const { v4: uuidv4 } = require("uuid");
+
+
 
 const loadCheckOutPage = async (req, res) => {
     try {
@@ -33,41 +36,75 @@ const loadCheckOutPage = async (req, res) => {
     }
 };
 
-
 const checkOut = async (req, res) => {
     try {
-        const { id } = req.session.user; 
-        const { shippingAddress, paymentMethod } = req.body;
+        const { id } = req.session.user;
+        const { shippingAddress, paymentMethod, couponCode } = req.body;
 
+        // Validate required fields
         if (!shippingAddress || !paymentMethod) {
             req.flash("error", "All fields are required");
             return res.redirect("/checkout");
         }
-        console.log("Session user:", req.session.user);
-     
-        const user = await User.findById(id); 
-        if (!user || !user.address || user.address.length === 0) {
-            req.flash("error", "No addresses found for the user");
-            return res.redirect("/profile/address"); 
+        if (paymentMethod === 'Razorpay' && !razorpay_payment_id) {
+            req.flash("error", "Payment not verified");
+            return res.redirect("/checkout");
+          }
+
+        // Get user with addresses
+        const user = await User.findById(id).populate("address");
+        if (!user?.address?.length) {
+            req.flash("error", "No addresses found");
+            return res.redirect("/profile/address");
         }
 
-        const address = user.address.find(address => address._id.toString() === shippingAddress);
-        const addressdetail = await Address.findById(address);
-        console.log("shipping address", address)
+        // Validate shipping address
+        const address = user.address.find(a => a._id.toString() === shippingAddress);
         if (!address) {
             req.flash("error", "Invalid shipping address");
             return res.redirect("/checkout");
         }
 
-        // Fetch the cart for the user
-        const cart = await Cart.findOne({userId: id}).populate("items.productId");
-        console.log("cart form checkout while placing order", cart);
-        if (!cart || cart.items.length === 0) {
-            req.flash("error", "Your cart is empty");
+        // Get cart and validate
+        const cart = await Cart.findOne({ userId: id }).populate("items.productId");
+        if (!cart?.items?.length) {
+            req.flash("error", "Cart is empty");
             return res.redirect("/profile/cart");
         }
 
-        // Create the order
+        let totalAmount = cart.totalAmount;
+        let usedCoupon = null;
+
+        // Coupon handling
+        if (couponCode) {
+            // 1. Find the coupon document
+            const coupon = await Coupon.findOne({ code: couponCode });
+            if (!coupon) {
+                req.flash("error", "Invalid coupon code");
+                return res.redirect("/checkout");
+            }
+
+            // 2. Find user's coupon instance
+            const userCoupon = user.coupons.find(c => 
+                c.couponId.equals(coupon._id) && 
+                !c.isUsed && 
+                new Date() < c.expiresAt
+            );
+
+            if (!userCoupon) {
+                req.flash("error", "Coupon not available or expired");
+                return res.redirect("/checkout");
+            }
+
+            // 3. Apply discount
+            totalAmount = cart.totalAmount - coupon.discountValue;
+
+            // 4. Remove the coupon from user's coupons
+            user.coupons.pull(userCoupon._id); // Remove by subdocument ID
+            usedCoupon = coupon;
+        }
+
+        // Create order with final amount
         const order = new Order({
             orderId: uuidv4(),
             userId: id,
@@ -76,34 +113,54 @@ const checkOut = async (req, res) => {
                 variantId: item.variantId,
                 quantity: item.quantity,
                 price: item.totalPrice,
+                orderStatus: "Pending"
             })),
-            totalAmount: cart.totalAmount,
-            shippingAddress: address._id, 
+            totalAmount: totalAmount, // This now includes any discount
+            shippingAddress: address._id,
             paymentMethod,
+            paymentId: razorpay_payment_id || null,
+            couponRefrence: usedCoupon?._id
         });
-        await order.save(); 
 
-        if (user) {
-            user.orderHistory.push(order._id); 
-            await user.save(); 
-        }
+        await order.save();
 
-    
-        for (const item of cart.items) {
-            const product = await Product.findById(item.productId);
-            const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
-            if (variant) {
-                variant.quantity -= item.quantity; 
-                await product.save(); 
+        // Add to order history
+        user.orderHistory.push(order._id);
+        await user.save();
+
+        // Assign new coupon only if no coupon was used
+        if (!usedCoupon) {
+            const randomCoupon = await getRandomCoupon();
+            if (randomCoupon) {
+                user.coupons.push({
+                    couponId: randomCoupon._id,
+                    expiresAt: new Date(Date.now() + randomCoupon.validityDuration * 24 * 60 * 60 * 1000),
+                    isUsed: false,
+                    orderRefrence: order._id
+                });
+                order.couponRefrence = randomCoupon._id;
+                await user.save();
+                await order.save();
             }
         }
 
-        
-        cart.items = []; 
-        cart.totalAmount = 0; 
-        await cart.save();
+        // Update product stock
+        for (const item of cart.items) {
+            const product = await Product.findById(item.productId);
+            const variant = product.variants.find(v => v._id.equals(item.variantId));
+            if (variant) {
+                variant.quantity -= item.quantity;
+                await product.save();
+            }
+        }
 
+        // Clear cart
+        cart.items = [];
+        cart.totalAmount = 0;
+        await cart.save();
         req.session.orderId = order._id;
+
+        // Send confirmation email
         const orderPopulated = await Order.findById(order._id).populate("items.productId");
         const orderDetails = {
             orderId: orderPopulated.orderId,
@@ -113,28 +170,24 @@ const checkOut = async (req, res) => {
                 price: item.price,
             })),
             totalAmount: orderPopulated.totalAmount,
-            shippingAddress: addressdetail,
+            shippingAddress: address, // Use the address object directly
             paymentMethod: orderPopulated.paymentMethod
         };
-        console.log("order details", orderDetails);
-        console.log("order shipping address", orderDetails.shippingAddress);
-
-        const emailSuccess = await sendInvoiceEmail(req.session.user.email, orderDetails);
+        
+        // Send confirmation email
+        const emailSuccess = await sendInvoiceEmail(user.email, orderDetails);
         if (emailSuccess) {
             req.flash("success", "Order placed successfully and invoice sent to your email!");
-            return res.redirect("/orders"); 
         } else {
             req.flash("success", "Order placed successfully, but we failed to send the invoice email.");
-            return res.redirect("/orders");
         }
-
+        res.redirect("/orders");
     } catch (error) {
-        console.log("Error during checkout:", error.message); 
-        req.flash("error", "Something went wrong during checkout");
+        console.error("Checkout error:", error);
+        req.flash("error", "Failed to place order");
         res.redirect("/checkout");
     }
 };
-
 
 const orderConfirmed = async (req, res) => {
     try {
@@ -150,10 +203,42 @@ const orderConfirmed = async (req, res) => {
 }
 
 
-
+const validateCoupon = async (req, res) => {
+    const { couponCode, cartTotal } = req.body;
+  
+    try {
+      const coupon = await Coupon.findOne({ code: couponCode, status: 'active' });
+  
+      if (!coupon) {
+        return res.status(400).json({ success: false, message: 'Invalid or inactive coupon' });
+      }
+  
+      if (cartTotal < coupon.minPurchase) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Minimum purchase of ₹${coupon.minPurchase} required` 
+        });
+      }
+  
+      const now = new Date();
+      if (now > coupon.expiresAt) {
+        return res.status(400).json({ success: false, message: 'Coupon has expired' });
+      }
+  
+      res.status(200).json({ 
+        success: true, 
+        discountAmount: coupon.discountValue,
+        message: 'Coupon applied successfully' 
+      });
+    } catch (error) {
+      console.error('Error validating coupon:', error.messge);
+      res.status(500).json({ success: false, message: 'Error validating coupon' });
+    }
+  };
 
 module.exports = {
     loadCheckOutPage,
     checkOut,
-    orderConfirmed
+    orderConfirmed,
+    validateCoupon
 };

@@ -14,7 +14,7 @@
                                 <div class="row g-0 align-items-center">
                                     <!-- Product Image -->
                                     <div class="col-3 col-md-2">
-                                        <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>">
+                                        <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>&itemId=<%= item._id %>">
                                             <img src="/uploads/products/<%= item.productId.productImage[0] %>" 
                                                  class="img-fluid rounded-start" 
                                                  alt="<%= item.productId.productName %>" 
@@ -25,24 +25,35 @@
                                     <!-- Product Details -->
                                     <div class="col-6 col-md-8">
                                         <div class="card-body">
-                                            <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>" class="text-decoration-none text-dark">
+                                            <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>&itemId=<%= item._id %>" class="text-decoration-none text-dark">
                                                 <h5 class="card-title"><%= item.productId.productName %></h5>
                                             </a>
-                                            <p class="mb-2"><strong>Variant:</strong> <%= item.variantDetails.color %> - <%= item.variantDetails.size %></p>
+
+                                            <!-- Variant Details (with fallback) -->
+                                            <p class="mb-2">
+                                                <strong>Variant:</strong> 
+                                                <%= item.variantDetails ? item.variantDetails.color : 'N/A' %> - 
+                                                <%= item.variantDetails ? item.variantDetails.size : 'N/A' %>
+                                            </p>
+
+                                            <!-- Quantity -->
                                             <p class="mb-0"><strong>Quantity:</strong> <%= item.quantity %></p>
+
+                                            <!-- Item Order Status Badge -->
+                                           
                                         </div>
                                     </div>
-
-                                    <!-- Status -->
+                                    
+                                    <!-- Overall Order Status (Badge for whole order) -->
                                     <div class="col-3 col-md-2 text-center">
                                         <span class="badge 
-                                            <%= order.orderStatus === 'Pending' ? 'bg-warning text-dark' : '' %>
-                                            <%= order.orderStatus === 'Shipped' ? 'bg-info text-white' : '' %>
-                                            <%= order.orderStatus === 'Delivered' ? 'bg-success text-white' : '' %>
-                                            <%= order.orderStatus === 'Return Requested' ? 'bg-secondary text-white' : '' %>
-                                            <%= order.orderStatus === 'Return Accepted' ? 'bg-danger text-white' : '' %>
-                                            <%= order.orderStatus === 'Returned' ? 'bg-primary text-white' : '' %>">
-                                            <%= order.orderStatus %>
+                                            <%= item.orderStatus === 'Pending' ? 'bg-warning text-dark' : '' %>
+                                            <%= item.orderStatus === 'Shipped' ? 'bg-info text-white' : '' %>
+                                            <%= item.orderStatus === 'Delivered' ? 'bg-success text-white' : '' %>
+                                            <%= item.orderStatus === 'Return Requested' ? 'bg-secondary text-white' : '' %>
+                                            <%= item.orderStatus === 'Return Accepted' ? 'bg-danger text-white' : '' %>
+                                            <%= item.orderStatus === 'Returned' ? 'bg-primary text-white' : '' %>">
+                                            <%= item.orderStatus %>
                                         </span>
                                     </div>
                                 </div>

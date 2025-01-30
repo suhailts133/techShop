@@ -4,27 +4,36 @@ const passport = require("passport");
 
 const router = express.Router();
 // controllers
+const razorpayController = require("../controllers/user/razorPayController.js")
+const fuzzyController = require("../controllers/user/testiingController.js");
 const userController = require("../controllers/user/userController.js");
 const forgetPasswordController = require("../controllers/user/forgetPasswordController.js")
 const productController = require("../controllers/user/productController.js")
 const checkOutController = require("../controllers/user/checkOutController.js")
 const shoppingPageController = require("../controllers/user/shoppingPageController.js")
-const { checkAuth } = require("../middlewares/auth.js")
+const wishlistController = require("../controllers/user/wishlistController.js")
+const { checkAuth,checkAuthUserLogin, checkAuthUserSignUp, checkAuthCart } = require("../middlewares/auth.js")
 
 // home route
 router.get("/", userController.loadHomePage);
+router.post("/", userController.searchRecomendation)
+
+// router.get("/", fuzzyController.loadpage);
+// router.post("/", fuzzyController.textingFuzzy)
+// router.get("/productDetails", fuzzyController.product);
+
 // shop page
 router.get("/shop", shoppingPageController.loadShoppingPage)
 router.get("/filter", shoppingPageController.filterProducts)
 // signup route
-router.get("/signup", checkAuth, userController.loadSignup)
-router.post("/signup", userController.signup)
+router.get("/signup",checkAuthUserSignUp, userController.loadSignup)
+router.post("/signup", checkAuthUserSignUp,userController.signup)
 // otp route
-router.get("/otp", checkAuth, userController.loadOtp)
-router.post("/verify-otp", checkAuth, userController.verifyOtp)
-router.post("/resend-otp", checkAuth, userController.resendOtp)
+router.get("/otp",checkAuthUserSignUp,  userController.loadOtp)
+router.post("/verify-otp", checkAuthUserSignUp, userController.verifyOtp)
+router.post("/resend-otp",checkAuthUserSignUp, userController.resendOtp)
 // google authentication
-router.get("/auth/google", checkAuth, passport.authenticate('google', { scope: ["profile", "email"] }));
+router.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
 router.get("/auth/google/callback", 
   passport.authenticate('google', { failureRedirect: "/signup" }), 
   (req, res) => {
@@ -34,8 +43,8 @@ router.get("/auth/google/callback",
   }
 );
 // login logout route
-router.get("/login", checkAuth, userController.loadLogin)
-router.post("/login", userController.login)
+router.get("/login",checkAuthUserLogin, userController.loadLogin)
+router.post("/login",checkAuthUserLogin, userController.login)
 router.get("/logout", userController.logout)
 // page 404 page 
 
@@ -50,15 +59,25 @@ router.post("/changePassword", forgetPasswordController.changePassword);
 
 // product Details
 router.get("/productDetails", productController.getProductDetails);
-router.post("/updateVariant", productController.updateVariantDetails)
+router.post("/updateVariant",  productController.updateVariantDetails)
 // add to cart
-router.post("/addToCart", productController.addToCart);
+router.post("/addToCart",checkAuth,   productController.addToCart);
 //checkout
-router.get("/checkout", checkOutController.loadCheckOutPage)
-router.post("/checkout", checkOutController.checkOut)
+router.get("/checkout",checkAuth, checkOutController.loadCheckOutPage)
+router.post("/checkout", checkAuth,checkOutController.checkOut)
+router.post("/checkout/validate-coupon",checkAuth, checkOutController.validateCoupon)
+// wishlist
+
+// razorpay payment
+router.post('/create-razorpay-order', razorpayController.createRazorpayOrder);
+
+// Verify Razorpay payment
+router.post('/verify-payment', razorpayController.verifyPayment);
+
+router.get("/addToWishlist", checkAuth,wishlistController.addToWishlist)
 
 
-router.get("/orders", checkOutController.orderConfirmed)
+router.get("/orders",checkAuth, checkOutController.orderConfirmed)
 
 router.get("/pageNotFound", userController.pageError)
 module.exports = router

@@ -18,21 +18,6 @@ body {
     color: #6c757d;
 }
 
-.main-image-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.main-image-container img {
-    width: 100%;
-    transition: transform 0.3s ease-in-out;
-}
-
-.main-image-container:hover img {
-    transform: scale(1.5);
-}
 
 .thumbnail-gallery img {
     margin-right: 10px;
@@ -149,3 +134,4 @@ button.add-to-cart {
 button.add-to-cart:hover {
     background-color: #0056b3;
 }
+

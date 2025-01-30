@@ -12,10 +12,13 @@
         // Get input fields
         const nameInput = form.querySelector('#name');
         const descriptionInput = form.querySelector('#description');
+        const offerInput = form.querySelector('#categoryOffer');
+
   
         // Get feedback elements
         const nameFeedback = nameInput.nextElementSibling;
         const descriptionFeedback = descriptionInput.nextElementSibling;
+        const offerFeedback = offerInput.nextElementSibling;
   
         // Validate name (cannot be empty)
         const nameValue = nameInput.value.trim();
@@ -39,6 +42,18 @@
           descriptionInput.classList.remove('is-invalid');
           descriptionInput.classList.add('is-valid');
           descriptionFeedback.textContent = '';
+        }
+
+        const offerValue = offerFeedback.value;
+        if(offerValue < 0){
+          isValid = false;
+          offerInput.classList.add("is-invalid"); 
+          offerFeedback.textContent = "category offer must be either zero or a positive number";
+        }else{
+          offerInput.classList.remove("is-invalid"); 
+          offerInput.classList.add("is-valid"); 
+          offerFeedback.textContent = "";
+
         }
   
         // Prevent form submission if validation fails

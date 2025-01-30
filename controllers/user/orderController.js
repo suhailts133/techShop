@@ -5,26 +5,30 @@ const getUserOrders = async (req, res) => {
     try {
         const userId = req.session.user.id;
 
-        // Fetch orders and populate product details
+      
         const orders = await Order.find({ userId }).populate('items.productId');
 
-        // Add variant details dynamically for each item
+        if (orders.length === 0) {
+            req.flash("error", "You don't have any orders yet.");
+            return res.redirect("/profile");
+        }
+
         orders.forEach(order => {
             order.items.forEach(item => {
                 const product = item.productId;
                 if (product && product.variants) {
-                    // Find the matching variant in the product's variants array
+                  
                     const variant = product.variants.find(
                         v => v._id.toString() === item.variantId.toString()
                     );
-                    item.variantDetails = variant || null; // Attach the variant details to the item
+                    item.variantDetails = variant || null;
                 }
             });
         });
 
         res.render("userOrders", {
             title: "Your Orders",
-            orders, // Pass enriched orders to the view
+            orders,
         });
     } catch (error) {
         console.error("Error fetching user orders:", error.message);
@@ -32,69 +36,98 @@ const getUserOrders = async (req, res) => {
         res.redirect("/profile");
     }
 };
-
-
-const orderDetails = async (req, res) => {
+const getItemDetails = async (req, res) => {
     try {
-        const { orderId } = req.query; // Get the orderId from the request params
-        const userId = req.session.user.id;
+        const { orderId, itemId } = req.query;
 
-        // Find the order by its orderId and userId
-        const order = await Order.findOne({ orderId, userId })
-            .populate('items.productId')
-            .populate('shippingAddress');
+       
+        const order = await Order.findOne({ orderId }).populate("items.productId");
+        // if (!order) {
+        //     req.flash("error", "Order not found.");
+        //     return res.redirect("/profile/orders");
+        // }
 
-        if (!order) {
-            req.flash("error", "Order not found.");
-            return res.redirect("/orders");
+       
+        const item = order.items.find(i => i._id.toString() === itemId);
+        if (!item) {
+            req.flash("error", "Item not found in the order.");
+            return res.redirect("/profile/orders");
         }
 
-        // Enrich items with variant details
-        order.items = order.items.map(item => {
-            const product = item.productId;
-            if (product && product.variants) {
-                const variant = product.variants.find(
-                    v => v._id.toString() === item.variantId.toString()
-                );
-                item.variantDetails = variant || null;
-            }
-            return item;
-        });
+      
+        const product = item.productId;
+        const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
 
-        res.render("orderDetail", {
-            title: `Order Details - ${order.orderId}`,
-            order,
+     
+        item.variantDetails = variant || {};
+
+       
+        res.render("itemDetails", {
+            title: `Item Details - ${item.productId.productName}`,
+            item,
+            order
         });
     } catch (error) {
-        console.error("Error fetching order details:", error.message);
-        req.flash("error", "Unable to fetch order details.");
-        res.redirect("/orders");
+        console.error("Error loading item details:", error.message);
+        res.redirect("/profile/orders");
     }
 };
-
 const requestReturn = async (req, res) => {
     try {
-        const {orderId} = req.query;
-        const userId = req.session.user.id;
-        const {reason} = req.body;
-        const order = await Order.findOne({orderId, userId});
-        if(!order){
-            req.flash("error", "order not found");
-            return res.redirect("/profile/orders")
+        const { orderId, itemId } = req.query;
+        const { reason } = req.body;
+
+
+        console.log("Order ID:", orderId);
+        console.log("Item ID:", itemId);
+
+
+        if (!orderId || !itemId) {
+            req.flash("error", "Invalid order or item details.");
+            return res.redirect("/profile/orders");
         }
-        order.orderStatus = "Return Requested";
-        order.returnReason = reason;
+
+
+        const order = await Order.findById(orderId);
+        console.log(order)
+        // if (!order) {
+        //     req.flash("error", "Order not found.");
+        //     return res.redirect("/profile/orders");
+        // }
+
+
+        const item = order.items.find((i) => i._id.toString() === itemId);
+        if (!item) {
+            req.flash("error", "Item not found in the order.");
+            return res.redirect("/profile/orders");
+        }
+
+
+        if (item.orderStatus !== "Delivered") {
+            req.flash("error", "Return request can only be made for delivered items.");
+            return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
+        }
+
+
+        item.orderStatus = "Return Requested";
+        item.returnReason = reason;
+
+
         await order.save();
-        req.flash("success", "Return request submiited successfully");
-        res.redirect(`/profile/orders/orderDetails?orderId=${orderId}`)
+
+
+        req.flash("success", "Return request submitted successfully.");
+        return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
     } catch (error) {
-        console.log("error while returning",error.message)
+        console.error("Error while processing return request:", error.message);
+        req.flash("error", "An error occurred while processing your return request.");
+        res.redirect("/profile/orders");
     }
-}
+};
 
 
 module.exports = {
     getUserOrders,
-    orderDetails,
+    getItemDetails,
     requestReturn,
 }

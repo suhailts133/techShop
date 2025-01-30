@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose
-
+const { v4: uuidv4 } = require("uuid");
 
 const userSchema = new Schema({
     name: {
@@ -42,6 +42,30 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref:"Cart",
     }],
+    coupons:[
+        {
+            couponId:{
+                type:Schema.Types.ObjectId,
+                ref:"Coupon",
+                required:true
+            },
+            assignedAt : {
+                type:Date,
+                default:Date.now
+            },
+            expiresAt:{
+                type:Date
+            },
+            isUsed:{
+                type:Boolean,
+                default:false
+            },
+            orderRefrence: {
+                type: Schema.Types.ObjectId,
+                ref: "Order",
+              }
+        }
+    ],
     wallet:{
         type:Number,
         default: 0,
@@ -58,13 +82,13 @@ const userSchema = new Schema({
         type: Date,
         default:Date.now
     },
-    referalCode: {
-        type: String
-    },
-    redeemed: {
-        type: Boolean,
-        default:false, //1
-    },
+    Referalcode: {
+          type: String,
+          default: () => uuidv4().split('-')[0].toUpperCase(), 
+          unique: true,
+          trim: true,
+        },
+    
     redeemedUsers: [{
         type: Schema.Types.ObjectId,
         ref:"User",

@@ -40,7 +40,8 @@
                         <% if (products[i].variants && products[i].variants.length > 0) { 
                             const variant = products[i].variants.find(v => v.quantity > 0); %>
                             <% if (variant) { %>
-                                <p class="card-text">
+                                <span ><%=variant.color%> - <%= variant.size%></span>
+                                <p class="card-text">                                                                                                                                                                                                                                                                                              
                                     <span class="text-success">₹<%= variant.salePrice %></span> 
                                     <span class="text-danger"><s>₹<%= variant.price %></s></span>
                                 </p>

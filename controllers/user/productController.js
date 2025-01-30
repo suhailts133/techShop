@@ -1,5 +1,4 @@
 const Product = require("../../models/productSchema.js")
-const category = require("../../models/categorySchema.js")
 const Cart = require("../../models/cartSchema.js")
 const User = require("../../models/userSchema.js")
 
@@ -111,6 +110,12 @@ const addToCart = async (req, res) => {
                 success: false,
                 message: 'Variant not found.'
             });
+        }
+        if(variant.quantity <= 0){
+            return res.status(404).json({
+                success:false,
+                message:"Out of Stock"
+            })
         }
 
         // Calculate total price for the item based on quantity
