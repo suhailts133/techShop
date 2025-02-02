@@ -10,7 +10,16 @@ const orderSchema = new mongoose.Schema({
     },
     couponRefrence: {
         type: Schema.Types.ObjectId,
-        ref: "Coupon"
+        ref: "Coupon",
+        default:null
+    },
+    couponUsed: {
+        type: Boolean,
+        default:false
+    },
+    discount:{
+        type:Number,
+        default:0
     },
     userId: {
         type: Schema.Types.ObjectId,
@@ -35,21 +44,31 @@ const orderSchema = new mongoose.Schema({
                 type: Number,
                 required: true
             },
+            review:{
+                type:Boolean,
+                default:false
+            },
             orderStatus: {  // Order status for each item
                 type: String,
                 enum: [
                     "Pending",
                     "Shipped",
                     "Delivered",
+                    "Cancellation Requested",
+                    "Cancelled",
                     "Return Requested",
                     "Return Accepted",
                     "Returned"
                 ],
                 default: "Pending"
             },
-            returnReason: {  // Added returnReason for each item
+            returnReason: {  
                 type: String,
-                required: function () { return this.orderStatus === 'Return Requested'; } // Only required if orderStatus is "Return Requested"
+                required: function () { return this.orderStatus === 'Return Requested'; } 
+            },
+            cancelReason: {  
+                type: String,
+                required: function () { return this.orderStatus === 'Cancellation Requested'; } 
             }
         },
     ],
@@ -64,7 +83,7 @@ const orderSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ["COD", "Card", "UPI"],
+        enum: ["COD", "Card", "UPI" , "Razorpay", "Wallet"],
         required: true
     },
     paymentId: { // Added paymentId field
@@ -77,6 +96,8 @@ const orderSchema = new mongoose.Schema({
             "Pending",
             "Shipped",
             "Delivered",
+            "Cancellation Request",
+            "Cancelled",
             "Return Requested",
             "Return Accepted",
             "Returned"

@@ -12,10 +12,12 @@
                     <div class="text-center">
                         <h3><%= user.name %></h3> <!-- Display the user's name -->
                         <p class="text-muted">Welcome to your profile page</p>
+                        <p>Wallet Balance: <%= user.wallet%></p>
+                        <p>Your referal code: <%= user.Referalcode%></p>
                     </div>
 
                     <hr>
-
+                    
                     <!-- Action Buttons -->
                     <div class="d-flex justify-content-center gap-3">
                         <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>

@@ -19,6 +19,10 @@
     <h5 class="mt-4">Return Reason</h5>
     <p><strong>Reason:</strong> <%= item.returnReason %></p>
   <% } %>
+  <% if (item.orderStatus === "Cancellation Requested") { %>
+    <h5 class="mt-4">Return Reason</h5>
+    <p><strong>Reason:</strong> <%= item.cancelReason %></p>
+  <% } %>
 
   <h4 class="mt-4">Update Status</h4>
   <form action="/admin/orders/itemDetails/update?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
@@ -29,6 +33,8 @@
       <option value="Delivered" <%= item.orderStatus === "Return Requested" ? "selected" : "" %>>Return Requested</option>
       <option value="Return Accepted" <%= item.orderStatus === "Return Accepted" ? "selected" : "" %>>Return Accepted</option>
       <option value="Returned" <%= item.orderStatus === "Returned" ? "selected" : "" %>>Returned</option>
+      <option value="Cancellation Requested" <%= item.orderStatus === "Cancellation Requested" ? "selected" : "" %>>Cancellation Requested</option>
+      <option value="Cancelled" <%= item.orderStatus === "Cancelled" ? "selected" : "" %>>Cancelled</option>
     </select>
     <button type="submit" class="btn btn-primary mt-3">Update Status</button>
   </form>

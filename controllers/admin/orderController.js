@@ -109,37 +109,55 @@ const updateItemStatus = async (req, res) => {
     const { orderId, itemId } = req.query;
     const { status } = req.body;
 
-
+    
     const order = await Order.findById(orderId)
       .populate("userId")
-      .populate("couponRefrence")
+      .populate("couponRefrence");
 
     if (!order) {
       req.flash("error", "Order not found");
       return res.redirect("/admin/orders");
     }
 
+    
     const item = order.items.find((i) => i._id.toString() === itemId);
     if (!item) {
       req.flash("error", "Item not found");
       return res.redirect(`/admin/orders/view?id=${orderId}`);
     }
 
+   
     item.orderStatus = status;
     await order.save();
-    if (status === "Returned" && order.couponRefrence) {
-      const user = await User.findById(order.userId);
-      const couponCountBefore = user.coupons.length;
-      user.coupons = user.coupons.filter(coupon =>
-        !coupon.orderRefrence || coupon.orderRefrence.toString() !== order._id.toString()
-      );
-      if (user.coupons.length < couponCountBefore) {
+
+    const user = await User.findById(order.userId);
+
+
+    if (user) {
+      if (status === "Returned") {
+  
+        user.wallet += item.price;
         await user.save();
-        order.couponRefrence = undefined;
-        await order.save()
+      } else if (status === "Cancelled" && (order.paymentMethod === "Wallet" || order.paymentMethod === "Razorpay")) {
+     
+        user.wallet += item.price;
+        await user.save();
       }
 
+   
+      if (order.couponRefrence) {
+        const couponCountBefore = user.coupons.length;
+        user.coupons = user.coupons.filter(
+          (coupon) =>
+            !coupon.orderRefrence || coupon.orderRefrence.toString() !== order._id.toString()
+        );
 
+        if (user.coupons.length < couponCountBefore) {
+          await user.save();
+          order.couponRefrence = undefined;
+          await order.save();
+        }
+      }
     }
 
     req.flash("success", "Item status updated successfully");
@@ -149,7 +167,6 @@ const updateItemStatus = async (req, res) => {
     res.redirect("/admin/orders");
   }
 };
-
 
 
 module.exports = {

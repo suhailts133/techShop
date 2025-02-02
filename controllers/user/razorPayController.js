@@ -1,5 +1,6 @@
 const razorpay = require("../../config/razorpay.js")
 const crypto = require("crypto")
+const env = require("dotenv").config();
 
 const createRazorpayOrder = async (req, res) => {
     try {
@@ -31,18 +32,27 @@ const createRazorpayOrder = async (req, res) => {
     }
 };
 
-
 const verifyPayment = async (req, res) => {
     try {
+        console.log('Request Body:', req.body);
+
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-        // Generate the expected signature
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing payment details in request body',
+            });
+        }
+
         const expectedSignature = crypto
             .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest('hex');
 
-        // Compare the signatures
+        console.log('Expected Signature:', expectedSignature);
+        console.log('Received Signature:', razorpay_signature);
+
         if (expectedSignature === razorpay_signature) {
             res.json({ success: true, message: 'Payment verified successfully' });
         } else {
@@ -56,7 +66,6 @@ const verifyPayment = async (req, res) => {
         });
     }
 };
-
 module.exports = {
     createRazorpayOrder,
     verifyPayment

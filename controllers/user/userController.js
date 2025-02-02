@@ -16,8 +16,7 @@ const loadHomePage = async (req, res) => {
             isBlocked: false,
             category: { $in: categories.map(category => category._id) },
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
-
-        }).limit(8)
+        }).populate("category").limit(8)
         console.log("session from loadhome", req.session.user)
 
         if (req.session.user) {

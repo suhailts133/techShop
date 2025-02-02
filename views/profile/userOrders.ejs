@@ -52,7 +52,9 @@
                                             <%= item.orderStatus === 'Delivered' ? 'bg-success text-white' : '' %>
                                             <%= item.orderStatus === 'Return Requested' ? 'bg-secondary text-white' : '' %>
                                             <%= item.orderStatus === 'Return Accepted' ? 'bg-danger text-white' : '' %>
-                                            <%= item.orderStatus === 'Returned' ? 'bg-primary text-white' : '' %>">
+                                            <%= item.orderStatus === 'Returned' ? 'bg-primary text-white' : '' %>
+                                            <%= item.orderStatus === 'Cancelled' ? 'bg-dark text-white' : '' %>
+                                            <%= item.orderStatus === 'Cancellation Requested' ? 'bg-danger text-white' : '' %>">
                                             <%= item.orderStatus %>
                                         </span>
                                     </div>

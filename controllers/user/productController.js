@@ -4,60 +4,100 @@ const User = require("../../models/userSchema.js")
 
 const getProductDetails = async (req, res) => {
     try {
-        const productId = req.query.id; // Get product ID from query params
-        
-        // Fetch the product details, including the variants and category
-        const product = await Product.findById(productId).populate('category');
-        const relatedProducts = await Product.find({ 
-            category: product.category._id, 
-            _id: { $ne: product._id } // Exclude current product 
-        }).limit(4);
+        const productId = req.query.id;
+
+       
+        const product = await Product.findById(productId)
+            .populate('category')
+            .populate({
+                path: 'reviews',
+                populate: {
+                    path: 'user', 
+                    select: 'name email' 
+                }
+            })
+            .lean(); 
+
         if (!product) {
-            req.flash("error", "product not found");
-            res.redirect("/");
+            req.flash("error", "Product not found");
+            return res.redirect("/");
         }
 
-        // Send product details to the frontend (productDetails.ejs)
+      
+        const applicableOffer = product.productOffer > 0 
+            ? product.productOffer 
+            : product.category?.categoryOffer || 0;
+
+      
+        product.variants = product.variants.map(variant => ({
+            ...variant,
+            discountedPrice: Math.floor((variant.salePrice * (100 - applicableOffer) / 100)),
+            applicableOffer: parseFloat(((variant.price - variant.salePrice) / variant.price) * 100).toFixed(2)
+        }));
+
+      
+        const relatedProducts = await Product.find({ 
+            category: product.category._id, 
+            _id: { $ne: product._id } 
+        })
+        .populate('category')
+        .lean();
+
+        const processedRelated = relatedProducts.map(prod => {
+            const offer = prod.productOffer > 0 
+                ? prod.productOffer 
+                : prod.category?.categoryOffer || 0;
+            
+            return {
+                ...prod,
+                variants: prod.variants.map(v => ({
+                    ...v,
+                    discountedPrice: (v.salePrice * (100 - offer) / 100).toFixed(2),
+                    applicableOffer: parseFloat(((v.price - v.salePrice) / v.price) * 100).toFixed(2)
+                }))
+            };
+        });
+
         res.render('productDetails', {
             product,
-            relatedProducts,
-            title:"product Details"
+            relatedProducts: processedRelated,
+            title: "Product Details"
         });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
     }
 };
-
-
 const updateVariantDetails = async (req, res) => {
     try {
-        const { productId, variantId } = req.body; // Get product and variant IDs from request body
-        console.log("update variant productid",productId)
-        console.log("update variant variantid",variantId)
-        // Fetch the product by ID
-        const product = await Product.findById(productId);
-        
-        if (!product) {
-            return res.status(404).send('Product not found');
-        }
+        const { productId, variantId } = req.body;
 
-        // Find the selected variant by its ID
+        // Get product with populated category
+        const product = await Product.findById(productId)
+            .populate('category');
+
+        if (!product) return res.status(404).send('Product not found');
+
         const variant = product.variants.id(variantId);
-        console.log(variant)
-        if (!variant) {
-            return res.status(404).send('Variant not found');
-        }
+        if (!variant) return res.status(404).send('Variant not found');
 
-        // Return the updated variant details (price, quantity, etc.)
+        // Calculate applicable offer
+        const applicableOffer = product.productOffer > 0 
+            ? product.productOffer 
+            : product.category?.categoryOffer || 0;
+
+        // Calculate discounted price
+        const discountedPrice = Math.floor((variant.salePrice * (100 - applicableOffer) / 100))
+
         res.json({
-            salePrice: variant.salePrice,
-            price: variant.price,
+            salePrice: discountedPrice, // Send discounted price
+            originalPrice: variant.price.toFixed(2),
             quantity: variant.quantity,
-            sizeStorage: variant.size,
+            size: variant.size,
+            applicableOffer
         });
     } catch (error) {
-        console.error("erro while updating",error.message);
+        console.error("Error in updateVariantDetails:", error.message);
         res.status(500).send('Server Error');
     }
 };
@@ -66,18 +106,18 @@ const addToCart = async (req, res) => {
     try {
         const { productId, variantId, quantity, productImage } = req.body;
 
-        // Check if the user is logged in via session
+        // Check if user is logged in
         if (!req.session.user) {
             return res.status(401).json({
                 success: false,
-                message: 'please login first. redirecting you in 2 sec',
-                redirectTo: '/login'  // Sending the redirect URL in the response
+                message: 'Please login first. Redirecting you in 2 sec',
+                redirectTo: '/login'
             });
         }
 
         const { id } = req.session.user;
 
-        // Validate input fields
+        // Validate required fields
         if (!productId || !variantId || !quantity || !productImage) {
             return res.status(400).json({
                 success: false,
@@ -85,18 +125,18 @@ const addToCart = async (req, res) => {
             });
         }
 
-        // Find the user from the database
+        // Find the user
         const user = await User.findById(id);
         if (!user) {
             return res.status(401).json({
                 success: false,
-                message: 'please login first. redirecting you in 2 sec',
-                redirectTo: '/login'  // Sending the redirect URL in the response
+                message: 'Please login first. Redirecting you in 2 sec',
+                redirectTo: '/login'
             });
         }
 
-        // Find the product and variant from the database
-        const product = await Product.findById(productId);
+        // Find the product and populate the category
+        const product = await Product.findById(productId).populate('category');
         if (!product) {
             return res.status(404).json({
                 success: false,
@@ -104,6 +144,7 @@ const addToCart = async (req, res) => {
             });
         }
 
+        // Find the variant
         const variant = product.variants.id(variantId);
         if (!variant) {
             return res.status(404).json({
@@ -111,51 +152,60 @@ const addToCart = async (req, res) => {
                 message: 'Variant not found.'
             });
         }
-        if(variant.quantity <= 0){
+
+        // Check if the variant is in stock
+        if (variant.quantity <= 0) {
             return res.status(404).json({
-                success:false,
-                message:"Out of Stock"
-            })
+                success: false,
+                message: 'Out of Stock'
+            });
         }
 
-        // Calculate total price for the item based on quantity
-        const totalPrice = variant.salePrice * quantity;
+        // Calculate the applicable offer
+        const applicableOffer = product.productOffer > 0 
+            ? product.productOffer 
+            : product.category?.categoryOffer || 0;
 
-        // Check if the user already has a cart
+        // Calculate the discounted price
+        const discountedPrice = Math.floor((variant.salePrice * (100 - applicableOffer) / 100));
+
+        // Calculate the total price for the item
+        const totalPrice = discountedPrice * quantity;
+
+        // Find or create the user's cart
         let cart = await Cart.findOne({ userId: user._id });
-
         if (!cart) {
-            // Create a new cart if not found
             cart = new Cart({
                 userId: user._id,
                 items: [],
                 totalAmount: 0,
             });
             await cart.save();
-            user.cart = cart._id
-            await user.save();;
+            user.cart = cart._id;
+            await user.save();
         }
 
-        // Check if the product with the same variant is already in the cart
+        // Check if the item already exists in the cart
         const existingItemIndex = cart.items.findIndex(
             (item) => item.productId.toString() === productId && item.variantId === variantId
         );
 
         if (existingItemIndex > -1) {
-            // Update the existing cart item if it's already in the cart
+            // Update the existing item
             cart.items[existingItemIndex].quantity += quantity;
-            cart.items[existingItemIndex].totalPrice = cart.items[existingItemIndex].quantity * variant.salePrice;
+            cart.items[existingItemIndex].totalPrice = cart.items[existingItemIndex].quantity * discountedPrice;
         } else {
-            // Add the new product to the cart
+            // Add the new item to the cart
             cart.items.push({
                 productId: productId,
                 variantId: variantId,
                 color: variant.color,
                 size: variant.size,
                 quantity: quantity,
-                price: variant.salePrice,
+                price: discountedPrice,
                 productImage: productImage,
                 totalPrice: totalPrice,
+                applicableOffer: applicableOffer 
             });
         }
 
@@ -168,9 +218,8 @@ const addToCart = async (req, res) => {
         // Respond with success message and the updated cart
         return res.status(200).json({
             success: true,
-            message: 'Product added to cart successfully! redirecting you to cart in 2 sec',
+            message: 'Product added to cart successfully! Redirecting you to cart in 2 sec',
             redirectTo: '/profile/cart'
-
         });
 
     } catch (error) {

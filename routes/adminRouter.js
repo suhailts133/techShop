@@ -24,6 +24,7 @@ router.get("/", adminCheckAuthLogin, adminController.adminLoadLogin);
 router.post("/",adminCheckAuthLogin, adminController.adminLogin);
 
 router.get("/dashboard", adminCheckAuth, adminController.loadDashboard)
+router.get('/sales-report', adminController.getSalesReport);
 
 // customer routes
 router.get("/users", adminCheckAuth, customerController.customerInfo)

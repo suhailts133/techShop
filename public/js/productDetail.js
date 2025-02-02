@@ -20,8 +20,16 @@ function updateVariantDetails() {
         success: function (response) {
             // Update price, regular price, and available quantity dynamically
             document.getElementById('price').textContent = `${response.salePrice}`;
-            document.getElementById('regular-price').textContent = `${response.price}`;
+            document.getElementById('regular-price').textContent = `${response.originalPrice}`;
 
+            const discountBadge = document.querySelector('.badge.bg-danger');
+            if (data.applicableOffer > 0) {
+                discountBadge.textContent = `-${data.applicableOffer}% OFF `;
+                discountBadge.style.display = 'inline-block';
+            } else {
+                discountBadge.style.display = 'none';
+            }
+            
             const quantityElement = document.getElementById('quantity');
             const selectedQuantityElement = document.getElementById('selected-quantity');
             const decreaseButton = document.querySelector('button[onclick="changeQuantity(-1)"]');

@@ -2,7 +2,7 @@
 
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Checkout</h2>
-    <form action="/checkout" method="POST">
+    <form action="/checkout" method="POST" id="checkoutForm">
         <div class="row">
             <!-- Left Section: Address and Payment -->
             <div class="col-lg-8">
@@ -15,16 +15,14 @@
                                 <div class="address-card border rounded p-3 mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <label>
-                                            <input 
-                                                type="radio" 
-                                                name="shippingAddress" 
-                                                value="<%= address._id %>" 
-                                                class="form-check-input me-2"
-                                                required
-                                            >
-                                            <strong><%= address.addressType %></strong>
+                                            <input type="radio" name="shippingAddress" value="<%= address._id %>"
+                                                class="form-check-input me-2" required>
+                                            <strong>
+                                                <%= address.addressType %>
+                                            </strong>
                                         </label>
-                                        <a href="/profile/address/edit?addressId=<%= address._id %>" class="btn btn-sm btn-secondary">Edit</a>
+                                        <a href="/profile/address/edit?addressId=<%= address._id %>"
+                                            class="btn btn-sm btn-secondary">Edit</a>
                                     </div>
                                     <p class="mb-1">
                                         <%= address.houseAddress %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %>
@@ -46,16 +44,23 @@
                     <h4 class="mb-3">Payment Method</h4>
                     <div class="payment-methods">
                         <div class="form-check mb-2">
-                            <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input" checked>
+                            <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input"
+                                checked>
                             <label for="cod" class="form-check-label">Cash on Delivery</label>
                         </div>
                         <div class="form-check mb-2">
-                            <input type="radio" name="paymentMethod" value="Card" id="card" class="form-check-input">
+                            <input type="radio" name="paymentMethod" value="Card" id="card"
+                                class="form-check-input">
                             <label for="card" class="form-check-label">Credit/Debit Card</label>
                         </div>
-                        <div class="form-check">
+                        <div class="form-check mb-2">
                             <input type="radio" name="paymentMethod" value="UPI" id="upi" class="form-check-input">
                             <label for="upi" class="form-check-label">UPI</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="radio" name="paymentMethod" value="Razorpay" id="razorpay"
+                                class="form-check-input">
+                            <label for="razorpay" class="form-check-label">Razorpay</label>
                         </div>
                     </div>
                 </div>
@@ -65,49 +70,46 @@
             <div class="col-lg-4">
                 <div class="order-summary p-4 border rounded">
                     <h4 class="mb-4 text-center">Order Summary</h4>
-                    <!--coupon field-->
+                    <!-- Coupon Field -->
                     <div class="mb-3">
                         <label for="couponCode" class="form-label">Apply Coupon</label>
                         <div class="input-group">
-                          <input 
-                            type="text" 
-                            id="couponCode" 
-                            name="couponCode" 
-                            class="form-control" 
-                            placeholder="Enter coupon code"
-                          >
-                          <button 
-                            type="button" 
-                            id="applyCouponBtn" 
-                            class="btn btn-outline-secondary"
-                          >
-                            Apply
-                          </button>
+                            <input type="text" id="couponCode" name="couponCode" class="form-control"
+                                placeholder="Enter coupon code">
+                            <button type="button" id="applyCouponBtn" class="btn btn-outline-secondary">
+                                Apply
+                            </button>
                         </div>
                         <div id="couponMessage" class="mt-2 text-danger small"></div>
-                      </div>
-                      <!--order items-->
+                    </div>
+                    <!-- Order Items -->
                     <ul class="list-group mb-3">
                         <% cart.items.forEach(item => { %>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong><%= item.productId.productName %></strong>
-                                    <div class="text-muted small">Qty: <%= item.quantity %></div>
+                                    <strong>
+                                        <%= item.productId.productName %>
+                                    </strong>
+                                    <div class="text-muted small">Qty: <%= item.quantity %>
+                                    </div>
                                 </div>
                                 <span class="fw-bold">₹<%= item.totalPrice.toFixed(2) %></span>
                             </li>
                         <% }) %>
                     </ul>
-                    <!--discout amount-->
-                    <div id="discountDisplay" class="d-none justify-content-between align-items-center p-3 bg-light rounded">
+                    <!-- Discount Amount -->
+                    <div id="discountDisplay"
+                        class="d-none justify-content-between align-items-center p-3 bg-light rounded">
                         <strong class="fs-6">Discount:</strong>
                         <strong class="fs-6">₹<span id="discountAmount">0.00</span></strong>
-                      </div>
-                      <!--total-->
+                    </div>
+                    <!-- Total -->
                     <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
                         <div id="cartTotal" data-total="<%= cart.totalAmount %>" hidden></div>
                         <strong class="fs-5">Total:</strong>
-                        <strong class="fs-5">₹<span id="finalTotal"><%= cart.totalAmount.toFixed(2) %></span></strong>
+                        <strong class="fs-5">₹<span id="finalTotal">
+                                <%= cart.totalAmount.toFixed(2) %>
+                            </span></strong>
                     </div>
                 </div>
             </div>
@@ -119,5 +121,91 @@
         </div>
     </form>
 </div>
+
+<!-- Razorpay Integration Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+        if (paymentMethod === 'Razorpay') {
+            try {
+                const finalTotal = parseFloat(document.getElementById('finalTotal').textContent);
+
+                const response = await fetch('/create-razorpay-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: finalTotal * 100, // Convert to paise
+                        currency: 'INR',
+                    }),
+                });
+
+                const orderData = await response.json();
+                console.log("Order Data:", orderData);
+
+                const options = {
+                    key: "rzp_test_BP19IdbtnXoghn",
+                    amount: orderData.order.amount,
+                    currency: "INR",
+                    name: "Tech Shop",
+                    order_id: orderData.order.id,
+                    handler: async function (response) {
+                        console.log("razor pay response", response);
+
+                        // Now verify the payment on the server-side
+                        const verification = await fetch('/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                            }),
+                        });
+
+                        const result = await verification.json();
+                        console.log('Verification Result:', result);
+
+                        if (result.success) {
+                            // Create a hidden input for razorpay_payment_id only after verification
+                            const razorpayPaymentIdInput = document.createElement("input");
+                            razorpayPaymentIdInput.type = "hidden";
+                            razorpayPaymentIdInput.name = "razorpay_payment_id";
+                            razorpayPaymentIdInput.value = response.razorpay_payment_id;
+
+                            // Append it to the form
+                            document.getElementById('checkoutForm').appendChild(razorpayPaymentIdInput);
+
+                            // Now, submit the form with the payment ID
+                            document.getElementById('checkoutForm').submit();
+                        } else {
+                            alert('Payment verification failed: ' + (result.error || 'Unknown error'));
+                        }
+                    },
+                    prefill: {
+                        name: "<%= user.name %>",
+                        email: "<%= user.email %>",
+                        contact: "<%= user.phone || '' %>",
+                    },
+                    theme: {
+                        color: "#F37254",
+                    },
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+            } catch (error) {
+                console.error('Razorpay error:', error);
+                alert('Error processing payment. Please try again.');
+            }
+        } else {
+            // If payment method is not Razorpay, submit the form directly
+            e.target.submit();
+        }
+    });
+</script>
 
 <script src="/js/couponValidation.js"></script>

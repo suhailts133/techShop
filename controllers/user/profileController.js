@@ -7,7 +7,14 @@ const { securePassword } = require("../../helpers/userAuthendication.js") // aut
 
 const loadProfilePage = async (req, res) => {
     try {
-        res.render("profilePage", { title: "profilePage", user: req.session.user || null })
+        if(!req.session.user){
+            req.flash("error", "login first")
+            return res.redirect("/")
+        }
+        const {id} = req.session.user;
+        const findUser = await User.findById(id);
+
+        res.render("profilePage", { title: "profilePage", user: findUser })
     } catch (error) {
         console.log("err while loading profile page", error.message)
     }

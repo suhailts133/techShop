@@ -39,11 +39,14 @@
                         <!-- Show only sale price and regular price for the first available variant -->
                         <% if (products[i].variants && products[i].variants.length > 0) { 
                             const variant = products[i].variants.find(v => v.quantity > 0); %>
-                            <% if (variant) { %>
-                                <span ><%=variant.color%> - <%= variant.size%></span>
-                                <p class="card-text">                                                                                                                                                                                                                                                                                              
-                                    <span class="text-success">₹<%= variant.salePrice %></span> 
-                                    <span class="text-danger"><s>₹<%= variant.price %></s></span>
+                            <% if (variant) { 
+                                let discount = products[i].productOffer > 0 ? products[i].productOffer : products[i].category.categoryOffer;
+                                const discountedPrice = (variant.salePrice * (100 - discount) / 100).toFixed(2);
+                            %>
+                                <span><%=variant.color%> - <%= variant.size%></span>
+                                <p class="card-text">
+                                    <span class="text-success">₹<%= discountedPrice %></span>
+                                    <span class="text-danger"><s>₹<%= variant.price.toFixed(2) %></s></span>
                                 </p>
                             <% } %>
                         <% } %>

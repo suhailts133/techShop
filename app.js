@@ -24,7 +24,7 @@ db();
 // middlewares
 app.use(nocache());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // Required for JSON parsing
+app.use(express.json());
 app.use(express.static("public"))
 app.use(flash());
 app.use(session({

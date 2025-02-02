@@ -1,4 +1,206 @@
 <% layout("../layouts/adminboilerplate") %>
-<title><%= title  %></title>
+<title><%= title %></title>
 
-<h1>admin dashboard</h1>
+<h1>Admin Dashboard</h1>
+
+<!-- Sales Report Section -->
+<section class="sales-report">
+    <h2>Sales Report</h2>
+
+    <form action="/admin/sales-report" method="GET" class="report-controls">
+        <div class="form-group">
+            <label for="periodSelect">Report Period:</label>
+            <select name="period" id="periodSelect" class="form-control">
+                <option value="daily" <%= typeof period !== 'undefined' && period === 'daily' ? 'selected' : '' %>>Daily</option>
+                <option value="weekly" <%= typeof period !== 'undefined' && period === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                <option value="monthly" <%= typeof period !== 'undefined' && period === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                <option value="yearly" <%= typeof period !== 'undefined' && period === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                <option value="custom" <%= typeof period !== 'undefined' && period === 'custom' ?  'selected' : '' %>>Custom Range</option>
+            </select>
+        </div>
+
+        <div id="customDateRange" style="display: <%= period === 'custom' ? 'block' : 'none' %>;">
+            <div class="form-group">
+                <label>Start Date:</label>
+                <input type="date" name="startDate" value="<%= startDate %>" required>
+            </div>
+            <div class="form-group">
+                <label>End Date:</label>
+                <input type="date" name="endDate" value="<%= endDate %>" required>
+            </div>
+        </div>
+
+        <div class="form-buttons">
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+            <button type="submit" name="download" value="excel" class="btn btn-success">Export Excel</button>
+            <button type="submit" name="download" value="pdf" class="btn btn-danger">Export PDF</button>
+        </div>
+    </form>
+
+    <% if (typeof report !== 'undefined' && report) { %>
+        <div class="report-summary">
+            <h3>Report from <%= startDate %> to <%= endDate %></h3>
+            <div class="summary-cards">
+                <div class="card">
+                    <h4>Total Orders</h4>
+                    <p><%= report.totalSales %></p>
+                </div>
+                <div class="card">
+                    <h4>Total Sales</h4>
+                    <p>₹<%= report.totalAmount.toFixed(2) %></p>
+                </div>
+                <div class="card">
+                    <h4>Total Discounts</h4>
+                    <p>₹<%= report.totalDiscount.toFixed(2) %></p>
+                </div>
+                <div class="card">
+                    <h4>Coupons Used</h4>
+                    <p><%= report.couponsUsed %></p>
+                </div>
+            </div>
+        </div>
+    <% } %>
+
+    <!-- Chart Section -->
+    <% if (typeof chartData !== 'undefined' && chartData.length > 0) { %>
+        <div class="chart-section">
+            <h3>Sales Visualization</h3>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    <% } else { %>
+        <p>No data available for the selected period.</p>
+    <% } %>
+</section>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const rawData = <%- chartData || '[]' %>;
+
+            if (!rawData || rawData.length === 0) {
+                console.error("No data available for chart");
+                return;
+            }
+
+            const ctx = document.getElementById('salesChart').getContext('2d');
+
+            // Format labels based on the selected period
+            const labels = rawData.map(item => {
+                switch('<%= period %>') {
+                    case 'daily':
+                        return moment(item._id).format('DD MMM'); // Daily: Display date (e.g., 01 Jan)
+                    case 'weekly':
+                        return `Week ${item._id}`; // Weekly: Display week number
+                    case 'monthly':
+                        return moment(item._id, 'YYYY-MM').format('MMM YYYY'); // Monthly: Display month and year
+                    case 'yearly':
+                        return item._id.toString(); // Yearly: Display year
+                    default:
+                        return item._id;
+                }
+            });
+
+            // Extract sales data for the chart
+            const salesData = rawData.map(item => item.total);
+
+            // Chart configuration
+            const config = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sales Amount',
+                        data: salesData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Sales Amount'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '<%= period === "daily" ? "Date" : period === "weekly" ? "Week" : period === "monthly" ? "Month" : "Year" %>'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Sales: ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Initialize the chart
+            new Chart(ctx, config);
+        } catch (error) {
+            console.error("Error initializing chart:", error);
+        }
+    });
+</script>
+<style>
+    .sales-report {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    .form-group {
+        margin: 10px 0;
+    }
+    .form-control {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin: 20px 0;
+    }
+    .form-buttons {
+        margin: 15px 0;
+        display: flex;
+        gap: 10px;
+    }
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-danger { background: #dc3545; color: white; }
+</style>

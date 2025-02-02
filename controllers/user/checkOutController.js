@@ -39,8 +39,8 @@ const loadCheckOutPage = async (req, res) => {
 const checkOut = async (req, res) => {
     try {
         const { id } = req.session.user;
-        const { shippingAddress, paymentMethod, couponCode } = req.body;
-
+        const { shippingAddress, paymentMethod, couponCode,razorpay_payment_id } = req.body;
+        console.log(req.body)
         // Validate required fields
         if (!shippingAddress || !paymentMethod) {
             req.flash("error", "All fields are required");
@@ -115,11 +115,14 @@ const checkOut = async (req, res) => {
                 price: item.totalPrice,
                 orderStatus: "Pending"
             })),
-            totalAmount: totalAmount, // This now includes any discount
+            totalAmount: totalAmount, 
             shippingAddress: address._id,
             paymentMethod,
             paymentId: razorpay_payment_id || null,
-            couponRefrence: usedCoupon?._id
+            couponRefrence: usedCoupon?._id  || null,
+            couponUsed: usedCoupon? true:false,
+            discount:usedCoupon?.discountValue || 0
+
         });
 
         await order.save();

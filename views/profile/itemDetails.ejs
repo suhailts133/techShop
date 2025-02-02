@@ -37,6 +37,62 @@
             </div>
         <% } %>
 
+        <% if (item.orderStatus === "Pending" || item.orderStatus === "Shipped") { %>
+            <div class="mb-4">
+                <h5>Reason for Cancellation</h5>
+                <form action="/profile/orders/cancelItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">Reason for Cancellation</label>
+                        <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger">Submit Cancellation Request</button>
+                </form>
+            </div>
+        <% } %>
+
+        <% if (item.orderStatus === "Delivered" && !item.review) { %>
+            <div class="mb-4">
+              <h5>Write a Review</h5>
+              <form action="/profile/orders/reviews/create?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+                <div class="mb-3">
+                  <label class="form-label">Rating</label>
+                  <div class="rating-stars">
+                    <% for (let i = 5; i >= 1; i--) { %>
+                      <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required>
+                      <label for="star<%= i %>" class="star">★</label>
+                    <% } %>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="reviewText" class="form-label">Review</label>
+                  <textarea class="form-control" id="reviewText" name="review" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+              </form>
+            </div>
+            
+            <style>
+            .rating-stars {
+              display: flex;
+              flex-direction: row-reverse;
+              justify-content: flex-end;
+            }
+            .rating-stars input {
+              display: none;
+            }
+            .rating-stars label {
+              font-size: 2rem;
+              color: #ddd;
+              cursor: pointer;
+              transition: color 0.2s;
+            }
+            .rating-stars input:checked ~ label,
+            .rating-stars label:hover,
+            .rating-stars label:hover ~ label {
+              color: #ffd700;
+            }
+            </style>
+            <% } %>
         <!-- Back to Orders -->
         <div class="text-center mt-4">
             <a href="/profile/orders" class="btn btn-secondary">Back to Orders</a>

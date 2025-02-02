@@ -37,6 +37,9 @@ router.get("/wishlist/delete", wishlistController.deleteWishlistItem)
 router.get("/orders",checkAuth, orderController.getUserOrders)
 router.get("/orders/orderDetails",checkAuth, orderController.getItemDetails)
 router.post("/orders/returnItem",checkAuth, orderController.requestReturn)
+router.post("/orders/cancelItem", checkAuth, orderController.requestCancel)
+
+router.post("/orders/reviews/create", checkAuth, orderController.createReview)
 // coupons 
 router.get("/coupons", checkAuth, couponController.allCoupons)
 

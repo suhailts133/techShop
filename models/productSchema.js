@@ -62,6 +62,10 @@ const productSchema = new Schema({
         type: Boolean,
         default: false
     },
+    reviews:[{
+        type:Schema.Types.ObjectId,
+        ref:"Review"
+    }],
     status: {
         type: String,
         enum: ["Available", "Out of Stock", "Discontinued"],

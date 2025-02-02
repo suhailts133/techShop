@@ -72,7 +72,7 @@ router.post("/checkout/validate-coupon",checkAuth, checkOutController.validateCo
 router.post('/create-razorpay-order', razorpayController.createRazorpayOrder);
 
 // Verify Razorpay payment
-router.post('/verify-payment', razorpayController.verifyPayment);
+router.post('/verify-payment', express.json(), razorpayController.verifyPayment);
 
 router.get("/addToWishlist", checkAuth,wishlistController.addToWishlist)
 
