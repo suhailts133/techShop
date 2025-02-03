@@ -3,9 +3,7 @@ const bcrypt = require("bcrypt");
 const User = require("../../models/userSchema");
 const moment = require('moment');
 const ExcelJS = require('exceljs');
-// const pdfMake = require('pdfmake/build/pdfmake');
-// const pdfFonts = require('pdfmake/build/vfs_fonts');
-// pdfMake.vfs = pdfFonts.pdfMake.vfs;
+const PDFDocument = require('pdfkit');
 const Order = require("../../models/orderSchema.js")
 
 const adminLoadLogin = async (req, res) => {
@@ -60,7 +58,6 @@ const loadDashboard = async (req, res) => {
     }
 }
 
-
 const getSalesReport = async (req, res) => {
     try {
         const { period, startDate, endDate } = req.query;
@@ -72,15 +69,15 @@ const getSalesReport = async (req, res) => {
                 end = moment().endOf('day');
                 break;
             case 'weekly':
-                start = moment().startOf('week'); // Current week
+                start = moment().startOf('week');
                 end = moment().endOf('week');
                 break;
             case 'monthly':
-                start = moment().startOf('year'); // Entire current year
+                start = moment().startOf('year');
                 end = moment().endOf('year');
                 break;
             case 'yearly':
-                start = moment().subtract(4, 'years').startOf('year'); // Last 5 years
+                start = moment().subtract(4, 'years').startOf('year');
                 end = moment().endOf('year');
                 break;
             case 'custom':
@@ -91,7 +88,6 @@ const getSalesReport = async (req, res) => {
                 return res.status(400).send('Invalid period');
         }
 
-        // Aggregation for summary data
         const reportData = await Order.aggregate([
             {
                 $match: {
@@ -108,101 +104,74 @@ const getSalesReport = async (req, res) => {
                 }
             }
         ]);
-
-        // Aggregation for chart data based on period
-        let groupBy = {};
-        switch (period) {
-            case 'daily':
-                groupBy = {
-                    $group: {
-                        _id: { $hour: "$createdAt" }, // Group by hour
-                        total: { $sum: "$totalAmount" },
-                        count: { $sum: 1 } // Optional: if needed for other purposes
-                    }
-                };
-                break;
-            case 'weekly':
-                groupBy = {
-                    $group: {
-                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Group by day
-                        total: { $sum: "$totalAmount" }
-                    }
-                };
-                break;
-            case 'monthly':
-                groupBy = {
-                    $group: {
-                        _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }, // Group by month
-                        total: { $sum: "$totalAmount" }
-                    }
-                };
-                break;
-            case 'yearly':
-                groupBy = {
-                    $group: {
-                        _id: { $year: "$createdAt" }, // Group by year
-                        total: { $sum: "$totalAmount" }
-                    }
-                };
-                break;
-            default:
-                groupBy = {
-                    $group: {
-                        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-                        total: { $sum: "$totalAmount" }
-                    }
-                };
-        }
-
-        const chartData = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: { $gte: start.toDate(), $lte: end.toDate() }
-                }
-            },
-            groupBy,
-            { $sort: { "_id": 1 } }
-        ]);
-
+        console.log("reported data",reportData);
+        
         const result = reportData[0] || {
             totalSales: 0,
             totalAmount: 0,
             totalDiscount: 0,
             couponsUsed: 0
         };
+        console.log("result",result);
+        
+        if (req.query.download === 'excel') {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Sales Report');
 
-        // Handle download requests (Excel)
-        if (req.query.download) {
-            if (req.query.download === 'excel') {
-                const workbook = new ExcelJS.Workbook();
-                const worksheet = workbook.addWorksheet('Sales Report');
+            worksheet.columns = [
+                { header: 'Metric', key: 'metric' },
+                { header: 'Value', key: 'value' }
+            ];
 
-                worksheet.columns = [
-                    { header: 'Metric', key: 'metric' },
-                    { header: 'Value', key: 'value' }
-                ];
+            worksheet.addRow({ metric: 'Total Orders', value: result.totalSales });
+            worksheet.addRow({ metric: 'Total Amount', value: result.totalAmount });
+            worksheet.addRow({ metric: 'Total Discount', value: result.totalDiscount });
+            worksheet.addRow({ metric: 'Coupons Used', value: result.couponsUsed });
 
-                worksheet.addRow({ metric: 'Total Orders', value: result.totalSales });
-                worksheet.addRow({ metric: 'Total Amount', value: result.totalAmount });
-                worksheet.addRow({ metric: 'Total Discount', value: result.totalDiscount });
-                worksheet.addRow({ metric: 'Coupons Used', value: result.couponsUsed });
-
-                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
-                await workbook.xlsx.write(res);
-                return res.end();
-            }
-        } else {
-            res.render('dashboard', {
-                admin: req.session.admin || null,
-                title: "Sales Report",
-                period: period || 'daily',
-                startDate: start.format('YYYY-MM-DD'),
-                endDate: end.format('YYYY-MM-DD'),
-                report: result || null,
-                chartData: JSON.stringify(chartData || [])
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
+            await workbook.xlsx.write(res);
+            return res.end();
+        }else if (req.query.download === 'pdf') {
+            const doc = new PDFDocument();
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+            
+            doc.pipe(res);
+            
+            // Add PDF content
+            doc.fontSize(18).text('Sales Report', { align: 'center' });
+            doc.moveDown();
+            
+            doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
+            doc.moveDown();
+            
+            // Create table-like structure
+            const metrics = [
+                { metric: 'Total Orders', value: result.totalSales },
+                { metric: 'Total Amount', value: `₹${result.totalAmount.toFixed(2)}` },
+                { metric: 'Total Discount', value: `₹${result.totalDiscount.toFixed(2)}` },
+                { metric: 'Coupons Used', value: result.couponsUsed }
+            ];
+            
+            metrics.forEach((item, index) => {
+                doc.font('Helvetica-Bold').text(item.metric, { continued: true });
+                doc.font('Helvetica').text(`: ${item.value}`);
+                if (index !== metrics.length - 1) doc.moveDown(0.5);
             });
+            
+            doc.end();
+            return;
         }
+
+        res.render('dashboard', {
+            admin: req.session.admin || null,
+            title: "Sales Report",
+            period: period || 'daily',
+            startDate: start.format('YYYY-MM-DD'),
+            endDate: end.format('YYYY-MM-DD'),
+            report: result || null
+        });
     } catch (error) {
         console.error('Error generating sales report:', error);
         res.status(500).send('Server Error');

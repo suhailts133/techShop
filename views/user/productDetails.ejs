@@ -189,16 +189,10 @@
 <script src="https://cdn.jsdelivr.net/npm/drift-zoom@1.3.0/dist/Drift.min.js"></script>
 
     <script>
-
         function addToWishlist(productId) {
             const variantSelect = document.getElementById('variant');
             const selectedVariantId = variantSelect.value;
-
-          
-            const currentUrl = encodeURIComponent(window.location.href); 
-
-            const url = `/addToWishlist?productId=${productId}&variantId=${selectedVariantId}&redirectUrl=${currentUrl}`;
-
+            const url = `/addToWishlist?productId=${productId}&variantId=${selectedVariantId}`;
             window.location.href = url;
         }
     </script>

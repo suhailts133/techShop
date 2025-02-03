@@ -183,17 +183,24 @@ const createReview = async (req, res) => {
           rating,
           review
         });
-    
-        // Update product's reviews array
-        await Product.findByIdAndUpdate(item.productId, {
-          $push: { reviews: newReview._id }
-        });
-    
+        await newReview.save();
+        
+        const  product = await Product.findById(item.productId);
+        if(!product){
+            return res.status(400).send("product not found");
+        }
+        product.reviews.push(newReview._id);
+        const previousTotal = product.averageRating * product.reviewCount;
+        product.reviewCount += 1;
+        product.averageRating = parseFloat(
+            ((previousTotal + newReview.rating) / product.reviewCount).toFixed(1)
+        );
+        await product.save();
         // Mark item as reviewed
         item.review = true;
         await order.save();
     
-        await newReview.save();
+        
         req.flash("review is provided for this item")
         res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
       } catch (err) {

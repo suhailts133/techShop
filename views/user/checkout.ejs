@@ -38,7 +38,7 @@
                         </div>
                     <% } %>
                 </div>
-
+                <div><p>Wallet: <%= user.wallet%></p></div>
                 <!-- Payment Method Section -->
                 <div>
                     <h4 class="mb-3">Payment Method</h4>
@@ -48,14 +48,10 @@
                                 checked>
                             <label for="cod" class="form-check-label">Cash on Delivery</label>
                         </div>
+                       
                         <div class="form-check mb-2">
-                            <input type="radio" name="paymentMethod" value="Card" id="card"
-                                class="form-check-input">
-                            <label for="card" class="form-check-label">Credit/Debit Card</label>
-                        </div>
-                        <div class="form-check mb-2">
-                            <input type="radio" name="paymentMethod" value="UPI" id="upi" class="form-check-input">
-                            <label for="upi" class="form-check-label">UPI</label>
+                            <input type="radio" name="paymentMethod" value="Wallet" id="Wallet" class="form-check-input">
+                            <label for="Wallet" class="form-check-label">Wallet</label>
                         </div>
                         <div class="form-check">
                             <input type="radio" name="paymentMethod" value="Razorpay" id="razorpay"

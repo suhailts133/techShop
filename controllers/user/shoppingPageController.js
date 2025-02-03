@@ -106,6 +106,10 @@ const filterProducts = async (req, res) => {
             sortQuery = { productName: 1 };
         } else if (sort === 'name-desc') {
             sortQuery = { productName: -1 };
+        } else if (sort === 'popularity-asc'){
+            sortQuery = {averageRating: -1, reviewCount: -1}
+        } else if (sort === 'popularity-desc'){
+            sortQuery = {averageRating: 1, reviewCount: 1}
         }
       
         let findProducts = await Product.find(query)

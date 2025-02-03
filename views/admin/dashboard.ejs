@@ -3,7 +3,6 @@
 
 <h1>Admin Dashboard</h1>
 
-<!-- Sales Report Section -->
 <section class="sales-report">
     <h2>Sales Report</h2>
 
@@ -60,103 +59,8 @@
             </div>
         </div>
     <% } %>
-
-    <!-- Chart Section -->
-    <% if (typeof chartData !== 'undefined' && chartData.length > 0) { %>
-        <div class="chart-section">
-            <h3>Sales Visualization</h3>
-            <div class="chart-container">
-                <canvas id="salesChart"></canvas>
-            </div>
-        </div>
-    <% } else { %>
-        <p>No data available for the selected period.</p>
-    <% } %>
 </section>
 
-<!-- Include Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        try {
-            const rawData = <%- chartData || '[]' %>;
-
-            if (!rawData || rawData.length === 0) {
-                console.error("No data available for chart");
-                return;
-            }
-
-            const ctx = document.getElementById('salesChart').getContext('2d');
-
-            // Format labels based on the selected period
-            const labels = rawData.map(item => {
-                switch('<%= period %>') {
-                    case 'daily':
-                        return moment(item._id).format('DD MMM'); // Daily: Display date (e.g., 01 Jan)
-                    case 'weekly':
-                        return `Week ${item._id}`; // Weekly: Display week number
-                    case 'monthly':
-                        return moment(item._id, 'YYYY-MM').format('MMM YYYY'); // Monthly: Display month and year
-                    case 'yearly':
-                        return item._id.toString(); // Yearly: Display year
-                    default:
-                        return item._id;
-                }
-            });
-
-            // Extract sales data for the chart
-            const salesData = rawData.map(item => item.total);
-
-            // Chart configuration
-            const config = {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Sales Amount',
-                        data: salesData,
-                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Sales Amount'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: '<%= period === "daily" ? "Date" : period === "weekly" ? "Week" : period === "monthly" ? "Month" : "Year" %>'
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `Sales: ${context.raw.toFixed(2)}`;
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            // Initialize the chart
-            new Chart(ctx, config);
-        } catch (error) {
-            console.error("Error initializing chart:", error);
-        }
-    });
-</script>
 <style>
     .sales-report {
         padding: 20px;
@@ -184,11 +88,6 @@
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .chart-container {
-        position: relative;
-        height: 400px;
-        margin: 20px 0;
-    }
     .form-buttons {
         margin: 15px 0;
         display: flex;
@@ -202,5 +101,4 @@
     }
     .btn-primary { background: #007bff; color: white; }
     .btn-success { background: #28a745; color: white; }
-    .btn-danger { background: #dc3545; color: white; }
 </style>

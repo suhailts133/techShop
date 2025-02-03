@@ -4,7 +4,7 @@ const Product = require("../../models/productSchema.js");
 
 const addToWishlist = async (req, res) => {
     try {
-        const { productId, variantId, redirectUrl } = req.query;
+        const { productId, variantId } = req.query;
         console.log(productId, variantId)
         if (!req.session.user) {
             req.flash("error", "login first to add items to wishlist");
@@ -45,7 +45,7 @@ const addToWishlist = async (req, res) => {
         const variantExistCheck = wishlist.items.findIndex(
             item => item.productId.toString() === productId && item.variantId.toString() === variantId
         );
-        console.log("variant check", variantExistCheck)
+  
         if (variantExistCheck > -1) {
             req.flash("error", "variant already exists in the wishlist");
             return res.redirect(`/productDetails?id=${productId}`);
@@ -61,7 +61,7 @@ const addToWishlist = async (req, res) => {
         await wishlist.save();
         req.flash("success", "Item added to wishlist successfully");
 
-        // const redirectTo = redirectUrl || '/';
+   
         return res.redirect("/profile/wishlist");
     } catch (error) {
         console.log("error while adding item to wishlist", error)

@@ -103,7 +103,14 @@ const checkOut = async (req, res) => {
             user.coupons.pull(userCoupon._id); // Remove by subdocument ID
             usedCoupon = coupon;
         }
-
+        if(paymentMethod === "Wallet"){
+            if(user.wallet < totalAmount){
+                req.flash("error", "Insufficent amount in wallet");
+                return res.redirect("/checkout");
+            }
+            user.wallet -= totalAmount
+        }
+        await user.save();
         // Create order with final amount
         const order = new Order({
             orderId: uuidv4(),
@@ -118,7 +125,7 @@ const checkOut = async (req, res) => {
             totalAmount: totalAmount, 
             shippingAddress: address._id,
             paymentMethod,
-            paymentId: razorpay_payment_id || null,
+            paymentId: paymentMethod === 'Wallet' ? 'wallet' : razorpay_payment_id || null,
             couponRefrence: usedCoupon?._id  || null,
             couponUsed: usedCoupon? true:false,
             discount:usedCoupon?.discountValue || 0
