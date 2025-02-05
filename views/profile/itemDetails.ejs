@@ -5,97 +5,161 @@
     <div class="container mt-5">
         <h1 class="mb-4">Order Item Details</h1>
 
-        <!-- Item Details -->
-        <div class="mb-4">
-            <h5>Product: <%= item.productId.productName %></h5>
-            <img src="/uploads/products/<%= item.productId.productImage[0] %>" class="img-fluid" style="max-width: 200px;">
-            
-            <!-- Check if variantDetails exists -->
-            <% if (item.variantDetails && item.variantDetails.color) { %>
-                <p><strong>Variant:</strong> Color: <%= item.variantDetails.color %>, Size: <%= item.variantDetails.size %></p>
-            <% } else { %>
-                <p><strong>Variant:</strong> N/A</p>
-            <% } %>
-            
-            <p><strong>Quantity:</strong> <%= item.quantity %></p>
-            <p><strong>Price:</strong> ₹<%= item.price.toFixed(2) %></p>
-            <p><strong>status:</strong> <%= item.orderStatus %></p>
+        <!-- Item Details Card -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Product Image -->
+                    <div class="col-md-4">
+                        <img src="/uploads/products/<%= item.productId.productImage[0] %>" class="img-fluid rounded" alt="<%= item.productId.productName %>">
+                    </div>
 
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <h2 class="card-title"><%= item.productId.productName %></h2>
+
+                        <!-- Variant Details -->
+                        <% if (item.variantDetails && item.variantDetails.color) { %>
+                            <p class="text-muted"><strong>Variant:</strong> Color: <%= item.variantDetails.color %>, Size: <%= item.variantDetails.size %></p>
+                        <% } else { %>
+                            <p class="text-muted"><strong>Variant:</strong> N/A</p>
+                        <% } %>
+
+                        <!-- Quantity -->
+                        <p class="mb-2"><strong>Quantity:</strong> <%= item.quantity %></p>
+
+                        <!-- Pricing Breakdown -->
+                        <div class="pricing-details mb-3">
+                            <p class="mb-1"><strong>Original Price:</strong> ₹<%= item.variantDetails.price.toFixed(2) %></p>
+                            <p class="mb-1"><strong>Sale Price:</strong> ₹<%= item.variantDetails.salePrice.toFixed(2) %></p>
+                            <p class="mb-1"><strong>Product Discount:</strong> ₹<%= (item.variantDetails.price - item.variantDetails.salePrice).toFixed(2) %></p>
+                            <p class="mb-1"><strong>Final Price:</strong> ₹<%= item.price.toFixed(2) %></p>
+                        </div>
+
+                        <!-- Order Status -->
+                        <p class="mb-3">
+                            <strong>Status:</strong>
+                            <span class="badge bg-<%= item.orderStatus === 'Delivered' ? 'success' : item.orderStatus === 'Pending' ? 'warning' : 'primary' %>">
+                                <%= item.orderStatus %>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Return Request Form (only if item status is Delivered) -->
         <% if (item.orderStatus === "Delivered") { %>
-            <div class="mb-4">
-                <h5>Request a Return</h5>
-                <form action="/profile/orders/returnItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-                    <div class="mb-3">
-                        <label for="reason" class="form-label">Reason for Return</label>
-                        <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-danger">Submit Return Request</button>
-                </form>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Request a Return</h5>
+                    <form action="/profile/orders/returnItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason for Return</label>
+                            <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Submit Return Request</button>
+                    </form>
+                </div>
             </div>
         <% } %>
 
+        <!-- Cancellation Form (only if item status is Pending or Shipped) -->
         <% if (item.orderStatus === "Pending" || item.orderStatus === "Shipped") { %>
-            <div class="mb-4">
-                <h5>Reason for Cancellation</h5>
-                <form action="/profile/orders/cancelItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-                    <div class="mb-3">
-                        <label for="reason" class="form-label">Reason for Cancellation</label>
-                        <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-danger">Submit Cancellation Request</button>
-                </form>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Cancel Item</h5>
+                    <form action="/profile/orders/cancelItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Reason for Cancellation</label>
+                            <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger">Submit Cancellation Request</button>
+                    </form>
+                </div>
             </div>
         <% } %>
 
+        <!-- Review Form (only if item status is Delivered and no review exists) -->
         <% if (item.orderStatus === "Delivered" && !item.review) { %>
-            <div class="mb-4">
-              <h5>Write a Review</h5>
-              <form action="/profile/orders/reviews/create?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-                <div class="mb-3">
-                  <label class="form-label">Rating</label>
-                  <div class="rating-stars">
-                    <% for (let i = 5; i >= 1; i--) { %>
-                      <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required>
-                      <label for="star<%= i %>" class="star">★</label>
-                    <% } %>
-                  </div>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Write a Review</h5>
+                    <form action="/profile/orders/reviews/create?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+                        <!-- Rating Stars -->
+                        <div class="mb-3">
+                            <label class="form-label">Rating</label>
+                            <div class="rating-stars">
+                                <% for (let i = 5; i >= 1; i--) { %>
+                                    <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required>
+                                    <label for="star<%= i %>" class="star">★</label>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Review Text -->
+                        <div class="mb-3">
+                            <label for="reviewText" class="form-label">Review</label>
+                            <textarea class="form-control" id="reviewText" name="review" rows="3" required></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                  <label for="reviewText" class="form-label">Review</label>
-                  <textarea class="form-control" id="reviewText" name="review" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-              </form>
             </div>
-            
-            <style>
-            .rating-stars {
-              display: flex;
-              flex-direction: row-reverse;
-              justify-content: flex-end;
-            }
-            .rating-stars input {
-              display: none;
-            }
-            .rating-stars label {
-              font-size: 2rem;
-              color: #ddd;
-              cursor: pointer;
-              transition: color 0.2s;
-            }
-            .rating-stars input:checked ~ label,
-            .rating-stars label:hover,
-            .rating-stars label:hover ~ label {
-              color: #ffd700;
-            }
-            </style>
-            <% } %>
-        <!-- Back to Orders -->
+        <% } %>
+
+        <!-- Back to Orders Button -->
         <div class="text-center mt-4">
             <a href="/profile/orders" class="btn btn-secondary">Back to Orders</a>
         </div>
     </div>
 </div>
+
+<!-- Styles -->
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .pricing-details {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .rating-stars input {
+        display: none;
+    }
+
+    .rating-stars label {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+        color: #ffd700;
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+</style>
