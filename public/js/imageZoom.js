@@ -18,12 +18,11 @@ function initDriftZoom(imageSrc) {
     });
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
     initDriftZoom('/uploads/products/<%= product.productImage[0] %>');
 });
 
-// Modified updateMainImage function
+
 function updateMainImage(src) {
     const mainImage = document.getElementById('main-image');
     mainImage.src = src;

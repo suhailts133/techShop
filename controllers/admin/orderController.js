@@ -5,26 +5,23 @@ const Product = require("../../models/productSchema.js")
 
 const orderManagment = async (req, res) => {
   try {
-    // Get the current page from query params, default to 1 if not provided
+   
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10; // Number of orders per page
+    const pageSize = 10; 
 
-    // Calculate the total number of orders
     const totalOrders = await Order.countDocuments();
 
-    // Calculate the total number of pages
     const totalPages = Math.ceil(totalOrders / pageSize);
 
-    // Fetch orders for the current page with pagination
+   
     const orders = await Order.find()
       .populate("userId")
       .populate("items.productId")
       .populate("shippingAddress")
       .sort({ createdAt: -1 })
-      .skip((page - 1) * pageSize) // Skip orders based on current page
-      .limit(pageSize); // Limit the number of orders per page
+      .skip((page - 1) * pageSize) 
+      .limit(pageSize); 
 
-    // Get the search query if any
     const search = req.query.search || '';
 
     res.render("orderManagment", {

@@ -4,6 +4,7 @@ const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
 const Product = require("../../models/productSchema.js")
 const Coupon = require("../../models/couponsSchema.js")
+const Wallet = require("../../models/walletSchema.js")
 
 const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
@@ -40,51 +41,46 @@ const checkOut = async (req, res) => {
     try {
         const { id } = req.session.user;
         const { shippingAddress, paymentMethod, couponCode,razorpay_payment_id } = req.body;
-        console.log(req.body)
-        // Validate required fields
+     
         if (!shippingAddress || !paymentMethod) {
             req.flash("error", "All fields are required");
             return res.redirect("/checkout");
         }
+
         if (paymentMethod === 'Razorpay' && !razorpay_payment_id) {
             req.flash("error", "Payment not verified");
             return res.redirect("/checkout");
           }
 
-        // Get user with addresses
         const user = await User.findById(id).populate("address");
         if (!user?.address?.length) {
             req.flash("error", "No addresses found");
             return res.redirect("/profile/address");
         }
 
-        // Validate shipping address
         const address = user.address.find(a => a._id.toString() === shippingAddress);
         if (!address) {
             req.flash("error", "Invalid shipping address");
             return res.redirect("/checkout");
         }
 
-        // Get cart and validate
         const cart = await Cart.findOne({ userId: id }).populate("items.productId");
         if (!cart?.items?.length) {
             req.flash("error", "Cart is empty");
             return res.redirect("/profile/cart");
         }
-
         let totalAmount = cart.totalAmount;
         let usedCoupon = null;
-
-        // Coupon handling
+        let allowedDiscount = 0
+        const lengthOfCart = cart.items.length;
+        console.log(lengthOfCart)
         if (couponCode) {
-            // 1. Find the coupon document
+        
             const coupon = await Coupon.findOne({ code: couponCode });
             if (!coupon) {
                 req.flash("error", "Invalid coupon code");
                 return res.redirect("/checkout");
             }
-
-            // 2. Find user's coupon instance
             const userCoupon = user.coupons.find(c => 
                 c.couponId.equals(coupon._id) && 
                 !c.isUsed && 
@@ -95,12 +91,10 @@ const checkOut = async (req, res) => {
                 req.flash("error", "Coupon not available or expired");
                 return res.redirect("/checkout");
             }
-
-            // 3. Apply discount
+            allowedDiscount = coupon.discountValue / lengthOfCart
             totalAmount = cart.totalAmount - coupon.discountValue;
 
-            // 4. Remove the coupon from user's coupons
-            user.coupons.pull(userCoupon._id); // Remove by subdocument ID
+            user.coupons.pull(userCoupon._id);
             usedCoupon = coupon;
         }
         if(paymentMethod === "Wallet"){
@@ -111,29 +105,43 @@ const checkOut = async (req, res) => {
             user.wallet -= totalAmount
         }
         await user.save();
-        // Create order with final amount
+
+        const items = cart.items.map(item => {
+            const variant = item.productId.variants.id(item.variantId);
+            
+            if (!variant) {
+                throw new Error("Variant not found");
+            }
+        
+            return {
+                productId: item.productId._id,
+                variantId: item.variantId,
+                itemDiscount:allowedDiscount  || 0,
+                ogRegularPrice: variant.price,
+                ogSalePrice: variant.salePrice,
+                quantity: item.quantity,
+                noDiscountPrice:item.price,
+                price: item.totalPrice - allowedDiscount,
+                orderStatus: "Pending"
+            };
+        });
+        
         const order = new Order({
             orderId: uuidv4(),
             userId: id,
-            items: cart.items.map(item => ({
-                productId: item.productId._id,
-                variantId: item.variantId,
-                quantity: item.quantity,
-                price: item.totalPrice,
-                orderStatus: "Pending"
-            })),
+            items: items, 
             totalAmount: totalAmount, 
             shippingAddress: address._id,
             paymentMethod,
             paymentId: paymentMethod === 'Wallet' ? 'wallet' : razorpay_payment_id || null,
             couponRefrence: usedCoupon?._id  || null,
-            couponUsed: usedCoupon? true:false,
-            discount:usedCoupon?.discountValue || 0
-
+            couponUsed: usedCoupon ? true : false,
+            discount: usedCoupon?.discountValue || 0
         });
+        
 
         await order.save();
-
+        console.log("new order",order)
         // Add to order history
         user.orderHistory.push(order._id);
         await user.save();

@@ -18,6 +18,7 @@
       <% orders.forEach(order => { %>
         <tr>
           <td><%= order.orderId %></td>
+          <td><%= order.userId.name %></td>
           <td>₹<%= order.totalAmount.toFixed(2) %></td>
           <td><%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></td>
           <td><%= order.orderStatus %></td>

@@ -112,3 +112,66 @@
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 <script src="/js/editproduct.js"></script>
 <script src="/js/productValidation.js"></script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("productForm");
+
+    form.addEventListener("submit", function (event) {
+        let isValid = true;
+
+        // Helper function to show error messages
+        function showError(input, message) {
+            isValid = false;
+            input.classList.add("is-invalid");
+            input.nextElementSibling.textContent = message;
+        }
+
+        function clearError(input) {
+            input.classList.remove("is-invalid");
+            input.nextElementSibling.textContent = "";
+        }
+
+        // Validate Product Name
+        const productName = document.getElementById("product_name");
+        if (productName.value.trim() === "") {
+            showError(productName, "Product name cannot be empty.");
+        } else if (productName.value.trim().length < 3) {
+            showError(productName, "Product name must be at least 3 characters.");
+        } else {
+            clearError(productName);
+        }
+
+        // Validate Product Offer
+        const productOffer = document.getElementById("productOffer");
+        if (productOffer.value.trim() === "") {
+            showError(productOffer, "Please enter a product offer.");
+        } else if (isNaN(productOffer.value) || productOffer.value < 0) {
+            showError(productOffer, "Offer must be a valid positive number.");
+        } else {
+            clearError(productOffer);
+        }
+
+        // Validate Variants
+        const variantInputs = document.querySelectorAll(".variant-input");
+        variantInputs.forEach((input) => {
+            if (input.value.trim() === "") {
+                const fieldName = input.getAttribute("placeholder") || "This field";
+                showError(input, `${fieldName} cannot be empty.`);
+            } else {
+                clearError(input);
+            }
+        });
+
+
+        if (!isValid) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add("was-validated");
+    });
+});
+
+</script>

@@ -8,23 +8,47 @@
     <div class="mb-3">
       <label for="name" class="form-label">name of the coupon</label>
       <input type="text" id="name" name="couponEdit[name]" class="form-control" required value="<%= coupon.name %>" >
+      <div class="invalid-feedback">
+
+      </div>
+      <div class="valid-feedback">
+        Looks good!
+      </div>
     </div>
     <!-- Discount Value -->
     <div class="mb-3">
       <label for="discountValue" class="form-label">Discount Value (₹)</label>
       <input type="number" id="discountValue" name="couponEdit[discountValue]" class="form-control" required min="0" value="<%= coupon.discountValue%>">
+      <div class="invalid-feedback">
+
+      </div>
+      <div class="valid-feedback">
+        Looks good!
+      </div>
     </div>
 
     <!-- Minimum Purchase -->
     <div class="mb-3">
       <label for="minPurchase" class="form-label">Minimum Purchase (₹)</label>
       <input type="number" id="minPurchase" name="couponEdit[minPurchase]" class="form-control" min="0" value="<%= coupon.minPurchase%>">
+      <div class="invalid-feedback">
+
+      </div>
+      <div class="valid-feedback">
+        Looks good!
+      </div>
     </div>
 
 
     <div class="mb-3">
       <label for="validityDuration" class="form-label">Validity Duration (Days)</label>
       <input type="number" id="validityDuration" name="couponEdit[validityDuration]" class="form-control" required min="1" value="<%= coupon.validityDuration%>">
+      <div class="invalid-feedback">
+
+      </div>
+      <div class="valid-feedback">
+        Looks good!
+      </div>
     </div>
 
     <!-- Status -->
@@ -42,3 +66,4 @@
     </div>
   </form>
 </div>
+<script src="/js/addCoupon.js"></script>

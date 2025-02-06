@@ -6,11 +6,11 @@ const createRazorpayOrder = async (req, res) => {
     try {
         const { amount, currency } = req.body;
 
-        // Create a Razorpay order
+        
         const options = {
-            amount: amount, // Amount in paise (e.g., 1000 = ₹10)
+            amount: amount,
             currency: currency || 'INR',
-            receipt: `receipt_${Date.now()}`, // Unique receipt ID
+            receipt: `receipt_${Date.now()}`, 
         };
 
         const order = await razorpay.orders.create(options);

@@ -1,4 +1,3 @@
-const { name } = require("ejs");
 const Coupon = require("../../models/couponsSchema.js");
 const { v4: uuidv4 } = require("uuid");
 
@@ -13,32 +12,23 @@ const allCoupons = async (req, res) => {
         if (req.query.status) {
             status = req.query.status;
         }
-
-
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
         const skip = (page - 1) * limit;
-
         let query = {
             $or: [
                 { name: { $regex: ".*" + search + ".*", $options: "i" } }
             ]
         };
-
-
         if (status) {
             query.status = status;
         }
-
-
         const couponData = await Coupon.find(query)
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
-
         const totalCount = await Coupon.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
-
         res.render("coupons", {
             admin: req.session.admin,
             title: "Coupons",

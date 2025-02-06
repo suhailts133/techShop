@@ -1,7 +1,7 @@
 document.getElementById('applyCouponBtn').addEventListener('click', async () => {
   const couponCode = document.getElementById('couponCode').value;
   const cartTotalElement = document.getElementById('cartTotal');
-  const cartTotal = parseFloat(cartTotalElement.dataset.total); // Get from data attribute
+  const cartTotal = parseFloat(cartTotalElement.dataset.total); 
   const couponMessage = document.getElementById('couponMessage');
   const discountDisplay = document.getElementById('discountDisplay');
   const discountAmount = document.getElementById('discountAmount');
@@ -19,7 +19,7 @@ document.getElementById('applyCouponBtn').addEventListener('click', async () => 
       body: JSON.stringify({ couponCode, cartTotal })
     });
 
-    // Handle 401 Unauthorized (from checkAuth middleware)
+  
     if (response.status === 401) {
       window.location.href = '/login';
       return;

@@ -20,21 +20,32 @@
 
                         <!-- Variant Details -->
                         <% if (item.variantDetails && item.variantDetails.color) { %>
-                            <p class="text-muted"><strong>Variant:</strong> Color: <%= item.variantDetails.color %>, Size: <%= item.variantDetails.size %></p>
+                            <p class="text-muted mb-0"><strong>Color:</strong> <%= item.variantDetails.color %></p>
+                            <p class="text-muted mt-0"> <Strong>Size:</Strong> <%= item.variantDetails.size %></p>
                         <% } else { %>
                             <p class="text-muted"><strong>Variant:</strong> N/A</p>
                         <% } %>
-
+                        <p class="text-muted"><Strong>Payment method</Strong> <%= item.paymentOption  %></p>
                         <!-- Quantity -->
                         <p class="mb-2"><strong>Quantity:</strong> <%= item.quantity %></p>
 
                         <!-- Pricing Breakdown -->
                         <div class="pricing-details mb-3">
-                            <p class="mb-1"><strong>Original Price:</strong> ₹<%= item.variantDetails.price.toFixed(2) %></p>
-                            <p class="mb-1"><strong>Sale Price:</strong> ₹<%= item.variantDetails.salePrice.toFixed(2) %></p>
-                            <p class="mb-1"><strong>Product Discount:</strong> ₹<%= (item.variantDetails.price - item.variantDetails.salePrice).toFixed(2) %></p>
+                            <p class="mb-1"><strong>Original Price:</strong> ₹<%= item.ogRegularPrice.toFixed(2) * item.quantity%></p>
+                            <p class="mb-1"><strong>Sale Price:</strong> ₹<%= item.ogSalePrice.toFixed(2) * item.quantity%></p>
+                            <% if(item.itemDiscount > 0) {%>
+                                <p class="mb-1"><strong>Coupon Discount:</strong> ₹<%= item.itemDiscount.toFixed(2)%></p>
+                                <% } %>
+                            <p class="mb-1"><strong>Discount:</strong> ₹<%= ( (item.ogRegularPrice.toFixed(2) * item.quantity) - (item.ogSalePrice.toFixed(2) * item.quantity))%></p>
+                            <p class="mb-1"><strong>Additional Discount:</strong> ₹<%= ((item.ogSalePrice.toFixed(2) * item.quantity) - (item.noDiscountPrice.toFixed(2) * item.quantity)).toFixed(2) %></p>
                             <p class="mb-1"><strong>Final Price:</strong> ₹<%= item.price.toFixed(2) %></p>
                         </div>
+
+                        <% if(item.couponUsed) {%>
+                          <p class="text-danger">Note:- Coupon has used while placing the order</p>
+                          <% } else {%>
+                          <p class="text-danger">Note:- </p>
+                            <% } %>
 
                         <!-- Order Status -->
                         <p class="mb-3">
@@ -162,4 +173,4 @@
         font-size: 0.9rem;
         padding: 0.5rem 0.75rem;
     }
-</style>
+</style> 

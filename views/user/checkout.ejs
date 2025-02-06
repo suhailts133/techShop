@@ -134,7 +134,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: finalTotal * 100, // Convert to paise
+                        amount: finalTotal * 100,
                         currency: 'INR',
                     }),
                 });
@@ -151,7 +151,7 @@
                     handler: async function (response) {
                         console.log("razor pay response", response);
 
-                        // Now verify the payment on the server-side
+                        
                         const verification = await fetch('/verify-payment', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -166,7 +166,7 @@
                         console.log('Verification Result:', result);
 
                         if (result.success) {
-                            // Create a hidden input for razorpay_payment_id only after verification
+                        
                             const razorpayPaymentIdInput = document.createElement("input");
                             razorpayPaymentIdInput.type = "hidden";
                             razorpayPaymentIdInput.name = "razorpay_payment_id";
@@ -198,7 +198,7 @@
                 alert('Error processing payment. Please try again.');
             }
         } else {
-            // If payment method is not Razorpay, submit the form directly
+       
             e.target.submit();
         }
     });

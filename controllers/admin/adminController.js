@@ -46,7 +46,6 @@ const loadDashboard = async (req, res) => {
         res.render("dashboard", {
             admin: req.session.admin || null,
             title: "Dashboard",
-            // Add default values for report-related variables
             period: 'daily',
             startDate: moment().startOf('day').format('YYYY-MM-DD'),
             endDate: moment().endOf('day').format('YYYY-MM-DD'),
@@ -139,14 +138,13 @@ const getSalesReport = async (req, res) => {
             
             doc.pipe(res);
             
-            // Add PDF content
             doc.fontSize(18).text('Sales Report', { align: 'center' });
             doc.moveDown();
             
             doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
             doc.moveDown();
             
-            // Create table-like structure
+  
             const metrics = [
                 { metric: 'Total Orders', value: result.totalSales },
                 { metric: 'Total Amount', value: `₹${result.totalAmount.toFixed(2)}` },

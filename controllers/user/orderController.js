@@ -7,7 +7,7 @@ const getUserOrders = async (req, res) => {
         const userId = req.session.user.id;
 
 
-        const orders = await Order.find({ userId }).populate('items.productId');
+        const orders = await Order.find({ userId }).populate('items.productId').sort({createdAt:-1});
 
         if (orders.length === 0) {
             req.flash("error", "You don't have any orders yet.");
@@ -43,19 +43,16 @@ const getItemDetails = async (req, res) => {
 
 
         const order = await Order.findOne({ orderId }).populate("items.productId");
-        // if (!order) {
-        //     req.flash("error", "Order not found.");
-        //     return res.redirect("/profile/orders");
-        // }
-
-
-        const item = order.items.find(i => i._id.toString() === itemId.toString());
+        const item = order.items.id(itemId);
+    
         if (!item) {
             req.flash("error", "Item not found in the order.");
             return res.redirect("/profile/orders");
         }
+        item.paymentOption = order.paymentMethod; 
+        item.couponUsed = order.couponUsed;
 
-
+ 
         const product = item.productId;
         const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
 

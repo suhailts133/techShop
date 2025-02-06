@@ -28,13 +28,22 @@
   <h4 class="mt-4">Update Status</h4>
   <form action="/admin/orders/view/update?id=<%= order._id %>" method="POST">
     <select name="status" class="form-select">
-      <option value="Pending" <%= order.orderStatus === "Pending" ? "selected" : "" %>>Pending</option>
-      <option value="Shipped" <%= order.orderStatus === "Shipped" ? "selected" : "" %>>Shipped</option>
-      <option value="Delivered" <%= order.orderStatus === "Delivered" ? "selected" : "" %>>Delivered</option>
-      <option value="Return Accepted" <%= order.orderStatus === "Return Accepted" ? "selected" : "" %>>Return Accepted</option>
-      <option value="Returned" <%= order.orderStatus === "Returned" ? "selected" : "" %>>Returned</option>
+      <% if (order.orderStatus === "Pending") {%>
+        <option value="Pending" selected>Pending</option>
+        <option value="Shipped" >Shipped</option>
+        <% } else if (order.orderStatus === "Shipped") {%>
+        <option value="Shipped" selected>Shipped</option>
+        <option value="Delivered" >Delivered</option>
+        <% } else { %>
+          <option><%= order.orderStatus %> (Final)</option>
+        <% } %>
     </select>
-    <button type="submit" class="btn btn-primary mt-3">Update Status</button>
+    <% if (!['Returned', 'Delivered'].includes(order.orderStatus)) { %>
+      <button type="submit" class="btn btn-primary">Update Status</button>
+    <% } else { %>
+      <button class="btn btn-secondary" disabled>No Further Updates</button>
+    <% } %>
+
   </form>
 </div>
 

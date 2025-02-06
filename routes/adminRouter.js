@@ -68,13 +68,13 @@ router.post("/orders/itemDetails/update", adminCheckAuth, orderController.update
 router.get("/logout", adminController.logout)
 
 // coupon 
-router.get("/coupon", couponController.allCoupons);
-router.get("/coupon/add", couponController.loadAddCoupon);
-router.post("/coupon/add", couponController.addCoupon);
-router.get("/coupon/edit", couponController.loadEditCoupon);
-router.post("/coupon/edit", couponController.editCoupon);
-router.get("/coupon/activate", couponController.toggleCouponStatus);
-router.get("/coupon/deactivate", couponController.toggleCouponStatus);
-router.get("/coupon/delete", couponController.deleteCoupon);
+router.get("/coupon", adminCheckAuth,couponController.allCoupons);
+router.get("/coupon/add", adminCheckAuth,couponController.loadAddCoupon);
+router.post("/coupon/add", adminCheckAuth, couponController.addCoupon);
+router.get("/coupon/edit", adminCheckAuth, couponController.loadEditCoupon);
+router.post("/coupon/edit", adminCheckAuth, couponController.editCoupon);
+router.get("/coupon/activate", adminCheckAuth, couponController.toggleCouponStatus);
+router.get("/coupon/deactivate",adminCheckAuth, couponController.toggleCouponStatus);
+router.get("/coupon/delete",  adminCheckAuth, couponController.deleteCoupon);
 
 module.exports = router

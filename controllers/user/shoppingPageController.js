@@ -10,7 +10,7 @@ const loadShoppingPage = async (req, res) => {
         const limit = 8;
         const skip = (page - 1) * limit;
 
-        const sort = req.query.sort || null;  
+        const sort = req.query.sort || null;
         const category = req.query.category || null;
         const brand = req.query.brand || null;
 
@@ -43,7 +43,7 @@ const loadShoppingPage = async (req, res) => {
         const products = await Product.find(query)
             .sort(sortQuery)
             .skip(skip)
-            .limit(limit)
+            .limit(limit).populate("category")
             .lean();
 
         const totalCount = await Product.countDocuments(query);
@@ -56,9 +56,9 @@ const loadShoppingPage = async (req, res) => {
             totalPages,
             category: categories,
             brand: brands,
-            selectedCategory: category,  
-            selectedBrand: brand,        
-            selectedSort: sort           
+            selectedCategory: category,
+            selectedBrand: brand,
+            selectedSort: sort
         });
 
     } catch (error) {
@@ -106,23 +106,24 @@ const filterProducts = async (req, res) => {
             sortQuery = { productName: 1 };
         } else if (sort === 'name-desc') {
             sortQuery = { productName: -1 };
-        } else if (sort === 'popularity-asc'){
-            sortQuery = {averageRating: -1, reviewCount: -1}
-        } else if (sort === 'popularity-desc'){
-            sortQuery = {averageRating: 1, reviewCount: 1}
+        } else if (sort === 'popularity-asc') {
+            sortQuery = { averageRating: -1, reviewCount: -1 }
+        } else if (sort === 'popularity-desc') {
+            sortQuery = { averageRating: 1, reviewCount: 1 }
         }
-      
+
         let findProducts = await Product.find(query)
             .sort(sortQuery)
             .skip(skip)
             .limit(limit)
+            .populate("category")
             .lean();
 
-       
+
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
 
-        
+
         res.render("shop", {
             title: "Shop",
             products: findProducts,
@@ -132,7 +133,7 @@ const filterProducts = async (req, res) => {
             category: categories,
             selectedCategory: category || null,
             selectedBrand: brand || null,
-            selectedSort: sort || null   
+            selectedSort: sort || null
         });
     } catch (error) {
         console.log("Error while filtering", error.message);

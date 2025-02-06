@@ -2,6 +2,7 @@ const env = require("dotenv").config();
 const bcrypt = require("bcrypt")
 const Category = require("../../models/categorySchema.js");
 const Product = require("../../models/productSchema.js")
+const Wallet = require("../../models/walletSchema.js")
 const fuzzy = require("fuzzy");
 // external files and functions
 const User = require("../../models/userSchema.js") // user model
@@ -16,7 +17,7 @@ const loadHomePage = async (req, res) => {
             isBlocked: false,
             category: { $in: categories.map(category => category._id) },
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
-        }).populate("category").limit(8)
+        }).populate("category").sort({createdAt:-1}).limit(4)
         console.log("session from loadhome", req.session.user)
 
         if (req.session.user) {
@@ -136,9 +137,18 @@ const verifyOtp = async (req, res) => {
             await newUser.save();  // save the user
             if(user.Referalcode){
                 newUser.wallet += 200  // 200 is the amount given to the user if it has a referal code
+                
+                const newWalletReferal = new Wallet({
+                    userId:newUser._id,
+                    amount:200,
+                    action:"Credited",
+                    purpose:"Referal"
+                })
+                await newWalletReferal.save();
+                newUser.WalletHistory = newWalletReferal._id
                 await newUser.save()
             }
-            const signupCoupon = await Coupon.findOne({ code: "3D92AF2A" });
+            const signupCoupon = await Coupon.findOne({ code: "AB4CF89E" });
             newUser.coupons.push({
                 couponId: signupCoupon._id,
                 expiresAt: new Date(Date.now() + signupCoupon.validityDuration * 24 * 60 * 60 * 1000)
@@ -149,6 +159,14 @@ const verifyOtp = async (req, res) => {
             if (findUser) {
                 findUser.redeemedUsers.push(newUser._id);
                 findUser.wallet += 500 // 500 is the referal amount
+                const newWalletRefered = new Wallet({
+                    userId:findUser._id,
+                    amount:500,
+                    action:"Credited",
+                    purpose:"Referal"
+                })
+                await newWalletRefered.save();
+                findUser.WalletHistory = newWalletRefered._id;
                 await findUser.save()
             }
             req.session.user = { id: newUser._id, name: newUser.name, email: newUser.email };  //name is used for displaying username

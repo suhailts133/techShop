@@ -40,6 +40,22 @@ const orderSchema = new mongoose.Schema({
                 type: Number,
                 required: true
             },
+            itemDiscount:{
+                type:Number,
+                default:0,
+            },
+            ogRegularPrice:{
+                type:Number,
+                required:true,
+            },
+            ogSalePrice:{
+                type:Number,
+                required:true,
+            },
+            noDiscountPrice:{
+                type:Number,
+                required:true
+            },
             price: {
                 type: Number,
                 required: true
