@@ -1,0 +1,154 @@
+<% layout("../layouts/profileboilerPlate") %>
+<title><%= title %></title>
+
+<div class="content">
+    <div class="container mt-5">
+        <!-- Wallet Amount Display (Smaller) -->
+        <div class="wallet-amount-card text-center p-3 mb-5">
+            <h4 class="mb-3">Your Wallet Balance</h4>
+            <h2 class="display-4 font-weight-bold">₹<%= wallet %></h2>
+            <p class="text-muted">Available for use</p>
+        </div>
+
+        <!-- Wallet Transactions Table (Larger) -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Transaction History</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                                <th>Purpose</th>
+                                <th>Order ID</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (walletDetails.length > 0) { %>
+                                <% walletDetails.forEach(wallet => { %>
+                                    <tr>
+                                        <!-- Separate Date and Time -->
+                                        <td><%= wallet.createdAt.toLocaleDateString() %></td>
+                                        <td><%= wallet.createdAt.toLocaleTimeString() %></td>
+                                        <td class="<%= wallet.action === 'Credited' ? 'text-success' : 'text-danger' %>">
+                                            <%= wallet.amount %>
+                                        </td>
+                                        <td><%= wallet.action %></td>
+                                        <td><%= wallet.purpose %></td>
+                                        <td><%= wallet.orderId ? wallet.orderId.orderId : 'N/A' %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">No wallet transactions found.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap Pagination -->
+        <div class="row mt-4">
+            <div class="col-12 d-flex justify-content-center">
+                <nav>
+                    <ul class="pagination">
+                        <% if (currentPage > 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/profile/wallet?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        <% } %>
+
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link" href="/profile/wallet?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/profile/wallet?page=<%= currentPage + 1 %>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styling -->
+<style>
+    .container {
+        max-width: 1200px; /* Increased max width for larger table */
+    }
+
+    .wallet-amount-card {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        font-size: 1.2rem; /* Reduced font size for smaller wallet amount card */
+        max-width: 400px; /* Smaller width for wallet amount card */
+        margin: 0 auto; /* Center the card */
+    }
+
+    .wallet-amount-card h2 {
+        font-size: 2.5rem;
+        letter-spacing: 1px;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .table {
+        font-size: 1.1rem; /* Increased table font size */
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #2575fc;
+        border-color: #2575fc;
+    }
+
+    .pagination .page-link {
+        color: #2575fc;
+    }
+
+    .pagination .page-link:hover {
+        color: #1a5bbf;
+    }
+</style>

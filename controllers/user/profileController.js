@@ -3,7 +3,8 @@ const Product = require("../../models/productSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const Address = require("../../models/addressSchema.js");
 const bcrypt = require("bcrypt");
-const { securePassword } = require("../../helpers/userAuthendication.js") // authentication helper
+const { securePassword } = require("../../helpers/userAuthendication.js"); // authentication helper
+const Wallet = require("../../models/walletSchema.js");
 
 const loadProfilePage = async (req, res) => {
     try {
@@ -305,6 +306,42 @@ const updateCartItem = async (req, res) => {
     }
 };
 
+const displayWallet = async (req, res) => {
+    try {
+        if (!req.session.user) {
+            req.flash("error", "Login first");
+            return res.redirect("/");
+        }
+
+        const userId = req.session.user.id;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 4; 
+        const walletAmount = await User.findById(userId);
+
+     
+        const totalWalletCount = await Wallet.countDocuments({ userId });
+        const totalPages = Math.ceil(totalWalletCount / limit);
+        const walletDetails = await Wallet.find({ userId }).populate("orderId")
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+       
+        res.render("wallet", {
+            walletDetails,
+            currentPage: page,
+            totalPages,
+            wallet:walletAmount.wallet,
+            title: "Wallet Transactions"
+        });
+    } catch (error) {
+        console.log("Error while displaying wallet", error.message);
+        req.flash("error", "Error loading wallet details");
+        res.redirect("/profile");
+    }
+};
+
+
 module.exports = {
     loadProfilePage,
     loadEditProfilePage,
@@ -321,5 +358,6 @@ module.exports = {
     editAddress,
     cartPage,
     deleteCartItem,
-    updateCartItem
+    updateCartItem,
+    displayWallet
 }

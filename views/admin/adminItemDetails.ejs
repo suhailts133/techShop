@@ -62,7 +62,7 @@
           <option><%= item.orderStatus %> (Final)</option>
         <% } %>
       </select>
-      <% if (!['Returned', 'Cancelled', 'Delivered'].includes(order.orderStatus)) { %>
+      <% if (!['Returned', 'Cancelled', 'Delivered'].includes(item.orderStatus)) { %>
         <button type="submit" class="btn btn-primary">Update Status</button>
       <% } else { %>
         <button class="btn btn-secondary" disabled>No Further Updates</button>

@@ -1,10 +1,9 @@
 const User = require("../../models/userSchema.js")
-const Address = require("../../models/addressSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
 const Product = require("../../models/productSchema.js")
 const Coupon = require("../../models/couponsSchema.js")
-const Wallet = require("../../models/walletSchema.js")
+
 
 const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
@@ -116,6 +115,7 @@ const checkOut = async (req, res) => {
             return {
                 productId: item.productId._id,
                 variantId: item.variantId,
+                product: item.productId.productName,
                 itemDiscount:allowedDiscount  || 0,
                 ogRegularPrice: variant.price,
                 ogSalePrice: variant.salePrice,

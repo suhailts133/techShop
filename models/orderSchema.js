@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Razorpay = require("razorpay");
+
 const { v4: uuidv4 } = require("uuid");
 const { Schema } = mongoose
 
@@ -36,6 +38,10 @@ const orderSchema = new mongoose.Schema({
             variantId: {
                 type: Schema.Types.ObjectId,
             },
+           product:{
+            type:String,
+            required:true
+           },
             quantity: {
                 type: Number,
                 required: true

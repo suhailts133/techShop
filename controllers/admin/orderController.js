@@ -1,7 +1,7 @@
 const Order = require("../../models/orderSchema.js")
 const User = require("../../models/userSchema.js");
 const Product = require("../../models/productSchema.js")
-
+const Wallet = require("../../models/walletSchema.js");
 
 const orderManagment = async (req, res) => {
   try {
@@ -134,14 +134,30 @@ const updateItemStatus = async (req, res) => {
       if (status === "Returned") {
   
         user.wallet += item.price;
+        const returnWallet = new Wallet({
+          userId:user._id,
+          amount:item.price,
+          action:"Credited",
+          purpose:"Refund",
+          orderId:order._id
+        })
+        await returnWallet.save();
+        user.WalletHistory = returnWallet._id
         await user.save();
       } else if (status === "Cancelled" && (order.paymentMethod === "Wallet" || order.paymentMethod === "Razorpay")) {
      
         user.wallet += item.price;
+        const cancelWallet = new Wallet({
+          userId:user._id,
+          amount:item.price,
+          action:"Credited",
+          purpose:"Refund",
+          orderId:order._id
+        })
+        await cancelWallet.save();
+        user.WalletHistory = cancelWallet._id
         await user.save();
       }
-
-   
       if (order.couponRefrence) {
         const couponCountBefore = user.coupons.length;
         user.coupons = user.coupons.filter(

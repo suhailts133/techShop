@@ -42,5 +42,6 @@ router.post("/orders/cancelItem", checkAuth, orderController.requestCancel)
 router.post("/orders/reviews/create", checkAuth, orderController.createReview)
 // coupons 
 router.get("/coupons", checkAuth, couponController.allCoupons)
+router.get("/wallet", checkAuth, profileController.displayWallet)
 
 module.exports = router

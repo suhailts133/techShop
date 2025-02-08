@@ -103,63 +103,169 @@ const getSalesReport = async (req, res) => {
                 }
             }
         ]);
-        console.log("reported data",reportData);
-        
+
+        const salesReport = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: start.toDate(), $lte: end.toDate() }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            { $unwind: '$userDetails' },
+            { $unwind: '$items' }, // Unwind items to access product and price separately
+            {
+                $group: {
+                    _id: '$orderId',
+                    userName: { $first: '$userDetails.name' },
+                    paymentMethod: { $first: '$paymentMethod' },
+                    totalAmount: { $first: '$totalAmount' },
+                    couponUsed: { $first: '$couponUsed' },
+                    discount: { $first: '$discount' },
+                    products: {
+                        $push: {
+                            product: '$items.product',
+                            price: '$items.price'
+                        }
+                    }
+                }
+            }
+        ]);
+        console.log(salesReport);
+
+
+
+
+
         const result = reportData[0] || {
             totalSales: 0,
             totalAmount: 0,
             totalDiscount: 0,
             couponsUsed: 0
         };
-        console.log("result",result);
-        
+
+
+
         if (req.query.download === 'excel') {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Sales Report');
 
+
             worksheet.columns = [
-                { header: 'Metric', key: 'metric' },
-                { header: 'Value', key: 'value' }
+                { header: 'Order ID', key: 'orderId', width: 30 },
+                { header: 'User Name', key: 'userName', width: 20 },
+                { header: 'Payment Method', key: 'paymentMethod', width: 15 },
+                { header: 'Total Amount', key: 'totalAmount', width: 15 },
+                { header: 'Coupon Used', key: 'couponsUsed', width: 10 },
+                { header: 'Discount', key: 'discount', width: 10 },
+                { header: 'Product', key: 'product', width: 25 },
+                { header: 'Price', key: 'price', width: 15 }
             ];
 
-            worksheet.addRow({ metric: 'Total Orders', value: result.totalSales });
-            worksheet.addRow({ metric: 'Total Amount', value: result.totalAmount });
-            worksheet.addRow({ metric: 'Total Discount', value: result.totalDiscount });
-            worksheet.addRow({ metric: 'Coupons Used', value: result.couponsUsed });
+
+            salesReport.forEach(order => {
+                order.products.forEach(product => {
+                    worksheet.addRow({
+                        orderId: order._id,
+                        userName: order.userName,
+                        paymentMethod: order.paymentMethod,
+                        totalAmount: order.totalAmount,
+                        couponsUsed: order.couponUsed ? 'Yes' : 'No',
+                        discount: order.discount,
+                        product: product.product,
+                        price: product.price
+                    });
+                });
+            });
 
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
             await workbook.xlsx.write(res);
             return res.end();
-        }else if (req.query.download === 'pdf') {
-            const doc = new PDFDocument();
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
-            
-            doc.pipe(res);
-            
-            doc.fontSize(18).text('Sales Report', { align: 'center' });
-            doc.moveDown();
-            
-            doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
-            doc.moveDown();
-            
-  
-            const metrics = [
-                { metric: 'Total Orders', value: result.totalSales },
-                { metric: 'Total Amount', value: `₹${result.totalAmount.toFixed(2)}` },
-                { metric: 'Total Discount', value: `₹${result.totalDiscount.toFixed(2)}` },
-                { metric: 'Coupons Used', value: result.couponsUsed }
-            ];
-            
-            metrics.forEach((item, index) => {
-                doc.font('Helvetica-Bold').text(item.metric, { continued: true });
-                doc.font('Helvetica').text(`: ${item.value}`);
-                if (index !== metrics.length - 1) doc.moveDown(0.5);
-            });
-            
-            doc.end();
-            return;
+        } else if (req.query.download === 'pdf') {
+            const PDFDocument = require('pdfkit');
+
+const doc = new PDFDocument({ margin: 30, size: 'A3', layout: 'portrait' });
+
+res.setHeader('Content-Type', 'application/pdf');
+res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+
+doc.pipe(res);
+
+// Title
+doc.fontSize(18).text('Sales Report', { align: 'center' });
+doc.moveDown(1);
+
+// Report Period
+doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
+doc.moveDown(1);
+
+// Table Start Position
+let y = doc.y + 10;
+
+// Column Headers
+const headers = [
+    { label: 'Order ID', x: 50, width: 110 }, 
+    { label: 'User Name', x: 170, width: 80 },
+    { label: 'Payment', x: 260, width: 80 },
+    { label: 'Total Amt', x: 350, width: 70 },
+    { label: 'Coupon', x: 430, width: 50 },
+    { label: 'Discount', x: 490, width: 60 },
+    { label: 'Product', x: 560, width: 120 },
+    { label: 'Price', x: 690, width: 60 }
+];
+
+// Draw Header Row
+doc.font('Helvetica-Bold').fontSize(10);
+headers.forEach(header => {
+    doc.text(header.label, header.x, y, { width: header.width, align: 'left' });
+});
+y += 15;
+
+// Draw line under header
+doc.moveTo(50, y).lineTo(750, y).stroke();
+y += 5;
+
+// Data Rows
+doc.font('Helvetica').fontSize(9);
+salesReport.forEach((order, index) => {
+    order.products.forEach((product, productIndex) => {
+       
+        if ((index + productIndex) % 2 === 0) {
+            doc.rect(50, y - 2, 700, 12).fill('#f0f0f0').fillColor('black'); 
+        }
+
+        // Shortened Order ID (first 6 + last 6 chars)
+        const shortOrderId = `${order._id.substring(0, 6)}...${order._id.slice(-6)}`;
+
+        doc.text(shortOrderId, 50, y, { width: 110 });
+        doc.text(order.userName, 170, y, { width: 80 });
+        doc.text(order.paymentMethod, 260, y, { width: 80 });
+        doc.text(`₹${order.totalAmount}`, 350, y, { width: 70 });
+        doc.text(order.couponUsed ? 'Yes' : 'No', 430, y, { width: 50 });
+        doc.text(`₹${order.discount}`, 490, y, { width: 60 });
+
+       
+        doc.text(product.product, 560, y, { width: 120, ellipsis: true });
+
+        doc.text(`₹${product.price}`, 690, y, { width: 60 });
+
+        y += 15;
+    });
+
+    y += 5;
+});
+
+// Finalize PDF
+doc.end();
+return;
+
         }
 
         res.render('dashboard', {

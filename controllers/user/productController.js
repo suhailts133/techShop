@@ -6,48 +6,48 @@ const getProductDetails = async (req, res) => {
     try {
         const productId = req.query.id;
 
-       
+
         const product = await Product.findById(productId)
             .populate('category')
             .populate({
                 path: 'reviews',
                 populate: {
-                    path: 'user', 
-                    select: 'name email' 
+                    path: 'user',
+                    select: 'name email'
                 }
             })
-            .lean(); 
+            .lean();
 
         if (!product) {
             req.flash("error", "Product not found");
             return res.redirect("/");
         }
 
-      
-        const applicableOffer = product.productOffer > 0 
-            ? product.productOffer 
+
+        const applicableOffer = product.productOffer > 0
+            ? product.productOffer
             : product.category?.categoryOffer || 0;
 
-      
+
         product.variants = product.variants.map(variant => ({
             ...variant,
             discountedPrice: Math.floor((variant.salePrice * (100 - applicableOffer) / 100)),
             applicableOffer: parseFloat(((variant.price - variant.salePrice) / variant.price) * 100).toFixed(2)
         }));
 
-      
-        const relatedProducts = await Product.find({ 
-            category: product.category._id, 
-            _id: { $ne: product._id } 
+
+        const relatedProducts = await Product.find({
+            category: product.category._id,
+            _id: { $ne: product._id }
         })
-        .populate('category')
-        .lean();
+            .populate('category')
+            .lean();
 
         const processedRelated = relatedProducts.map(prod => {
-            const offer = prod.productOffer > 0 
-                ? prod.productOffer 
+            const offer = prod.productOffer > 0
+                ? prod.productOffer
                 : prod.category?.categoryOffer || 0;
-            
+
             return {
                 ...prod,
                 variants: prod.variants.map(v => ({
@@ -82,8 +82,8 @@ const updateVariantDetails = async (req, res) => {
         if (!variant) return res.status(404).send('Variant not found');
 
         // Calculate applicable offer
-        const applicableOffer = product.productOffer > 0 
-            ? product.productOffer 
+        const applicableOffer = product.productOffer > 0
+            ? product.productOffer
             : product.category?.categoryOffer || 0;
 
         // Calculate discounted price
@@ -105,6 +105,7 @@ const updateVariantDetails = async (req, res) => {
 const addToCart = async (req, res) => {
     try {
         const { productId, variantId, quantity, productImage } = req.body;
+        // console.log(quantity);
 
         // Check if user is logged in
         if (!req.session.user) {
@@ -162,8 +163,8 @@ const addToCart = async (req, res) => {
         }
 
         // Calculate the applicable offer
-        const applicableOffer = product.productOffer > 0 
-            ? product.productOffer 
+        const applicableOffer = product.productOffer > 0
+            ? product.productOffer
             : product.category?.categoryOffer || 0;
 
         // Calculate the discounted price
@@ -191,11 +192,13 @@ const addToCart = async (req, res) => {
         );
 
         if (existingItemIndex > -1) {
-            // Update the existing item
-            cart.items[existingItemIndex].quantity += quantity;
-            cart.items[existingItemIndex].totalPrice = cart.items[existingItemIndex].quantity * discountedPrice;
+            return res.status(404).json({
+                success: true,
+                message: 'Itme already in the cart',
+                redirectTo: '/profile/cart'
+
+            });
         } else {
-            // Add the new item to the cart
             cart.items.push({
                 productId: productId,
                 variantId: variantId,
@@ -205,7 +208,7 @@ const addToCart = async (req, res) => {
                 price: discountedPrice,
                 productImage: productImage,
                 totalPrice: totalPrice,
-                applicableOffer: applicableOffer 
+                applicableOffer: applicableOffer
             });
         }
 
@@ -214,6 +217,7 @@ const addToCart = async (req, res) => {
 
         // Save the cart
         await cart.save();
+
 
         // Respond with success message and the updated cart
         return res.status(200).json({

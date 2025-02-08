@@ -1,23 +1,25 @@
 const User = require("../../models/userSchema.js");
 const Wishlist = require("../../models/wishlishSchema.js");
 const Product = require("../../models/productSchema.js");
+const mongoose = require("mongoose")
 
 const addToWishlist = async (req, res) => {
     try {
         const { productId, variantId } = req.query;
-        console.log(productId, variantId)
+        console.log("from add to wishlist",productId, variantId)
         if (!req.session.user) {
             req.flash("error", "login first to add items to wishlist");
             return res.redirect("/login")
         }
         const { id } = req.session.user;
         const findUser = await User.findById(id);
-        console.log(findUser)
         if (!findUser) {
             req.flash("error", "user not found please sign up");
             return res.redirect("/signup");
         }
-        const product = await Product.findById(productId);
+        const product = await Product.findById(new mongoose.Types.ObjectId(productId));
+        console.log(product);
+        
         if (!product) {
             req.flash("error", "product not found");
             return res.redirect("/");
@@ -48,7 +50,7 @@ const addToWishlist = async (req, res) => {
   
         if (variantExistCheck > -1) {
             req.flash("error", "variant already exists in the wishlist");
-            return res.redirect(`/productDetails?id=${productId}`);
+            return res.redirect(req.get("referer") || "/");
         } else {
             wishlist.items.push({
                 productId: productId,
@@ -62,7 +64,7 @@ const addToWishlist = async (req, res) => {
         req.flash("success", "Item added to wishlist successfully");
 
    
-        return res.redirect("/profile/wishlist");
+        return res.redirect(req.get("referer") || "/");
     } catch (error) {
         console.log("error while adding item to wishlist", error)
     }

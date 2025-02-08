@@ -1,7 +1,6 @@
 const { Transaction } = require("mongodb");
 const mongoose = require("mongoose");
 const { Schema } = mongoose
-
 const walletSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
@@ -35,3 +34,4 @@ const walletSchema = new Schema({
 
 const Wallet = mongoose.model("Wallet", walletSchema);
 module.exports = Wallet;
+
