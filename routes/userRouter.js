@@ -74,8 +74,8 @@ router.post('/create-razorpay-order', razorpayController.createRazorpayOrder);
 // Verify Razorpay payment
 router.post('/verify-payment', express.json(), razorpayController.verifyPayment);
 
-router.get("/addToWishlist", checkAuth,wishlistController.addToWishlist)
-
+router.post("/wishlistToggle", checkAuth,wishlistController.addToWishlist)
+router.get("/wishlistStatus", checkAuth, wishlistController.wishlistStatusCheck)
 
 router.get("/orders",checkAuth, checkOutController.orderConfirmed)
 

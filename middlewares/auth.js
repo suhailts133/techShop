@@ -1,15 +1,18 @@
 const checkAuth = (req, res, next) => {
     if (!req.session.user) {
+        if (req.xhr || req.headers.accept.includes('application/json')) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
-      if (req.xhr || req.headers.accept.includes('application/json')) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
-      
-      return res.redirect("/login");
+        // Check if it's a fetch request and return JSON instead of redirecting
+        if (req.headers["sec-fetch-mode"] === "cors") {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        return res.redirect("/login"); // Normal redirect for browser requests
     }
     next();
-  };
-
+};
 const checkAuthUserLogin = (req, res, next) => {
     if (req.session.user) {
         return res.redirect("/");

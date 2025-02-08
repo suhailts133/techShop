@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt")
 const Category = require("../../models/categorySchema.js");
 const Product = require("../../models/productSchema.js")
 const Wallet = require("../../models/walletSchema.js")
+const Wishlist = require("../../models/wishlishSchema.js")
 const fuzzy = require("fuzzy");
 // external files and functions
 const User = require("../../models/userSchema.js") // user model
@@ -13,25 +14,35 @@ const Coupon = require("../../models/couponsSchema.js")
 const loadHomePage = async (req, res) => {
     try {
         const categories = await Category.find({ isListed: true });
-        let ProductData = await Product.find({
+
+        let products = await Product.find({
             isBlocked: false,
             category: { $in: categories.map(category => category._id) },
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
-        }).populate("category").sort({createdAt:-1}).limit(4)
-        console.log("session from loadhome", req.session.user)
+        }).populate("category").sort({ createdAt: -1 }).limit(4);
 
+        let wishlistItems = [];
         if (req.session.user) {
-            return res.render("home", { user: req.session.user || null, title: "home", products: ProductData });
-        } else {
-            return res.render("home", { title: "home", products: ProductData });
-
+            const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
+            wishlistItems = userWishlist ? userWishlist.items.map(item => ({
+                productId: item.productId.toString(),
+                variantId: item.variantId.toString()
+            })) : [];
         }
+        // console.log("wishlist items from home page",wishlistItems);
+        
+
+        return res.render("home", {
+            user: req.session.user || null,
+            title: "Home",
+            products,
+            wishlistItems
+        });
     } catch (error) {
-        console.log("error while loading the home page", error.message)
+        console.error("Error while loading the home page:", error.message);
         res.redirect("/pageNotFound");
     }
-}
-
+};
 
 const searchRecomendation = async (req, res) => {
     try {

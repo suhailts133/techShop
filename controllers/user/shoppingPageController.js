@@ -2,7 +2,7 @@ const Category = require("../../models/categorySchema.js");
 const Product = require("../../models/productSchema.js")
 const Brand = require("../../models/brandSchema.js")
 const User = require("../../models/userSchema.js")
-
+const Wishlist = require("../../models/wishlishSchema.js")
 
 const loadShoppingPage = async (req, res) => {
     try {
@@ -48,12 +48,20 @@ const loadShoppingPage = async (req, res) => {
 
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
+        if (req.session.user) {
+            const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
+            wishlistItems = userWishlist ? userWishlist.items.map(item => ({
+                productId: item.productId.toString(),
+                variantId: item.variantId.toString()
+            })) : [];
+        }
 
         res.render("shop", {
             title: "Shop",
             products,
             page,
             totalPages,
+            wishlistItems,
             category: categories,
             brand: brands,
             selectedCategory: category,
@@ -119,7 +127,13 @@ const filterProducts = async (req, res) => {
             .populate("category")
             .lean();
 
-
+            if (req.session.user) {
+                const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
+                wishlistItems = userWishlist ? userWishlist.items.map(item => ({
+                    productId: item.productId.toString(),
+                    variantId: item.variantId.toString()
+                })) : [];
+            }
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
 
@@ -130,6 +144,7 @@ const filterProducts = async (req, res) => {
             page,
             totalPages,
             brand: brands,
+            wishlistItems,
             category: categories,
             selectedCategory: category || null,
             selectedBrand: brand || null,

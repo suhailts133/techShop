@@ -1,11 +1,9 @@
 const Product = require("../../models/productSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const User = require("../../models/userSchema.js")
-
 const getProductDetails = async (req, res) => {
     try {
         const productId = req.query.id;
-
 
         const product = await Product.findById(productId)
             .populate('category')
@@ -23,11 +21,10 @@ const getProductDetails = async (req, res) => {
             return res.redirect("/");
         }
 
-
+        // Calculate applicable offer
         const applicableOffer = product.productOffer > 0
             ? product.productOffer
             : product.category?.categoryOffer || 0;
-
 
         product.variants = product.variants.map(variant => ({
             ...variant,
@@ -35,7 +32,7 @@ const getProductDetails = async (req, res) => {
             applicableOffer: parseFloat(((variant.price - variant.salePrice) / variant.price) * 100).toFixed(2)
         }));
 
-
+        // Get related products
         const relatedProducts = await Product.find({
             category: product.category._id,
             _id: { $ne: product._id }
@@ -58,6 +55,7 @@ const getProductDetails = async (req, res) => {
             };
         });
 
+        // Send data to frontend (NO NEED TO CHECK WISHLIST HERE)
         res.render('productDetails', {
             product,
             relatedProducts: processedRelated,
@@ -68,6 +66,10 @@ const getProductDetails = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+
+
+
 const updateVariantDetails = async (req, res) => {
     try {
         const { productId, variantId } = req.body;

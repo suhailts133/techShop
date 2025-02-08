@@ -5,70 +5,56 @@ const mongoose = require("mongoose")
 
 const addToWishlist = async (req, res) => {
     try {
-        const { productId, variantId } = req.query;
-        console.log("from add to wishlist",productId, variantId)
+        const { productId, variantId } = req.body;
+        console.log("productid", productId);
+      console.log("variantid", variantId);
+        // Ensure the user is logged in
         if (!req.session.user) {
-            req.flash("error", "login first to add items to wishlist");
-            return res.redirect("/login")
+          return res.status(401).json({ error: 'Please log in to update your wishlist.' });
         }
-        const { id } = req.session.user;
-        const findUser = await User.findById(id);
-        if (!findUser) {
-            req.flash("error", "user not found please sign up");
-            return res.redirect("/signup");
-        }
-        const product = await Product.findById(new mongoose.Types.ObjectId(productId));
-        console.log(product);
-        
-        if (!product) {
-            req.flash("error", "product not found");
-            return res.redirect("/");
-        }
-        const variant = product.variants.id(variantId);
-
-        const variantColor = variant.color;
-        const variantsize = variant.size;
-
-        if (!variant) {
-            req.flash("error", "variant not found");
-            res.redirect("/");
-        }
-        let wishlist = await Wishlist.findOne({ userId: findUser._id });
+        const userId = req.session.user.id;
+    
+        // Retrieve (or create) the user's wishlist
+        let wishlist = await Wishlist.findOne({ userId });
         if (!wishlist) {
-            wishlist = new Wishlist({
-                userId: findUser._id,
-                items: []
-            });
-            await wishlist.save();
-            findUser.wishlist = wishlist._id;
-            await findUser.save();
+          wishlist = new Wishlist({ userId, items: [] });
         }
-
-        const variantExistCheck = wishlist.items.findIndex(
-            item => item.productId.toString() === productId && item.variantId.toString() === variantId
+    
+        // Check if the variant is already in the wishlist
+        const existingIndex = wishlist.items.findIndex(item =>
+          item.productId.toString() === productId &&
+          item.variantId.toString() === variantId
         );
-  
-        if (variantExistCheck > -1) {
-            req.flash("error", "variant already exists in the wishlist");
-            return res.redirect(req.get("referer") || "/");
+    
+        let added = false;
+        if (existingIndex > -1) {
+          // Remove the item if it exists
+          wishlist.items.splice(existingIndex, 1);
         } else {
-            wishlist.items.push({
-                productId: productId,
-                variantId: variantId,
-                productName: product.productName,
-                color: variantColor,
-                size: variantsize
-            })
+          // Retrieve product and variant details
+          const product = await Product.findById(productId);
+          if (!product) return res.status(404).json({ error: 'Product not found.' });
+    
+          const variant = product.variants.id(variantId);
+          if (!variant) return res.status(404).json({ error: 'Variant not found.' });
+    
+          // Add the variant to the wishlist
+          wishlist.items.push({
+            productId,
+            variantId,
+            productName: product.productName,
+            color: variant.color,
+            size: variant.size,
+          });
+          added = true;
         }
+    
         await wishlist.save();
-        req.flash("success", "Item added to wishlist successfully");
-
-   
-        return res.redirect(req.get("referer") || "/");
-    } catch (error) {
-        console.log("error while adding item to wishlist", error)
-    }
-
+        return res.json({ success: true, added });
+      } catch (error) {
+        console.error('Error toggling wishlist item:', error);
+        return res.status(500).json({ error: 'An error occurred. Please try again.' });
+      }
 }
 const wishlistPage = async (req, res) => {
     try {
@@ -117,8 +103,40 @@ const deleteWishlistItem  = async (req, res) => {
     }
 }
 
+const wishlistStatusCheck = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.json({ isInWishlist: false });
+    }
+
+    const userId = req.session.user.id;
+    const { productId, variantId } = req.query;
+    
+    
+    const wishlist = await Wishlist.findOne({ userId });
+    console.log("whishlist for checking status",wishlist)
+    if (!wishlist || !wishlist.items) {
+      return res.json({ isInWishlist: false });
+    }
+
+
+    const isInWishlist = wishlist.items.some(
+      (item) =>
+        item.productId.toString() === productId &&
+        item.variantId.toString() === variantId
+    );
+    console.log("is in wishlist",isInWishlist);
+    
+    res.json({ isInWishlist });
+  } catch (error) {
+    console.error("Error while checking wishlist item status:", error.message);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 module.exports = {
     addToWishlist,
     wishlistPage,
-    deleteWishlistItem
+    deleteWishlistItem,
+    wishlistStatusCheck
 }
