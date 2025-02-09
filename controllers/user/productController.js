@@ -1,6 +1,7 @@
 const Product = require("../../models/productSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const User = require("../../models/userSchema.js")
+const Wishlist = require("../../models/wishlishSchema.js")
 const getProductDetails = async (req, res) => {
     try {
         const productId = req.query.id;
@@ -15,13 +16,14 @@ const getProductDetails = async (req, res) => {
                 }
             })
             .lean();
-
+           
+            
         if (!product) {
             req.flash("error", "Product not found");
             return res.redirect("/");
         }
 
-        // Calculate applicable offer
+        
         const applicableOffer = product.productOffer > 0
             ? product.productOffer
             : product.category?.categoryOffer || 0;
@@ -54,11 +56,19 @@ const getProductDetails = async (req, res) => {
                 }))
             };
         });
+        let wishlistItems = [];
+        if (req.session.user) {
+            const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
+            wishlistItems = userWishlist ? userWishlist.items.map(item => ({
+                productId: item.productId.toString(),
+                variantId: item.variantId.toString()
+            })) : [];
+        }
 
-        // Send data to frontend (NO NEED TO CHECK WISHLIST HERE)
         res.render('productDetails', {
             product,
             relatedProducts: processedRelated,
+            wishlistItems,
             title: "Product Details"
         });
     } catch (error) {
@@ -74,7 +84,6 @@ const updateVariantDetails = async (req, res) => {
     try {
         const { productId, variantId } = req.body;
 
-        // Get product with populated category
         const product = await Product.findById(productId)
             .populate('category');
 
@@ -83,20 +92,20 @@ const updateVariantDetails = async (req, res) => {
         const variant = product.variants.id(variantId);
         if (!variant) return res.status(404).send('Variant not found');
 
-        // Calculate applicable offer
         const applicableOffer = product.productOffer > 0
             ? product.productOffer
             : product.category?.categoryOffer || 0;
+            const offer = parseFloat(((variant.price - variant.salePrice) / variant.price) * 100).toFixed(2)
 
-        // Calculate discounted price
+
         const discountedPrice = Math.floor((variant.salePrice * (100 - applicableOffer) / 100))
 
         res.json({
-            salePrice: discountedPrice, // Send discounted price
+            salePrice: discountedPrice, 
             originalPrice: variant.price.toFixed(2),
             quantity: variant.quantity,
             size: variant.size,
-            applicableOffer
+            applicableOffer:offer
         });
     } catch (error) {
         console.error("Error in updateVariantDetails:", error.message);
@@ -107,9 +116,6 @@ const updateVariantDetails = async (req, res) => {
 const addToCart = async (req, res) => {
     try {
         const { productId, variantId, quantity, productImage } = req.body;
-        // console.log(quantity);
-
-        // Check if user is logged in
         if (!req.session.user) {
             return res.status(401).json({
                 success: false,

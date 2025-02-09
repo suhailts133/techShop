@@ -48,6 +48,7 @@ const loadShoppingPage = async (req, res) => {
 
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
+        let wishlistItems = [];
         if (req.session.user) {
             const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
             wishlistItems = userWishlist ? userWishlist.items.map(item => ({
@@ -81,12 +82,12 @@ const filterProducts = async (req, res) => {
         const limit = 8;
         const skip = (page - 1) * limit;
 
-        // Get filters from query string
+
         const category = req.query.category;
         const brand = req.query.brand;
         const sort = req.query.sort;
 
-        // Find the selected category and brand if they exist
+
         const findCategory = category ? await Category.findOne({ _id: category }) : null;
         const findBrand = brand ? await Brand.findOne({ _id: brand }) : null;
 
@@ -98,7 +99,7 @@ const filterProducts = async (req, res) => {
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
         };
 
-        // Add category and brand filters if available
+        
         if (findCategory) {
             query.category = findCategory._id;
         }
@@ -122,11 +123,12 @@ const filterProducts = async (req, res) => {
 
         let findProducts = await Product.find(query)
             .sort(sortQuery)
+            .collation({ locale: "en", strength: 2 })
             .skip(skip)
             .limit(limit)
             .populate("category")
             .lean();
-
+            let wishlistItems = [];
             if (req.session.user) {
                 const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
                 wishlistItems = userWishlist ? userWishlist.items.map(item => ({
@@ -134,6 +136,10 @@ const filterProducts = async (req, res) => {
                     variantId: item.variantId.toString()
                 })) : [];
             }
+            for(let i =0;i<findProducts.length;i++){
+                console.log(findProducts[i].productName)
+            }
+            
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
 

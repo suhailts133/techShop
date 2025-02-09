@@ -10,7 +10,7 @@ const User = require("../../models/userSchema.js") // user model
 const { generateOtp, securePassword, sendVerificationEmail } = require("../../helpers/userAuthendication.js") // authentication helper
 const Coupon = require("../../models/couponsSchema.js")
 
-// load homepage
+
 const loadHomePage = async (req, res) => {
     try {
         const categories = await Category.find({ isListed: true });

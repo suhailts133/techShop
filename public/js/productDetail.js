@@ -1,4 +1,4 @@
-// Update the main image when a thumbnail is clicked
+
 function updateMainImage(imagePath) {
     document.getElementById('main-image').src = imagePath;
 }
@@ -12,19 +12,19 @@ function updateVariantDetails() {
     console.log("From JS - Variant ID:", variantId);
     console.log("From JS - Product ID:", productId);
 
-    // Make an AJAX request to fetch the variant details
     $.ajax({
-        url: '/updateVariant', // Endpoint to fetch variant details
+        url: '/updateVariant', 
         type: 'POST',
         data: { productId, variantId },
         success: function (response) {
-            // Update price, regular price, and available quantity dynamically
+            console.log("response from updateVariable",response);
+            
             document.getElementById('price').textContent = `${response.salePrice}`;
             document.getElementById('regular-price').textContent = `${response.originalPrice}`;
 
             const discountBadge = document.querySelector('.badge.bg-danger');
-            if (data.applicableOffer > 0) {
-                discountBadge.textContent = `-${data.applicableOffer}% OFF `;
+            if (response.applicableOffer > 0) {
+                discountBadge.textContent = `-${response.applicableOffer}% OFF `;
                 discountBadge.style.display = 'inline-block';
             } else {
                 discountBadge.style.display = 'none';
@@ -36,24 +36,22 @@ function updateVariantDetails() {
             const increaseButton = document.querySelector('button[onclick="changeQuantity(1)"]');
             const addToCartButton = document.querySelector('button[onclick="addToCart()"]');
 
-            // Handle quantity updates
             if (response.quantity === 0) {
-                // Update UI to show "Out of Stock"
+                
                 quantityElement.textContent = 'Out of Stock';
                 quantityElement.classList.add('text-danger', 'fw-bold');
                 selectedQuantityElement.textContent = '0';
 
-                // Disable buttons
                 decreaseButton.disabled = true;
                 increaseButton.disabled = true;
                 addToCartButton.disabled = true;
             } else {
-                // Update quantity and reset UI
-                quantityElement.textContent = response.quantity;
+             
+                quantityElement.innerHTML = response.quantity;
                 quantityElement.classList.remove('text-danger', 'fw-bold');
                 selectedQuantityElement.textContent = '1';
 
-                // Enable buttons
+       
                 decreaseButton.disabled = false;
                 increaseButton.disabled = false;
                 addToCartButton.disabled = false;

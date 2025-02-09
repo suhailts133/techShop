@@ -19,7 +19,9 @@ function initDriftZoom(imageSrc) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    initDriftZoom('/uploads/products/<%= product.productImage[0] %>');
+    const  imageIdSelector = document.getElementById('main-image').getAttribute('data-zoom')
+    // const imageId =
+    initDriftZoom(`/uploads/products/${imageIdSelector}`);
 });
 
 
