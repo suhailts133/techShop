@@ -11,7 +11,7 @@ document.getElementById('applyCouponBtn').addEventListener('click', async () => 
     couponMessage.textContent = 'Please enter a coupon code.';
     return;
   }
-
+  
   try {
     const response = await fetch('/checkout/validate-coupon', {
       method: 'POST',

@@ -1,28 +1,27 @@
 const User = require("../../models/userSchema.js")
-// const Coupon = require("../../models/couponsSchema.js")
 
+// display the coupons 
 const allCoupons = async (req, res) => {
     try {
         const { id } = req.session.user;
-        const user = await User.findById(id).populate("coupons.couponId");
+        const user = await User.findById(id).populate("coupons.couponId"); // find all the coupon id from the user
 
-       
-        const validCoupons = user.coupons.filter(coupon => new Date() <= coupon.expiresAt);
+     
+       // filter out the coupon which has already expired by comparing the current date and the expiry date in the coupon.user
+        const validCoupons = user.coupons.filter(coupon => new Date() <= coupon.expiresAt);  
 
-    
+    // save the valid coupons 
         if (validCoupons.length !== user.coupons.length) {
             user.coupons = validCoupons;
             await user.save();
         }
 
-        const coupons = validCoupons.map(coupon => ({
+        const coupons = validCoupons.map(coupon => ({ // coupon details for the front end
             code: coupon.couponId.code,
             couponId: coupon.couponId,
             discount: coupon.couponId.discountValue,
             minPurchase: coupon.couponId.minPurchase,
             expiresAt: coupon.expiresAt,
-            isUsed: coupon.isUsed,
-            status: coupon.isUsed ? 'Used' : 'Active'
         }));
 
         res.render('allCoupons', {

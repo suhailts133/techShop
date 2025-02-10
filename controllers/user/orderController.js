@@ -45,7 +45,7 @@ const getItemDetails = async (req, res) => {
         const order = await Order.findOne({ orderId }).populate("items.productId");
         const item = order.items.id(itemId);
     
-        if (!item) {
+        if (!item) {-
             req.flash("error", "Item not found in the order.");
             return res.redirect("/profile/orders");
         }

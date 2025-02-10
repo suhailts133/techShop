@@ -47,6 +47,7 @@ const loadDashboard = async (req, res) => {
             admin: req.session.admin || null,
             title: "Dashboard",
             period: 'daily',
+            salesReport:[],
             startDate: moment().startOf('day').format('YYYY-MM-DD'),
             endDate: moment().endOf('day').format('YYYY-MM-DD'),
             report: null,
@@ -269,6 +270,7 @@ return;
         }
 
         res.render('dashboard', {
+            salesReport,
             admin: req.session.admin || null,
             title: "Sales Report",
             period: period || 'daily',

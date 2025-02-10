@@ -61,6 +61,49 @@
     <% } %>
 </section>
 
+<div class="container">
+    <div class="row mt-4">
+        <div class="col-12">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>OrderID</th>
+                        <th>User name</th>
+                        <th>Payment Method</th>
+                        <th>Coupon Used</th>
+                        <th>Discount</th>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (salesReport.length === 0) { %>
+                        <tr>
+                            <td colspan="8" class="text-center">NO report</td>
+                        </tr>
+                        <%} else if (salesReport.length > 10) {%>
+                    <% } else { %>
+                        <% salesReport.forEach(report => { %>
+                            <% report.products.forEach(product => { %>
+                                <tr>
+                                    <td><%= report._id %></td>
+                                    <td><%= report.userName %></td>
+                                    <td><%= report.paymentMethod %></td>
+                                    <td><%= report.couponUsed? "Yes": "No" %></td>
+                                    <td><%= report.discount %></td>
+                                    <td><%= product.product%></td>
+                                    <td><%= product.price %></td>
+                                    <td><%= report.totalAmount %></td>
+                                </tr>
+                                <% }) %>
+                            <% }) %>
+                        <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 <style>
     .sales-report {
         padding: 20px;

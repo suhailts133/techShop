@@ -1,6 +1,6 @@
 const Order = require("../../models/orderSchema.js")
 const User = require("../../models/userSchema.js");
-const Product = require("../../models/productSchema.js")
+
 const Wallet = require("../../models/walletSchema.js");
 
 const orderManagment = async (req, res) => {

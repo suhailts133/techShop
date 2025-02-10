@@ -3,7 +3,7 @@ const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
 const Product = require("../../models/productSchema.js")
 const Coupon = require("../../models/couponsSchema.js")
-
+const Wallet = require("../../models/walletSchema.js");
 
 const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
@@ -72,40 +72,43 @@ const checkOut = async (req, res) => {
         let usedCoupon = null;
         let allowedDiscount = 0
         const lengthOfCart = cart.items.length;
-        console.log(lengthOfCart)
+      
         if (couponCode) {
         
-            const coupon = await Coupon.findOne({ code: couponCode });
-            if (!coupon) {
+            const coupon = await Coupon.findOne({ code: couponCode }); // find the coupons user entered form the coupon collection
+            if (!coupon) { // if coupon is invalid
                 req.flash("error", "Invalid coupon code");
                 return res.redirect("/checkout");
             }
-            const userCoupon = user.coupons.find(c => 
-                c.couponId.equals(coupon._id) && 
-                !c.isUsed && 
-                new Date() < c.expiresAt
+            const userCoupon = user.coupons.find(c =>  
+                c.couponId.equals(coupon._id) &&   // check if the user has the coupon by comparing the couponid in the user.coupons and the coupon user entered
+                !c.isUsed &&   // check if the coupon is already used
+                new Date() < c.expiresAt // check if the coupon is expired
             );
 
             if (!userCoupon) {
                 req.flash("error", "Coupon not available or expired");
                 return res.redirect("/checkout");
             }
+            // allowedDiscount is used to give discount to the item in the cart according to the length of the cart 
+            // accroding to length split the discount value 
+            // example lengthOfCart = 2 discount = 1000 then 500 per item
             allowedDiscount = coupon.discountValue / lengthOfCart
             totalAmount = cart.totalAmount - coupon.discountValue;
 
-            user.coupons.pull(userCoupon._id);
+            user.coupons.pull(userCoupon._id); // pull only one coupon with the id only one because user can have multiple coupon with same id
             usedCoupon = coupon;
         }
-        if(paymentMethod === "Wallet"){
-            if(user.wallet < totalAmount){
+        if(paymentMethod === "Wallet"){ // if the payment is wallet
+            if(user.wallet < totalAmount){ // check if wallet have sufficent balance for the transation
                 req.flash("error", "Insufficent amount in wallet");
                 return res.redirect("/checkout");
             }
-            user.wallet -= totalAmount
+            user.wallet -= totalAmount // reduce the amount
         }
         await user.save();
 
-        const items = cart.items.map(item => {
+        const items = cart.items.map(item => { // map the items in the cart for the order.items
             const variant = item.productId.variants.id(item.variantId);
             
             if (!variant) {
@@ -141,16 +144,28 @@ const checkOut = async (req, res) => {
         
 
         await order.save();
-        console.log("new order",order)
-        // Add to order history
+        
+        if(paymentMethod === "Wallet") {  // for wallet transation
+            const newWallet = new Wallet({
+                userId:user._id,
+                amount:totalAmount,
+                action:"Debited",
+                purpose:"Purchase",
+                orderId:order._id
+            })
+
+            await newWallet.save()
+            user.WalletHistory = newWallet._id;  
+            await user.save()
+        }
         user.orderHistory.push(order._id);
         await user.save();
 
-        // Assign new coupon only if no coupon was used
+        // assign new coupon only if no coupon was used
         if (!usedCoupon) {
-            const randomCoupon = await getRandomCoupon();
+            const randomCoupon = await getRandomCoupon();  // return a random coupon from the function
             if (randomCoupon) {
-                user.coupons.push({
+                user.coupons.push({ // push the new coupon to the users.coupons
                     couponId: randomCoupon._id,
                     expiresAt: new Date(Date.now() + randomCoupon.validityDuration * 24 * 60 * 60 * 1000),
                     isUsed: false,
@@ -162,21 +177,21 @@ const checkOut = async (req, res) => {
             }
         }
 
-        // Update product stock
+        // update product stock
         for (const item of cart.items) {
             const product = await Product.findById(item.productId);
             const variant = product.variants.find(v => v._id.equals(item.variantId));
             if (variant) {
-                variant.quantity -= item.quantity;
+                variant.quantity -= item.quantity; // update the stock according to how many item quantity
                 await product.save();
             }
         }
 
-        // Clear cart
+        // clear the current user card
         cart.items = [];
         cart.totalAmount = 0;
         await cart.save();
-        req.session.orderId = order._id;
+        req.session.orderId = order._id; // for displaying the order id in the order confirmed page
 
         // Send confirmation email
         const orderPopulated = await Order.findById(order._id).populate("items.productId");
@@ -188,7 +203,7 @@ const checkOut = async (req, res) => {
                 price: item.price,
             })),
             totalAmount: orderPopulated.totalAmount,
-            shippingAddress: address, // Use the address object directly
+            shippingAddress: address, 
             paymentMethod: orderPopulated.paymentMethod
         };
         

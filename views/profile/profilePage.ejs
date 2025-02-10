@@ -1,30 +1,150 @@
 <% layout("../layouts/profileboilerPlate") %>
-<%= title  %>
+<%= title %>
 
-    <!-- Main Content Area -->
-    <div class="content">
-        <div class="container mt-5">
-            <!-- Profile Header -->
-            <div class="card shadow-sm">
-                <div class="card-body">
+<!-- Add Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
-                    <!-- User Information -->
-                    <div class="text-center">
-                        <h3><%= user.name %></h3> <!-- Display the user's name -->
-                        <p class="text-muted">Welcome to your profile page</p>
-                        <p>Wallet Balance: <%= user.wallet%></p>
-                        <p>Your referal code: <%= user.Referalcode%></p>
+<!-- Add Clipboard.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+<div class="content bg-light text-dark">
+    <div class="container mt-5">
+        <!-- Profile Header -->
+        <div class="card shadow-lg border-0 bg-light text-dark">
+            <div class="card-header bg-secondary text-light text-center py-4">
+                <h2 class="mb-0"><%= user.name %></h2>
+                <p class="mb-0">Welcome to your profile</p>
+            </div>
+
+            <div class="card-body">
+                <!-- Wallet Balance -->
+                <div class="d-flex align-items-center mb-4">
+                    <div class="icon-circle bg-secondary text-white mr-3">
+                        <i class="bi bi-wallet2 fa-2x"></i>
                     </div>
-
-                    <hr>
-                    
-                    <!-- Action Buttons -->
-                    <div class="d-flex justify-content-center gap-3">
-                        <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
-                        <a href="/profile/loadChangePasswordCheck" class="btn btn-secondary">Change Password</a>
+                    <div>
+                        <h5 class="mb-0">Wallet Balance</h5>
+                        <p class="lead text-muted mb-0">₹<%= user.wallet %></p>
                     </div>
+                </div>
+
+                <!-- Referral Code Section -->
+                <div class="mb-4">
+                    <h5 class="mb-3">Your Referral Code</h5>
+                    <div class="input-group" style="max-width: 400px;">
+                        <input type="text" 
+                               class="form-control form-control-lg bg-light text-dark" 
+                               id="referralCode" 
+                               value="<%= user.Referalcode %>" 
+                               readonly
+                               style="font-weight: 600; letter-spacing: 2px;">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-dark" 
+                                    type="button" 
+                                    id="copyButton"
+                                    data-clipboard-target="#referralCode">
+                                <i class="bi bi-copy"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    <small class="form-text text-muted">Share this code with friends to earn rewards</small>
+                </div>
+
+                <hr class="my-4 bg-dark">
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <a href="/profile/edit" class="btn btn-secondary px-4">
+                        <i class="bi bi-pencil-square mr-2"></i>Edit Profile
+                    </a>
+                    <a href="/profile/loadChangePasswordCheck" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-lock mr-2"></i>Change Password
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Initialize Clipboard.js
+    new ClipboardJS('#copyButton');
+
+    // Add feedback when copied
+    document.getElementById('copyButton').addEventListener('click', function() {
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+        setTimeout(() => {
+            this.innerHTML = originalText;
+        }, 2000);
+    });
+</script>
+
+<style>
+    body {
+        background-color: #f8f9fa; 
+        color: #000000; 
+    }
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+        background-color: #ffffff; 
+        border: 1px solid #e0e0e0; 
+    }
+
+    .icon-circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #0d6efd; /* Primary color for icons */
+    }
+
+    #referralCode {
+        background-color: #ffffff; /* Light input field */
+        border: 1px solid #e0e0e0; /* Subtle border for input */
+        color: #000000; /* Dark text in input */
+    }
+    .input-group button {
+        position: relative;
+        margin-left: 10px;
+        margin-top: 5px;
+    }
+
+    .input-group-append button {
+        border-left: 0;
+        background-color: #ffffff; /* Light button background */
+        color: #000000; /* Dark text on button */
+        border: 1px solid #e0e0e0; /* Subtle border for button */
+    }
+
+    .btn-outline-dark {
+        border-color: #000000; /* Dark border for outline button */
+    }
+
+    .btn-outline-dark:hover {
+        background-color: #000000; /* Dark background on hover */
+        color: #ffffff; /* Light text on hover */
+    }
+
+    .btn-primary {
+        background-color: #0d6efd; /* Primary button color */
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7; /* Darker primary on hover */
+        border-color: #0b5ed7;
+    }
+
+    hr.bg-dark {
+        border-top: 1px solid #000000; /* Dark horizontal rule */
+    }
+    .icon-circle {
+        position: relative;
+        margin-right: 10px;
+    }
+</style>

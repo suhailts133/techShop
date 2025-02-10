@@ -315,7 +315,7 @@ const displayWallet = async (req, res) => {
 
         const userId = req.session.user.id;
         const page = parseInt(req.query.page) || 1;
-        const limit = 4; 
+        const limit = 5; 
         const walletAmount = await User.findById(userId);
 
      
