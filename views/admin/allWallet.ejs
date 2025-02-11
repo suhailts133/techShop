@@ -1,0 +1,52 @@
+<% layout("../layouts/adminboilerplate") %>
+    <title>
+        <%= title %>
+    </title>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center">Wallet Transaction</h2>
+            </div>
+        </div>
+
+
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Transaction Date</th>
+                            <th>User Name</th>
+                            <th>Amount</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                       <% if (wallet.length === 0) {%>
+                        <tr>
+                            <td colspan="6">No Transaction Yet</td>
+                        </tr>
+                        <% } else {%>
+                            <% wallet.forEach(w=> { %>
+                                <tr>
+                                    <td><a href="/admin/wallet/walletDetails?transactionId=<%= w.transactionId%>" class="text-decoration-none text-bold"><%= w.transactionId%></a></td>
+                                    <td><%= w.createdAt.toLocaleDateString() %></td>
+                                    <td><%= w.userId.name%></td>
+                                    <td><%= w.amount%></td>
+                                    <td><%= w.action%></td>
+                                    <td><%= w.purpose%></td>
+                                </tr>
+                                <% }) %>
+                            <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bootstrap Pagination -->
+
+    </div>

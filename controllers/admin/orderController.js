@@ -138,6 +138,7 @@ const updateItemStatus = async (req, res) => {
           userId:user._id,
           amount:item.price,
           action:"Credited",
+          orderItemId: item._id,
           purpose:"Refund",
           orderId:order._id
         })
@@ -151,6 +152,7 @@ const updateItemStatus = async (req, res) => {
           userId:user._id,
           amount:item.price,
           action:"Credited",
+          orderItemId: item._id,
           purpose:"Refund",
           orderId:order._id
         })

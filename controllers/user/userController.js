@@ -299,3 +299,4 @@ module.exports = {
     pageError,
     searchRecomendation
 }
+

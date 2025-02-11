@@ -5,7 +5,7 @@
 
 <div class="container mt-5">
   <h2>Order Details - <%= order.orderId %></h2>
-  <p><strong>User:</strong> <%= order.userId.name %></p>
+<p><strong>User:</strong> <%= order.userId.name %></p>
   <p><strong>Shipping Address:</strong> <%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></p>
   <p><strong>Status:</strong> <%= order.orderStatus %></p>
 
@@ -14,7 +14,7 @@
     <% order.items.forEach(item => { %>
       <li class="list-group-item">
         <a href="/admin/orders/itemDetails?orderId=<%= order._id %>&itemId=<%= item._id %>" class="text-decoration-none">
-          <strong><%= item.productId.productName %></strong>
+          <strong><%= item.productId.productName %></strong> - <%= item.orderStatus%>
         </a>   - Qty: <%= item.quantity %> - ₹<%= item.price.toFixed(2) %>
       </li> 
     <% }) %>

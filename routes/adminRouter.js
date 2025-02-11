@@ -9,6 +9,8 @@ const categoryController = require("../controllers/admin/categoryController.js")
 const brandController = require("../controllers/admin/brandController.js")
 const productController = require("../controllers/admin/productController.js")
 const couponController = require("../controllers/admin/couponController.js")
+const walletController = require("../controllers/admin/walletController.js")
+
 
 // authentication middlewares
 const {adminCheckAuth, adminCheckAuthLogin} = require("../middlewares/auth.js")
@@ -76,5 +78,10 @@ router.post("/coupon/edit", adminCheckAuth, couponController.editCoupon);
 router.get("/coupon/activate", adminCheckAuth, couponController.toggleCouponStatus);
 router.get("/coupon/deactivate",adminCheckAuth, couponController.toggleCouponStatus);
 router.get("/coupon/delete",  adminCheckAuth, couponController.deleteCoupon);
+
+
+// wallet 
+router.get("/wallet", walletController.walletTransation);
+router.get("/wallet/walletDetails", walletController.walletTransationDetail);
 
 module.exports = router

@@ -8,6 +8,7 @@ const Wallet = require("../../models/walletSchema.js");
 const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
 const { v4: uuidv4 } = require("uuid");
+const { ReturnDocument } = require("mongodb")
 
 
 
@@ -68,6 +69,10 @@ const checkOut = async (req, res) => {
             req.flash("error", "Cart is empty");
             return res.redirect("/profile/cart");
         }
+        // if(paymentMethod === "COD" && cart.totalAmount >= 20000){
+        //     req.flash("error", "COD is only available for orders under ₹20000");
+        //     return res.redirect("/checkout")
+        // }
         let totalAmount = cart.totalAmount;
         let usedCoupon = null;
         let allowedDiscount = 0

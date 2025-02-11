@@ -1,7 +1,13 @@
-const { Transaction } = require("mongodb");
+const { v4: uuidv4 } = require("uuid");
 const mongoose = require("mongoose");
 const { Schema } = mongoose
 const walletSchema = new Schema({
+    transactionId:{
+        type:String,
+        default: () => uuidv4(),
+        unique:true,
+        trim:true,
+    },
     userId: {
         type: Schema.Types.ObjectId,
         ref: "User",
@@ -25,6 +31,10 @@ const walletSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:"Order",
         default:null
+    },
+    orderItemId:{
+        type:Schema.Types.ObjectId,
+        default:null,
     },
     createdAt:{
         type:Date,

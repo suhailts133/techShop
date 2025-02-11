@@ -1,0 +1,219 @@
+<% layout("../layouts/adminboilerplate") %>
+<title><%= title %></title>
+
+<div class="container py-5">
+  <% if(t) { %>
+    <div class="glass-card">
+      <div class="card-header border-0 position-relative overflow-hidden">
+        <div class="golden-gradient"></div>
+        <h3 class="position-relative mb-0 py-3 ps-4 text-white">Transaction Details</h3>
+      </div>
+      
+      <div class="card-body p-4">
+        <div class="row g-4">
+          <!-- User Details Section -->
+          <div class="col-md-6">
+            <div class="luxury-section">
+              <div class="section-header">
+                <i class="bi bi-person-circle fs-4 me-2"></i>
+                <h4 class="mb-0">User Information</h4>
+              </div>
+              <div class="content-box">
+                <div class="info-group">
+                  <label>Name</label>
+                  <p class="info-value"><%= t.userId.name %></p>
+                </div>
+                <div class="info-group">
+                  <label>Email</label>
+                  <p class="info-value"><%= t.userId.email %></p>
+                </div>
+                <div class="info-group">
+                  <label>Phone</label>
+                  <p class="info-value"><%= t.userId.phone %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction Details Section -->
+          <div class="col-md-6">
+            <div class="luxury-section">
+              <div class="section-header">
+                <i class="bi bi-credit-card fs-4 me-2"></i>
+                <h4 class="mb-0">Transaction Information</h4>
+              </div>
+              <div class="content-box">
+                <div class="info-group">
+                  <label>Transaction ID</label>
+                  <p class="info-value font-monospace"><%= t.transactionId %></p>
+                </div>
+                <div class="info-group">
+                  <label>Date</label>
+                  <p class="info-value"><%= t.createdAt.toLocaleDateString() %></p>
+                </div>
+                <div class="info-group">
+                  <label>Action</label>
+                  <div class="status-badge <%= t.action === 'Credited' ? 'credited' : 'debited' %>">
+                    <span class="status-dot"></span>
+                    <%= t.action %>
+                  </div>
+                </div>
+                <div class="info-group">
+                  <label>Purpose</label>
+                  <p class="info-value"><%= t.purpose %></p>
+                </div>
+                <% if(t.orderId) { %>
+                  <div class="info-group">
+                    <label>Order ID</label>
+                    <a href="/admin/orders/itemDetails?orderId=<%= t.orderId._id %>&itemId=<%= orderItemId %>" class="order-link">
+                      <%= t.orderId.orderId %>
+                      <i class="bi bi-box-arrow-up-right ms-2"></i>
+                    </a>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="error-message">
+      <i class="bi bi-exclamation-diamond-fill me-2"></i>
+      <span>No record available</span>
+    </div>
+  <% } %>
+</div>
+
+
+
+
+
+<style>
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.golden-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #B8860B, #DAA520, #FFD700);
+  opacity: 0.9;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+  color: #2c3e50;
+}
+
+.luxury-section {
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  height: 100%;
+}
+
+.info-group {
+  margin-bottom: 1.5rem;
+}
+
+.info-group:last-child {
+  margin-bottom: 0;
+}
+
+label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.info-value {
+  font-size: 1.1rem;
+  color: #2c3e50;
+  margin: 0;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.status-badge.credited {
+  background: rgba(40, 199, 111, 0.1);
+  color: #28c76f;
+}
+
+.status-badge.debited {
+  background: rgba(234, 84, 85, 0.1);
+  color: #ea5455;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.credited .status-dot {
+  background: #28c76f;
+}
+
+.debited .status-dot {
+  background: #ea5455;
+}
+
+.order-link {
+  color: #B8860B;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.order-link:hover {
+  color: #DAA520;
+  transform: translateY(-1px);
+}
+
+.error-message {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  color: #dc3545;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .luxury-section {
+    padding: 1.5rem;
+  }
+}
+</style>
+
+<!-- Add Bootstrap Icons CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
