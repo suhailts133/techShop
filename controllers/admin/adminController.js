@@ -67,27 +67,51 @@ const getSalesReport = async (req, res) => {
             case 'daily':
                 start = moment().startOf('day');
                 end = moment().endOf('day');
+                dateFormat = "%Y-%m-%d";
                 break;
             case 'weekly':
                 start = moment().startOf('week');
                 end = moment().endOf('week');
+                dateFormat = "%Y-%m-%d"; 
                 break;
             case 'monthly':
-                start = moment().startOf('year');
-                end = moment().endOf('year');
+                start = moment().startOf('month');
+                end = moment().endOf('month');
+                dateFormat = "%Y-%m"; 
                 break;
             case 'yearly':
                 start = moment().subtract(4, 'years').startOf('year');
                 end = moment().endOf('year');
+                dateFormat = "%Y"; 
                 break;
             case 'custom':
                 start = moment(startDate).startOf('day');
                 end = moment(endDate).endOf('day');
+                dateFormat = "%Y-%m-%d"; 
                 break;
             default:
                 return res.status(400).send('Invalid period');
         }
-
+        const chartReport = await Order.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: start.toDate(), $lte: end.toDate() }
+                }
+            },
+            {
+                $group: {
+                    _id: { 
+                        $dateToString: { format: dateFormat, date: "$createdAt" }  
+                    },
+                    totalAmount: { $sum: "$totalAmount" }
+                }
+            },
+            {
+                $sort: { _id: 1 } 
+            }
+        ]);
+        console.log(chartReport);
+        
         const reportData = await Order.aggregate([
             {
                 $match: {
@@ -104,7 +128,6 @@ const getSalesReport = async (req, res) => {
                 }
             }
         ]);
-
         const salesReport = await Order.aggregate([
             {
                 $match: {
@@ -120,7 +143,7 @@ const getSalesReport = async (req, res) => {
                 }
             },
             { $unwind: '$userDetails' },
-            { $unwind: '$items' }, // Unwind items to access product and price separately
+            { $unwind: '$items' }, 
             {
                 $group: {
                     _id: '$orderId',
@@ -138,11 +161,6 @@ const getSalesReport = async (req, res) => {
                 }
             }
         ]);
-        console.log(salesReport);
-
-
-
-
 
         const result = reportData[0] || {
             totalSales: 0,
@@ -199,18 +217,17 @@ res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
 
 doc.pipe(res);
 
-// Title
 doc.fontSize(18).text('Sales Report', { align: 'center' });
 doc.moveDown(1);
 
-// Report Period
+
 doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
 doc.moveDown(1);
 
-// Table Start Position
+
 let y = doc.y + 10;
 
-// Column Headers
+
 const headers = [
     { label: 'Order ID', x: 50, width: 110 }, 
     { label: 'User Name', x: 170, width: 80 },
@@ -229,11 +246,9 @@ headers.forEach(header => {
 });
 y += 15;
 
-// Draw line under header
 doc.moveTo(50, y).lineTo(750, y).stroke();
 y += 5;
 
-// Data Rows
 doc.font('Helvetica').fontSize(9);
 salesReport.forEach((order, index) => {
     order.products.forEach((product, productIndex) => {
@@ -242,7 +257,7 @@ salesReport.forEach((order, index) => {
             doc.rect(50, y - 2, 700, 12).fill('#f0f0f0').fillColor('black'); 
         }
 
-        // Shortened Order ID (first 6 + last 6 chars)
+      
         const shortOrderId = `${order._id.substring(0, 6)}...${order._id.slice(-6)}`;
 
         doc.text(shortOrderId, 50, y, { width: 110 });
@@ -263,7 +278,7 @@ salesReport.forEach((order, index) => {
     y += 5;
 });
 
-// Finalize PDF
+
 doc.end();
 return;
 

@@ -83,6 +83,7 @@
                             <td colspan="8" class="text-center">NO report</td>
                         </tr>
                         <%} else if (salesReport.length > 10) {%>
+                            <td colspan="8" class="text-center">No preview available please download</td>
                     <% } else { %>
                         <% salesReport.forEach(report => { %>
                             <% report.products.forEach(product => { %>
