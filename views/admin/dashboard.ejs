@@ -5,161 +5,206 @@
 
 <section class="sales-report">
     <h2>Sales Report</h2>
-
-    <form action="/admin/sales-report" method="GET" class="report-controls">
+  
+    <form id="salesReportForm" class="report-controls">
+      <div class="form-group">
+        <label for="periodSelect">Report Period:</label>
+        <select name="period" id="periodSelect" class="form-control">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+          <option value="custom">Custom Range</option>
+        </select>
+      </div>
+  
+      <div id="customDateRange" style="display: none;">
         <div class="form-group">
-            <label for="periodSelect">Report Period:</label>
-            <select name="period" id="periodSelect" class="form-control">
-                <option value="daily" <%= typeof period !== 'undefined' && period === 'daily' ? 'selected' : '' %>>Daily</option>
-                <option value="weekly" <%= typeof period !== 'undefined' && period === 'weekly' ? 'selected' : '' %>>Weekly</option>
-                <option value="monthly" <%= typeof period !== 'undefined' && period === 'monthly' ? 'selected' : '' %>>Monthly</option>
-                <option value="yearly" <%= typeof period !== 'undefined' && period === 'yearly' ? 'selected' : '' %>>Yearly</option>
-                <option value="custom" <%= typeof period !== 'undefined' && period === 'custom' ?  'selected' : '' %>>Custom Range</option>
-            </select>
+          <label for="startDate">Start Date:</label>
+          <input type="date" id="startDate" name="startDate">
         </div>
-
-        <div id="customDateRange" style="display: <%= period === 'custom' ? 'block' : 'none' %>;">
-            <div class="form-group">
-                <label>Start Date:</label>
-                <input type="date" name="startDate" value="<%= startDate %>" required>
-            </div>
-            <div class="form-group">
-                <label>End Date:</label>
-                <input type="date" name="endDate" value="<%= endDate %>" required>
-            </div>
+        <div class="form-group">
+          <label for="endDate">End Date:</label>
+          <input type="date" id="endDate" name="endDate">
         </div>
-
-        <div class="form-buttons">
-            <button type="submit" class="btn btn-primary">Generate Report</button>
-            <button type="submit" name="download" value="excel" class="btn btn-success">Export Excel</button>
-            <button type="submit" name="download" value="pdf" class="btn btn-danger">Export PDF</button>
-        </div>
+      </div>
+  
+      <div class="form-buttons">
+        <button type="submit" class="btn btn-primary">Generate Report</button>
+        <!-- You may keep your download buttons separately if needed -->
+        <button type="submit" name="download" value="excel" class="btn btn-success">Export Excel</button>
+        <button type="submit" name="download" value="pdf" class="btn btn-danger">Export PDF</button>
+      </div>
     </form>
-
-    <% if (typeof report !== 'undefined' && report) { %>
-        <div class="report-summary">
-            <h3>Report from <%= startDate %> to <%= endDate %></h3>
-            <div class="summary-cards">
-                <div class="card">
-                    <h4>Total Orders</h4>
-                    <p><%= report.totalSales %></p>
-                </div>
-                <div class="card">
-                    <h4>Total Sales</h4>
-                    <p>₹<%= report.totalAmount.toFixed(2) %></p>
-                </div>
-                <div class="card">
-                    <h4>Total Discounts</h4>
-                    <p>₹<%= report.totalDiscount.toFixed(2) %></p>
-                </div>
-                <div class="card">
-                    <h4>Coupons Used</h4>
-                    <p><%= report.couponsUsed %></p>
-                </div>
-            </div>
-        </div>
-    <% } %>
-</section>
-
-<div class="container">
-    <div class="row mt-4">
-        <div class="col-12">
-            <table class="table table-bordered table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>OrderID</th>
-                        <th>User name</th>
-                        <th>Payment Method</th>
-                        <th>Coupon Used</th>
-                        <th>Discount</th>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Total Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (salesReport.length === 0) { %>
-                        <tr>
-                            <td colspan="8" class="text-center">NO report</td>
-                        </tr>
-                        <%} else if (salesReport.length > 10) {%>
-                            <td colspan="8" class="text-center">No preview available please download</td>
-                    <% } else { %>
-                        <% salesReport.forEach(report => { %>
-                            <% report.products.forEach(product => { %>
-                                <tr>
-                                    <td><%= report._id %></td>
-                                    <td><%= report.userName %></td>
-                                    <td><%= report.paymentMethod %></td>
-                                    <td><%= report.couponUsed? "Yes": "No" %></td>
-                                    <td><%= report.discount %></td>
-                                    <td><%= product.product%></td>
-                                    <td><%= product.price %></td>
-                                    <td><%= report.totalAmount %></td>
-                                </tr>
-                                <% }) %>
-                            <% }) %>
-                        <% } %>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+  </section>
+  
+  <!-- Container for Summary Cards -->
+  <div id="reportSummary"></div>
+  
+  
+  <!-- Chart Container -->
+  <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
     <canvas id="salesChart"></canvas>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        <% if (typeof chartReport !== 'undefined' && chartReport.length) { %>
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            const chartData = {
-                labels: <%- JSON.stringify(chartReport.map(date => date._id)) %>,
-                datasets: [{
-                    label: 'Sales Amount',
-                    data: <%- JSON.stringify(chartReport.map(amount => amount.totalAmount)) %>,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            };
-    
-            new Chart(ctx, {
-                type: 'bar',
-                data: chartData,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Sales Amount (₹)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return '₹' + context.raw.toFixed(2);
-                                }
-                            }
-                        }
-                    }
+  
+  document.getElementById('periodSelect').addEventListener('change', (e) => {
+  const customDateRange = document.getElementById('customDateRange');
+  const startDateField = document.getElementById('startDate');
+  const endDateField = document.getElementById('endDate');
+  
+  if (e.target.value === 'custom') {
+    customDateRange.style.display = 'block';
+    startDateField.disabled = false;
+    endDateField.disabled = false;
+    startDateField.required = true;
+    endDateField.required = true;
+  } else {
+    customDateRange.style.display = 'none';
+  
+    startDateField.disabled = true;
+    endDateField.disabled = true;
+    startDateField.required = false;
+    endDateField.required = false;
+  }
+});
+  let salesChart;
+  function updateReportSummary(report, startDate, endDate) {
+    const summaryContainer = document.getElementById('reportSummary');
+    summaryContainer.innerHTML = `
+      <h3>Report from ${startDate} to ${endDate}</h3>
+      <div class="summary-cards">
+        <div class="card">
+          <h4>Total Orders</h4>
+          <p>${report.totalSales}</p>
+        </div>
+        <div class="card">
+          <h4>Total Sales</h4>
+          <p>₹${Number(report.totalAmount).toFixed(2)}</p>
+        </div>
+        <div class="card">
+          <h4>Total Discounts</h4>
+          <p>₹${Number(report.totalDiscount).toFixed(2)}</p>
+        </div>
+        <div class="card">
+          <h4>Coupons Used</h4>
+          <p>${report.couponsUsed}</p>
+        </div>
+      </div>
+    `;
+  }
+
+  // Function to update the table.
+ 
+
+  // Function to update (or create) the chart.
+  function updateChart(chartReport) {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const labels = chartReport.map(entry => entry._id);
+    const data = chartReport.map(entry => entry.totalAmount);
+
+    if (salesChart) {
+      // Update existing chart
+      salesChart.data.labels = labels;
+      salesChart.data.datasets[0].data = data;
+      salesChart.update();
+    } else {
+      // Create new chart
+      salesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Sales Amount',
+            data: data,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Sales Amount (₹)'
+              }
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Date'
+              }
+            }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return '₹' + context.raw.toFixed(2);
                 }
-            });
-        <% } %>
-    });
-    </script>
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  
+  async function fetchSalesReport() {
+    try {
+      
+      const period = document.getElementById('periodSelect').value;
+      let startDate = document.getElementById('startDate').value;
+      let endDate = document.getElementById('endDate').value;
+      if (period !== 'custom') {
+        startDate = '';
+        endDate = '';
+      }
+      const response = await fetch(`/admin/sales-report?period=${period}&startDate=${startDate}&endDate${endDate}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      updateReportSummary(data.report, data.startDate, data.endDate);
+   
+      updateChart(data.chartReport);
+    } catch (error) {
+      console.error('Error fetching sales report data:', error);
+    }
+  }
+
+  document.getElementById('salesReportForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const submitter = e.submitter;
+    const period = document.getElementById('periodSelect').value;
+    let startDate = document.getElementById('startDate').value;
+    let endDate = document.getElementById('endDate').value;
+    if (period !== 'custom') {
+      startDate = '';
+      endDate = '';
+    }
+  if (submitter && submitter.name === 'download') {
+      const downloadType = submitter.value; 
+      const downloadUrl = `/admin/sales-report?period=${period}&startDate=${startDate}&endDate=${endDate}&download=${downloadType}`;
+      window.location.href = downloadUrl;
+    } else {
+      
+      await fetchSalesReport();
+    }
+  });
+    
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchSalesReport();
+  });
+</script>
+
 
 <style>
     .sales-report {

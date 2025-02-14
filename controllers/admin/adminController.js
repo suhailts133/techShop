@@ -47,7 +47,7 @@ const loadDashboard = async (req, res) => {
             admin: req.session.admin || null,
             title: "Dashboard",
             period: 'daily',
-            salesReport:[],
+            salesReport: [],
             startDate: moment().startOf('day').format('YYYY-MM-DD'),
             endDate: moment().endOf('day').format('YYYY-MM-DD'),
             report: null,
@@ -72,22 +72,22 @@ const getSalesReport = async (req, res) => {
             case 'weekly':
                 start = moment().startOf('week');
                 end = moment().endOf('week');
-                dateFormat = "%Y-%m-%d"; 
+                dateFormat = "%Y-%m-%d";
                 break;
             case 'monthly':
                 start = moment().startOf('month');
                 end = moment().endOf('month');
-                dateFormat = "%Y-%m"; 
+                dateFormat = "%Y-%m";
                 break;
             case 'yearly':
                 start = moment().subtract(4, 'years').startOf('year');
                 end = moment().endOf('year');
-                dateFormat = "%Y"; 
+                dateFormat = "%Y";
                 break;
             case 'custom':
                 start = moment(startDate).startOf('day');
                 end = moment(endDate).endOf('day');
-                dateFormat = "%Y-%m-%d"; 
+                dateFormat = "%Y-%m-%d";
                 break;
             default:
                 return res.status(400).send('Invalid period');
@@ -100,18 +100,18 @@ const getSalesReport = async (req, res) => {
             },
             {
                 $group: {
-                    _id: { 
-                        $dateToString: { format: dateFormat, date: "$createdAt" }  
+                    _id: {
+                        $dateToString: { format: dateFormat, date: "$createdAt" }
                     },
                     totalAmount: { $sum: "$totalAmount" }
                 }
             },
             {
-                $sort: { _id: 1 } 
+                $sort: { _id: 1 }
             }
         ]);
         console.log(chartReport);
-        
+
         const reportData = await Order.aggregate([
             {
                 $match: {
@@ -143,7 +143,7 @@ const getSalesReport = async (req, res) => {
                 }
             },
             { $unwind: '$userDetails' },
-            { $unwind: '$items' }, 
+            { $unwind: '$items' },
             {
                 $group: {
                     _id: '$orderId',
@@ -206,90 +206,84 @@ const getSalesReport = async (req, res) => {
         } else if (req.query.download === 'pdf') {
             const PDFDocument = require('pdfkit');
 
-const doc = new PDFDocument({ margin: 30, size: 'A3', layout: 'portrait' });
+            const doc = new PDFDocument({ margin: 30, size: 'A3', layout: 'portrait' });
 
-res.setHeader('Content-Type', 'application/pdf');
-res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', 'attachment; filename=sales_report.pdf');
 
-doc.pipe(res);
+            doc.pipe(res);
 
-doc.fontSize(18).text('Sales Report', { align: 'center' });
-doc.moveDown(1);
-
-
-doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
-doc.moveDown(1);
+            doc.fontSize(18).text('Sales Report', { align: 'center' });
+            doc.moveDown(1);
 
 
-let y = doc.y + 10;
+            doc.fontSize(12).text(`Period: ${startDate} to ${endDate}`);
+            doc.moveDown(1);
 
 
-const headers = [
-    { label: 'Order ID', x: 50, width: 110 }, 
-    { label: 'User Name', x: 170, width: 80 },
-    { label: 'Payment', x: 260, width: 80 },
-    { label: 'Total Amt', x: 350, width: 70 },
-    { label: 'Coupon', x: 430, width: 50 },
-    { label: 'Discount', x: 490, width: 60 },
-    { label: 'Product', x: 560, width: 120 },
-    { label: 'Price', x: 690, width: 60 }
-];
+            let y = doc.y + 10;
 
-// Draw Header Row
-doc.font('Helvetica-Bold').fontSize(10);
-headers.forEach(header => {
-    doc.text(header.label, header.x, y, { width: header.width, align: 'left' });
-});
-y += 15;
 
-doc.moveTo(50, y).lineTo(750, y).stroke();
-y += 5;
+            const headers = [
+                { label: 'Order ID', x: 50, width: 110 },
+                { label: 'User Name', x: 170, width: 80 },
+                { label: 'Payment', x: 260, width: 80 },
+                { label: 'Total Amt', x: 350, width: 70 },
+                { label: 'Coupon', x: 430, width: 50 },
+                { label: 'Discount', x: 490, width: 60 },
+                { label: 'Product', x: 560, width: 120 },
+                { label: 'Price', x: 690, width: 60 }
+            ];
 
-doc.font('Helvetica').fontSize(9);
-salesReport.forEach((order, index) => {
-    order.products.forEach((product, productIndex) => {
-       
-        if ((index + productIndex) % 2 === 0) {
-            doc.rect(50, y - 2, 700, 12).fill('#f0f0f0').fillColor('black'); 
+            // Draw Header Row
+            doc.font('Helvetica-Bold').fontSize(10);
+            headers.forEach(header => {
+                doc.text(header.label, header.x, y, { width: header.width, align: 'left' });
+            });
+            y += 15;
+
+            doc.moveTo(50, y).lineTo(750, y).stroke();
+            y += 5;
+
+            doc.font('Helvetica').fontSize(9);
+            salesReport.forEach((order, index) => {
+                order.products.forEach((product, productIndex) => {
+
+                    if ((index + productIndex) % 2 === 0) {
+                        doc.rect(50, y - 2, 700, 12).fill('#f0f0f0').fillColor('black');
+                    }
+
+
+                    const shortOrderId = `${order._id.substring(0, 6)}...${order._id.slice(-6)}`;
+
+                    doc.text(shortOrderId, 50, y, { width: 110 });
+                    doc.text(order.userName, 170, y, { width: 80 });
+                    doc.text(order.paymentMethod, 260, y, { width: 80 });
+                    doc.text(`₹${order.totalAmount}`, 350, y, { width: 70 });
+                    doc.text(order.couponUsed ? 'Yes' : 'No', 430, y, { width: 50 });
+                    doc.text(`₹${order.discount}`, 490, y, { width: 60 });
+
+
+                    doc.text(product.product, 560, y, { width: 120, ellipsis: true });
+
+                    doc.text(`₹${product.price}`, 690, y, { width: 60 });
+
+                    y += 15;
+                });
+
+                y += 5;
+            });
+            doc.end();
+            return;
         }
-
-      
-        const shortOrderId = `${order._id.substring(0, 6)}...${order._id.slice(-6)}`;
-
-        doc.text(shortOrderId, 50, y, { width: 110 });
-        doc.text(order.userName, 170, y, { width: 80 });
-        doc.text(order.paymentMethod, 260, y, { width: 80 });
-        doc.text(`₹${order.totalAmount}`, 350, y, { width: 70 });
-        doc.text(order.couponUsed ? 'Yes' : 'No', 430, y, { width: 50 });
-        doc.text(`₹${order.discount}`, 490, y, { width: 60 });
-
-       
-        doc.text(product.product, 560, y, { width: 120, ellipsis: true });
-
-        doc.text(`₹${product.price}`, 690, y, { width: 60 });
-
-        y += 15;
-    });
-
-    y += 5;
-});
-
-
-doc.end();
-return;
-
-        }
-
-        res.render('dashboard', {
+        res.json({
             salesReport,
             chartReport,
-            admin: req.session.admin || null,
-            title: "Sales Report",
-            period: period || 'daily',
+            report: result,
             startDate: start.format('YYYY-MM-DD'),
-            endDate: end.format('YYYY-MM-DD'),
-            report: result || null
+            endDate: end.format('YYYY-MM-DD')
         });
+
     } catch (error) {
         console.error('Error generating sales report:', error);
         res.status(500).send('Server Error');
