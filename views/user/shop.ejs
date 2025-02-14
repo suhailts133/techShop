@@ -1,134 +1,23 @@
 <% layout("../layouts/boilerplate") %>
 <title><%= title %></title>
 
-<!-- Custom CSS -->
-<style>
-  .filter-sidebar {
-    background-color: #f8f9fa;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-
-  .filter-heading {
-    color: #2c3e50;
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e9ecef;
-  }
-
-  .list-group-item {
-    border: none;
-    padding: 8px 0;
-    background: transparent;
-    transition: all 0.3s ease;
-  }
-
-  .list-group-item a {
-    color: #6c757d;
-    transition: all 0.3s ease;
-  }
-
-  .list-group-item a:hover {
-    color: #212529;
-    padding-left: 5px;
-  }
-
-  .sort-btn {
-    margin-bottom: 8px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-  }
-
-  .sort-btn:hover {
-    background-color: #212529;
-    color: white;
-  }
-
-  .product-card {
-    border: none;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-  }
-
-  .product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-  }
-
-  .product-img {
-    border-radius: 12px 12px 0 0;
-    object-fit: cover;
-    height: 300px;
-  }
-
-  .product-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #2c3e50;
-    line-height: 1.4;
-  }
-
-  .variant-info {
-    font-size: 0.9rem;
-    color: #6c757d;
-  }
-
-  .price-new {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #2ecc71;
-  }
-
-  .price-old {
-    font-size: 0.9rem;
-    color: #e74c3c;
-  }
-
-  .wishlist-icon {
-    transition: all 0.3s ease;
-  }
-
-  .wishlist-icon:hover {
-    transform: scale(1.1);
-  }
-
-  .pagination .page-link {
-    color: #2c3e50;
-    border: none;
-    margin: 0 3px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-  }
-
-  .pagination .page-link:hover,
-  .pagination .active .page-link {
-    background-color: #2c3e50;
-    color: white;
-  }
-</style>
-
 <div class="container py-5">
   <div class="row g-4">
     <!-- Filter Sidebar -->
     <div class="col-lg-3">
-      <div class="filter-sidebar">
+      <div class="bg-light rounded-3 p-4 shadow-sm">
         <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="filter-heading m-0">Filters</h4>
+          <h4 class="h5 fw-bold m-0">Filters</h4>
           <a href="/shop" class="btn btn-sm btn-outline-dark rounded-pill">Reset</a>
         </div>
 
         <!-- Categories Section -->
         <div class="mb-4">
-          <h5 class="filter-heading">Categories</h5>
-          <ul class="list-group">
+          <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Categories</h5>
+          <ul class="list-unstyled mb-0">
             <% for (let i=0; i < category.length; i++) { %>
-              <li class="list-group-item">
-                <a href="/filter?category=<%= category[i]._id%>" class="text-decoration-none">
+              <li class="mb-2">
+                <a href="/filter?category=<%= category[i]._id%>" class="text-decoration-none text-secondary hover-dark">
                   <%= category[i].name %>
                 </a>
               </li>
@@ -138,11 +27,11 @@
 
         <!-- Brands Section -->
         <div class="mb-4">
-          <h5 class="filter-heading">Brands</h5>
-          <ul class="list-group">
+          <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Brands</h5>
+          <ul class="list-unstyled mb-0">
             <% for (let i=0; i < brand.length; i++) { %>
-              <li class="list-group-item">
-                <a href="/filter?brand=<%= brand[i]._id%>" class="text-decoration-none">
+              <li class="mb-2">
+                <a href="/filter?brand=<%= brand[i]._id%>" class="text-decoration-none text-secondary hover-dark">
                   <%= brand[i].brandName %>
                 </a>
               </li>
@@ -152,15 +41,15 @@
 
         <!-- Sort Section -->
         <div>
-          <h5 class="filter-heading">Sort By</h5>
+          <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Sort By</h5>
           <form action="/filter" method="GET">
             <div class="d-grid gap-2">
-              <button type="submit" name="sort" value="price-asc" class="btn btn-outline-dark sort-btn">Price: Low to High</button>
-              <button type="submit" name="sort" value="price-desc" class="btn btn-outline-dark sort-btn">Price: High to Low</button>
-              <button type="submit" name="sort" value="popularity-asc" class="btn btn-outline-dark sort-btn">Popularity: High to Low</button>
-              <button type="submit" name="sort" value="popularity-desc" class="btn btn-outline-dark sort-btn">Popularity: Low to High</button>
-              <button type="submit" name="sort" value="name-asc" class="btn btn-outline-dark sort-btn">Name: A-Z</button>
-              <button type="submit" name="sort" value="name-desc" class="btn btn-outline-dark sort-btn">Name: Z-A</button>
+              <button type="submit" name="sort" value="price-asc" class="btn btn-outline-dark text-start">Price: Low to High</button>
+              <button type="submit" name="sort" value="price-desc" class="btn btn-outline-dark text-start">Price: High to Low</button>
+              <button type="submit" name="sort" value="popularity-asc" class="btn btn-outline-dark text-start">Popularity: High to Low</button>
+              <button type="submit" name="sort" value="popularity-desc" class="btn btn-outline-dark text-start">Popularity: Low to High</button>
+              <button type="submit" name="sort" value="name-asc" class="btn btn-outline-dark text-start">Name: A-Z</button>
+              <button type="submit" name="sort" value="name-desc" class="btn btn-outline-dark text-start">Name: Z-A</button>
             </div>
           </form>
         </div>
@@ -169,42 +58,41 @@
 
     <!-- Products Grid -->
     <div class="col-lg-9">
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
         <% if (products.length > 0) { %>
           <% products.forEach(product => { %>
             <div class="col">
-              <div class="card product-card h-100">
-                <a href="/productDetails?id=<%= product._id %>">
-                  <img src="/uploads/products/<%= product.productImage[0] %>" 
-                       class="card-img-top product-img" 
-                       alt="<%= product.productName %>">
+              <div class="card h-100 shadow-sm">
+                <a href="/productDetails?id=<%= product._id %>" class="text-decoration-none">
+                  <div class="position-relative" style="padding-top: 100%;">
+                    <img src="/uploads/products/<%= product.productImage[0] %>"
+                         class="position-absolute top-0 start-0 w-100 h-100"
+                         style="object-fit: contain;"
+                         alt="<%= product.productName %>">
+                  </div>
                 </a>
                 <div class="card-body d-flex flex-column">
-                  <h5 class="product-title mb-3"><%= product.productName %></h5>
-
+                  <h5 class="card-title fs-6 text-truncate mb-2"><%= product.productName %></h5>
                   <% if (product.variants && product.variants.length > 0) {
                     const variant = product.variants.find(v => v.quantity > 0);
                     if (variant) {
                       let discount = product.productOffer > 0 ? product.productOffer : (product.category?.categoryOffer || 0);
                       let discountedPrice = (variant.salePrice * (100 - discount) / 100).toFixed(2);
                   %>
-                    <div class="variant-info mb-2">
-                      <%= variant.color %> - <%= variant.size %>
-                    </div>
-
+                    <p class="text-muted small mb-2"><%= variant.color %> - <%= variant.size %></p>
                     <div class="mt-auto">
                       <div class="d-flex justify-content-between align-items-center">
                         <div>
-                          <span class="price-new">₹<%= discountedPrice %></span>
-                          <span class="price-old ms-2"><s>₹<%= variant.price.toFixed(2) %></s></span>
+                          <span class="text-success fw-bold">₹<%= discountedPrice %></span>
+                          <span class="text-danger text-decoration-line-through small ms-2">₹<%= variant.price.toFixed(2) %></span>
                         </div>
-                        <div class="wishlist-icon" data-product-id="<%= product._id %>" data-variant-id="<%= variant._id %>">
+                        <button class="btn btn-link p-0 wishlist-icon" data-product-id="<%= product._id %>" data-variant-id="<%= variant._id %>">
                           <% const isInWishlist = wishlistItems.some(item => 
                             item.productId === product._id.toString() && 
                             item.variantId === variant._id.toString()
                           ); %>
-                          <i class="bi <%= isInWishlist ? 'bi-heart-fill text-danger' : 'bi-heart' %> fs-4"></i>
-                        </div>
+                          <i class="bi <%= isInWishlist ? 'bi-heart-fill text-danger' : 'bi-heart' %> fs-5"></i>
+                        </button>
                       </div>
                     </div>
                   <% } } %>
@@ -226,15 +114,16 @@
             <ul class="pagination">
               <% if (page > 1) { %>
                 <li class="page-item">
-                  <a class="page-link" href="/shop?page=<%= page - 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
+                  <a class="page-link rounded-circle mx-1" href="/shop?page=<%= page - 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
                     <i class="bi bi-chevron-left"></i>
                   </a>
                 </li>
               <% } %>
               
               <% for (let i=1; i <= totalPages; i++) { %>
-                <li class="page-item <%= page === i ? 'active' : '' %>">
-                  <a class="page-link" href="/shop?page=<%= i %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
+                <li class="page-item">
+                  <a class="page-link rounded-circle mx-1 <%= page === i ? 'bg-dark text-white border-dark' : '' %>" 
+                     href="/shop?page=<%= i %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
                     <%= i %>
                   </a>
                 </li>
@@ -242,7 +131,7 @@
               
               <% if (page < totalPages) { %>
                 <li class="page-item">
-                  <a class="page-link" href="/shop?page=<%= page + 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
+                  <a class="page-link rounded-circle mx-1" href="/shop?page=<%= page + 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
                     <i class="bi bi-chevron-right"></i>
                   </a>
                 </li>

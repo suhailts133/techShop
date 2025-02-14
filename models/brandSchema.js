@@ -6,6 +6,10 @@ const brandSchema = new Schema({
         type: String,
         required: true
     },
+    purchaseCount: {
+        type: Number,
+        default: 0
+    },
     logo: {
         type: String,
         required: true

@@ -105,6 +105,62 @@
         </div>
     </div>
 </div>
+
+<div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+    <canvas id="salesChart"></canvas>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        <% if (typeof chartReport !== 'undefined' && chartReport.length) { %>
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const chartData = {
+                labels: <%- JSON.stringify(chartReport.map(date => date._id)) %>,
+                datasets: [{
+                    label: 'Sales Amount',
+                    data: <%- JSON.stringify(chartReport.map(amount => amount.totalAmount)) %>,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            };
+    
+            new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Sales Amount (₹)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '₹' + context.raw.toFixed(2);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        <% } %>
+    });
+    </script>
+
 <style>
     .sales-report {
         padding: 20px;

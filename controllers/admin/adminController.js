@@ -161,16 +161,12 @@ const getSalesReport = async (req, res) => {
                 }
             }
         ]);
-
         const result = reportData[0] || {
             totalSales: 0,
             totalAmount: 0,
             totalDiscount: 0,
             couponsUsed: 0
         };
-
-
-
         if (req.query.download === 'excel') {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Sales Report');
@@ -286,6 +282,7 @@ return;
 
         res.render('dashboard', {
             salesReport,
+            chartReport,
             admin: req.session.admin || null,
             title: "Sales Report",
             period: period || 'daily',

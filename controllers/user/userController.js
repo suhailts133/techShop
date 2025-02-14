@@ -133,6 +133,9 @@ const loadOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
+        console.log("t otp",otp);
+        console.log("g otp", req.body.otp)
+        
         // check the otp form the otp page with the otp in the session
         if (otp === req.session.userOtp) {
             const user = req.session.userData;  // user data form the session
@@ -159,7 +162,7 @@ const verifyOtp = async (req, res) => {
                 newUser.WalletHistory = newWalletReferal._id
                 await newUser.save()
             }
-            const signupCoupon = await Coupon.findOne({ code: "AB4CF89E" });
+            const signupCoupon = await Coupon.findOne({ code: "EBD5D202" });
             newUser.coupons.push({
                 couponId: signupCoupon._id,
                 expiresAt: new Date(Date.now() + signupCoupon.validityDuration * 24 * 60 * 60 * 1000)

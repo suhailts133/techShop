@@ -23,7 +23,7 @@ const variantSchema = new Schema({
         type: Number,
         required: true,
         validate: {
-            validator: function(value) {
+            validator: function (value) {
                 return value <= this.price;
             },
             message: 'Sale price cannot be greater than regular price'
@@ -36,17 +36,21 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
+    purchaseCount: {
+        type: Number,
+        default: 0
+    },
     description: {
         type: String,
         required: true
     },
-    averageRating:{
-        type:Number,
-        default:0
+    averageRating: {
+        type: Number,
+        default: 0
     },
     reviewCount: {
-        type:Number,
-        default:0,
+        type: Number,
+        default: 0,
     },
     brand: {
         type: String,
@@ -57,9 +61,9 @@ const productSchema = new Schema({
         ref: "Category",
         required: true
     },
-    variants: [variantSchema],  
+    variants: [variantSchema],
     productImage: {
-        type: [String],  
+        type: [String],
         required: true
     },
     productOffer: {
@@ -70,9 +74,9 @@ const productSchema = new Schema({
         type: Boolean,
         default: false
     },
-    reviews:[{
-        type:Schema.Types.ObjectId,
-        ref:"Review"
+    reviews: [{
+        type: Schema.Types.ObjectId,
+        ref: "Review"
     }],
     status: {
         type: String,

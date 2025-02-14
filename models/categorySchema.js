@@ -5,7 +5,11 @@ const categorySchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique:true
+        unique: true
+    },
+    purchaseCount: {
+        type: Number,
+        default: 0
     },
     description: {
         type: String,
@@ -22,7 +26,7 @@ const categorySchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    }    
+    }
 });
 
 const Category = mongoose.model("Category", categorySchema);

@@ -10,6 +10,7 @@ const brandController = require("../controllers/admin/brandController.js")
 const productController = require("../controllers/admin/productController.js")
 const couponController = require("../controllers/admin/couponController.js")
 const walletController = require("../controllers/admin/walletController.js")
+const bestSellingController = require("../controllers/admin/bestSellingController.js")
 
 
 // authentication middlewares
@@ -27,6 +28,7 @@ router.post("/",adminCheckAuthLogin, adminController.adminLogin);
 
 router.get("/dashboard", adminCheckAuth, adminController.loadDashboard)
 router.get('/sales-report', adminController.getSalesReport);
+router.get("/best-selling", bestSellingController.bestSelling)
 
 // customer routes
 router.get("/users", adminCheckAuth, customerController.customerInfo)

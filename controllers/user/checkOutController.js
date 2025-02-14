@@ -1,6 +1,8 @@
 const User = require("../../models/userSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
+const Brand = require("../../models/brandSchema.js")
+const category = require("../../models/categorySchema.js")
 const Product = require("../../models/productSchema.js")
 const Coupon = require("../../models/couponsSchema.js")
 const Wallet = require("../../models/walletSchema.js");
@@ -9,6 +11,7 @@ const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
 const { v4: uuidv4 } = require("uuid");
 const { ReturnDocument } = require("mongodb")
+const Category = require("../../models/categorySchema.js")
 
 
 
@@ -119,7 +122,7 @@ const checkOut = async (req, res) => {
             if (!variant) {
                 throw new Error("Variant not found");
             }
-        
+            
             return {
                 productId: item.productId._id,
                 variantId: item.variantId,
@@ -149,6 +152,7 @@ const checkOut = async (req, res) => {
         
 
         await order.save();
+
         
         if(paymentMethod === "Wallet") {  // for wallet transation
             const newWallet = new Wallet({
@@ -188,7 +192,18 @@ const checkOut = async (req, res) => {
             const variant = product.variants.find(v => v._id.equals(item.variantId));
             if (variant) {
                 variant.quantity -= item.quantity; // update the stock according to how many item quantity
-                await product.save();
+            }
+            product.purchaseCount = (product.purchaseCount || 0) + item.quantity;
+            await product.save()
+            const category = await Category.findById(product.category);
+            if(category){
+                category.purchaseCount = (category.purchaseCount || 0) + item.quantity;
+                await category.save();
+            }
+            const brand = await Brand.findOne({brandName: product.brand})
+            if(brand){
+                brand.purchaseCount = (brand.purchaseCount || 0) + item.quantity;
+                await brand.save()
             }
         }
 

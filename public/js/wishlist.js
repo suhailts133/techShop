@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         
             wishlistIcon.innerHTML = result.isInWishlist
                 ? '<i class="bi bi-heart-fill fs-3 text-danger"></i>'  
-                : '<i class="bi bi-heart fs-3 text-white"></i>';  
+                : '<i class="bi bi-heart fs-3 text-dark"></i>';  
         } catch (error) {
             console.error("Error while updating wishlist item status:", error.message);
         }
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (result.success) {
                 wishlistIcon.innerHTML = result.added
                     ? '<i class="bi bi-heart-fill fs-3 text-danger"></i>'  
-                    : '<i class="bi bi-heart fs-3 text-white"></i>';  
+                    : '<i class="bi bi-heart fs-3 text-dark"></i>';  
             } else {
                 alert(result.error);
             }
