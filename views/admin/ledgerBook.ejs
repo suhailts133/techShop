@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    :root {
+      --primary-color: #1a1a1a;
+      --accent-color: #2c3e50;
+      --accent-hover: #34495e;
+      --bg-gradient: linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --border-color: rgba(44, 62, 80, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-gradient);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .ledger-container {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .ledger-header {
+      background: var(--primary-color);
+      padding: 2rem;
+      color: white;
+      position: relative;
+    }
+
+    .ledger-header h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .ledger-header p {
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+
+    .ledger-content {
+      padding: 2rem;
+    }
+
+    .transaction-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .transaction-table th {
+      background: var(--accent-color);
+      color: white;
+      text-align: left;
+      padding: 1rem;
+      font-weight: 500;
+    }
+
+    .transaction-table tr:nth-child(even) {
+      background: rgba(44, 62, 80, 0.03);
+    }
+
+    .transaction-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--primary-color);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .status-credited {
+      background: rgba(72, 187, 120, 0.1);
+      color: #2f855a;
+    }
+
+    .status-debited {
+      background: rgba(245, 101, 101, 0.1);
+      color: #c53030;
+    }
+
+    .transaction-id {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.85rem;
+      color: var(--accent-color);
+    }
+
+    .amount {
+      font-weight: 600;
+    }
+
+    .ledger-footer {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      color: var(--accent-color);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .ledger-container {
+        margin: 1rem;
+        border-radius: 12px;
+      }
+
+      .transaction-table {
+        display: block;
+        overflow-x: auto;
+      }
+
+      .ledger-header {
+        padding: 1.5rem;
+      }
+
+      .ledger-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="ledger-container">
+    <div class="ledger-header">
+      <h1>Transaction Ledger</h1>
+      <p>All transactions are recorded in real-time</p>
+    </div>
+    
+    <div class="ledger-content">
+      <table class="transaction-table">
+        <thead>
+          <tr>
+            <th>Transaction ID</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+            <th>Action</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="transaction-id">TXN-123e4567-e89b</td>
+            <td class="amount">₹1,250.00</td>
+            <td>Razorpay</td>
+            <td>Purchase</td>
+            <td><span class="status-badge status-credited">Credited</span></td>
+            <td>Feb 14, 2025</td>
+          </tr>
+          <tr>
+            <td class="transaction-id">TXN-987fcdeb-51d3</td>
+            <td class="amount">₹890.50</td>
+            <td>Wallet</td>
+            <td>Purchase</td>
+            <td><span class="status-badge status-debited">Debited</span></td>
+            <td>Feb 14, 2025</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="ledger-footer">
+      <span>Updated just now</span>
+      <span>Page 1 of 1</span>
+    </div>
+  </div>
+</body>
+</html>

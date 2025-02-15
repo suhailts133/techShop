@@ -1,6 +1,6 @@
 const Order = require("../../models/orderSchema.js")
 const User = require("../../models/userSchema.js");
-
+const Transaction = require("../../models/transactionSchema.js")
 const Wallet = require("../../models/walletSchema.js");
 
 const orderManagment = async (req, res) => {
@@ -128,8 +128,19 @@ const updateItemStatus = async (req, res) => {
     await order.save();
 
     const user = await User.findById(order.userId);
-
-
+    if(user){
+      if(status === "Delivered" && order.paymentMethod === "COD"){
+        const codTransaction = new Transaction({
+          orderId:order._id,
+          userId:user._id,
+          amount:item.price,
+          paymentMethod:"COD",
+          paymentStatus:"Purchase",
+          action:"Credited"
+        })
+        await codTransaction.save()
+      }
+    }
     if (user) {
       if (status === "Returned") {
   
@@ -145,6 +156,15 @@ const updateItemStatus = async (req, res) => {
         await returnWallet.save();
         user.WalletHistory = returnWallet._id
         await user.save();
+        const returnTransaction = new Transaction({
+          orderId:order._id,
+          userId:user._id,
+          amount:item.price,
+          paymentMethod:"Wallet",
+          paymentStatus:"Refund",
+          action:"Debited"
+        })
+        await returnTransaction.save()
       } else if (status === "Cancelled" && (order.paymentMethod === "Wallet" || order.paymentMethod === "Razorpay")) {
      
         user.wallet += item.price;
@@ -159,6 +179,16 @@ const updateItemStatus = async (req, res) => {
         await cancelWallet.save();
         user.WalletHistory = cancelWallet._id
         await user.save();
+
+        const cancelledTransaction = new Transaction({
+          orderId:order._id,
+          userId:user._id,
+          amount:item.price,
+          paymentMethod:"Wallet",
+          paymentStatus:"Cancelled",
+          action:"Debited"
+        })
+        await returnTransaction.save()
       }
       if (order.couponRefrence) {
         const couponCountBefore = user.coupons.length;

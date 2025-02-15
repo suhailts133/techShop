@@ -1,128 +1,300 @@
 <% layout("../layouts/boilerplate") %>
+<style>
+    /* Base Styles */
+    :root {
+      --primary-color: #1a1a1a;
+      --accent-color: #2c3e50;
+      --accent-hover: #34495e;
+      --bg-gradient: linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --border-color: rgba(44, 62, 80, 0.15);
+    }
 
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">Checkout</h2>
+    body {
+      background: var(--bg-gradient);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--primary-color);
+    }
+
+    .checkout-container {
+      max-width: 1400px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: var(--primary-color);
+      letter-spacing: -0.5px;
+    }
+
+    /* Card Styles */
+    .luxury-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .luxury-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    /* Address Card Styles */
+    .address-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+    }
+
+    .address-card:hover {
+      border-color: var(--accent-color);
+      background: rgba(44, 62, 80, 0.02);
+    }
+
+    .address-type {
+      font-size: 1.1rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Payment Method Styles */
+    .payment-method {
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .payment-method:hover {
+      background: rgba(44, 62, 80, 0.05);
+    }
+
+    .payment-method input[type="radio"] {
+      accent-color: var(--accent-color);
+    }
+
+    /* Button Styles */
+    .btn-luxury {
+      background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(44, 62, 80, 0.2);
+    }
+
+    .btn-luxury:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(44, 62, 80, 0.3);
+      background: linear-gradient(135deg, var(--accent-hover) 0%, var(--accent-color) 100%);
+    }
+
+    .btn-luxury:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    /* Coupon Input Styles */
+    .coupon-input {
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .coupon-input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+      outline: none;
+    }
+
+    /* Edit Button Styles */
+    .btn-edit {
+      background: transparent;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-edit:hover {
+      background: var(--accent-color);
+      color: white;
+    }
+
+    /* Order Summary Styles */
+    .order-summary {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      position: sticky;
+      top: 2rem;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Loading Spinner */
+    .spinner-luxury {
+      border: 3px solid rgba(44, 62, 80, 0.1);
+      border-top: 3px solid var(--accent-color);
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .order-summary {
+        position: static;
+        margin-top: 2rem;
+      }
+    }
+  </style>
+<div class="checkout-container">
+    <h1 class="page-title">Secure Checkout</h1>
     <form action="/checkout" method="POST" id="checkoutForm">
-        <div class="row">
-            <!-- Left Section: Address and Payment -->
-            <div class="col-lg-8">
-                <!-- Shipping Address Section -->
-                <div class="mb-4">
-                    <h4 class="mb-3">Shipping Address</h4>
-                    <% if (user.address && user.address.length > 0) { %>
-                        <div class="address-list">
-                            <% user.address.forEach(address => { %>
-                                <div class="address-card border rounded p-3 mb-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <label>
-                                            <input type="radio" name="shippingAddress" value="<%= address._id %>"
-                                                class="form-check-input me-2" required>
-                                            <strong>
-                                                <%= address.addressType %>
-                                            </strong>
-                                        </label>
-                                        <a href="/profile/address/edit?addressId=<%= address._id %>"
-                                            class="btn btn-sm btn-secondary">Edit</a>
-                                    </div>
-                                    <p class="mb-1">
-                                        <%= address.houseAddress %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %>
-                                    </p>
-                                </div>
-                            <% }) %>
-                        </div>
-                    <% } else { %>
-                        <div class="no-address text-center border p-4 rounded">
-                            <h5 class="mb-3">No address found</h5>
-                            <p class="mb-3">You need to add an address to proceed with the checkout.</p>
-                            <a href="/profile/address" class="btn btn-primary">Add Address</a>
-                        </div>
-                    <% } %>
-                </div>
-                
-                <!-- Payment Method Section -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title mb-4">Payment Method</h5>
-                        <div class="vstack gap-2">
-                            <div class="form-check">
-                                <input type="radio" name="paymentMethod" value="COD" id="cod" class="form-check-input" checked>
-                                <label for="cod" class="form-check-label">Cash on Delivery (Only for amount under 20k)</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="radio" name="paymentMethod" value="Wallet" id="Wallet" class="form-check-input">
-                                <label for="Wallet" class="form-check-label">
-                                    Wallet (₹<%= user.wallet.toFixed(2) %>)
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input type="radio" name="paymentMethod" value="Razorpay" id="razorpay" class="form-check-input">
-                                <label for="razorpay" class="form-check-label">Razorpay</label>
-                            </div>
-                        </div>
+      <div class="row">
+        <!-- Left Section -->
+        <div class="col-lg-8">
+          <!-- Shipping Address Section -->
+          <div class="luxury-card">
+            <h3 class="section-title">Shipping Address</h3>
+            <% if (user.address && user.address.length > 0) { %>
+              <div class="address-list">
+                <% user.address.forEach(address => { %>
+                  <div class="address-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <label class="d-flex align-items-center gap-3">
+                        <input type="radio" name="shippingAddress" value="<%= address._id %>" required>
+                        <span class="address-type"><%= address.addressType %></span>
+                      </label>
+                      <a href="/profile/address/edit?addressId=<%= address._id %>" class="btn-edit">Edit</a>
                     </div>
-                </div>
+                    <p class="mt-2 mb-0 text-muted">
+                      <%= address.houseAddress %>, <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                    </p>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div class="text-center p-5">
+                <h5 class="mb-3">No Address Found</h5>
+                <p class="mb-4">Please add an address to continue checkout</p>
+                <a href="/profile/address" class="btn-luxury">Add New Address</a>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Payment Method Section -->
+          <div class="luxury-card">
+            <h3 class="section-title">Payment Method</h3>
+            <div class="payment-methods">
+              <div class="payment-method">
+                <input type="radio" name="paymentMethod" value="COD" id="cod" checked>
+                <label for="cod" class="ms-3">Cash on Delivery (Orders under ₹20,000)</label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" name="paymentMethod" value="Wallet" id="Wallet">
+                <label for="Wallet" class="ms-3">Wallet Balance (₹<%= user.wallet.toFixed(2) %>)</label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" name="paymentMethod" value="Razorpay" id="razorpay">
+                <label for="razorpay" class="ms-3">Pay with Razorpay</label>
+              </div>
             </div>
-            <!-- Right Section: Order Summary -->
-            <div class="col-lg-4">
-                <div class="order-summary p-4 border rounded">
-                    <h4 class="mb-4 text-center">Order Summary</h4>
-                    <!-- Coupon Field -->
-                    <div class="mb-3">
-                        <label for="couponCode" class="form-label">Apply Coupon</label>
-                        <div class="input-group">
-                            <input type="text" id="couponCode" name="couponCode" class="form-control"
-                                placeholder="Enter coupon code">
-                            <button type="button" id="applyCouponBtn" class="btn btn-outline-secondary">
-                                Apply
-                            </button>
-                        </div>
-                        <div id="couponMessage" class="mt-2 text-danger small"></div>
-                    </div>
-                    <!-- Order Items -->
-                    <ul class="list-group mb-3">
-                        <% cart.items.forEach(item => { %>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>
-                                        <%= item.productId.productName %>
-                                    </strong>
-                                    <div class="text-muted small">Qty: <%= item.quantity %>
-                                    </div>
-                                </div>
-                                <span class="fw-bold">₹<%= item.totalPrice.toFixed(2) %></span>
-                            </li>
-                        <% }) %>
-                    </ul>
-                    <!-- Discount Amount -->
-                    <div id="discountDisplay"
-                        class="d-none justify-content-between align-items-center p-3 bg-light rounded">
-                        <strong class="fs-6">Discount:</strong>
-                        <strong class="fs-6">₹<span id="discountAmount">0.00</span></strong>
-                    </div>
-                    <!-- Total -->
-                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
-                        <div id="cartTotal" data-total="<%= cart.totalAmount %>" hidden></div>
-                        <strong class="fs-5">Total:</strong>
-                        <strong class="fs-5">₹<span id="finalTotal">
-                                <%= cart.totalAmount.toFixed(2) %>
-                            </span></strong>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="mt-4 text-center">
-            <button type="submit" id="submitBtn" 
-            class="btn btn-dark">
-          <span>Place Order</span>
-          <div id="spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <!-- Right Section -->
+        <div class="col-lg-4">
+          <div class="order-summary luxury-card">
+            <h3 class="section-title">Order Summary</h3>
+            
+            <!-- Coupon Section -->
+            <div class="mb-4">
+              <label class="mb-2">Apply Coupon</label>
+              <div class="input-group">
+                <input type="text" id="couponCode" name="couponCode" class="form-control coupon-input" placeholder="Enter code">
+                <button type="button" id="applyCouponBtn" class="btn-luxury">Apply</button>
+              </div>
+              <div id="couponMessage" class="mt-2 small text-danger"></div>
+            </div>
+
+            <!-- Order Items -->
+            <% cart.items.forEach(item => { %>
+              <div class="summary-item">
+                <div>
+                  <strong><%= item.productId.productName %></strong>
+                  <div class="text-muted">Qty: <%= item.quantity %></div>
+                </div>
+                <span class="fw-bold">₹<%= item.totalPrice.toFixed(2) %></span>
+              </div>
+            <% }) %>
+
+            <!-- Discount Display -->
+            <div id="discountDisplay" class="summary-item d-none">
+              <span>Discount</span>
+              <span class="text-success">-₹<span id="discountAmount">0.00</span></span>
+            </div>
+
+            <!-- Total -->
+            <div class="summary-item">
+              <div id="cartTotal" data-total="<%= cart.totalAmount %>" hidden></div>
+              <strong class="fs-5">Total Amount</strong>
+              <strong class="fs-5">₹<span id="finalTotal"><%= cart.totalAmount.toFixed(2) %></span></strong>
+            </div>
+
+            <!-- Place Order Button -->
+            <button type="submit" id="submitBtn" class="btn-luxury w-100 mt-4">
+              <span>Place Order</span>
+              <div id="spinner" class="spinner-luxury d-none ms-2"></div>
+            </button>
           </div>
-          </button>
         </div>
+      </div>
     </form>
-</div>
+  </div>
 
 <!-- Razorpay Integration Script -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

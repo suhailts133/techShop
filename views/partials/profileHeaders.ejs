@@ -1,72 +1,311 @@
- <!-- Sidebar -->
- <div class="sidebar">
+<style>
+  /* Sidebar styling */
+  .sidebar-desktop {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #343a40;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Sidebar link styling */
+  .sidebar-desktop .nav-link {
+    color: #f8f9fa;
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-desktop .nav-link:hover {
+    background-color: #495057;
+    text-decoration: none;
+  }
+
+  /* Active link styling */
+  .sidebar-desktop .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  /* Offcanvas sidebar for mobile */
+  .offcanvas-start {
+    width: 250px;
+    background-color: #343a40;
+  }
+
+  .offcanvas-body .nav-link {
+    color: #f8f9fa;
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+
+  .offcanvas-body .nav-link:hover {
+    background-color: #495057;
+  }
+
+  .offcanvas-body .nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+    font-weight: bold;
+  }
+
+  /* Content margin for desktop */
+  @media (min-width: 992px) {
+    .navbar {
+      margin-left: 250px;
+    }
+
+    .content {
+      margin-left: 250px;
+    }
+  }
+
+  /* Navbar styling */
+  .navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+</style>
+   
+   <!-- Desktop Sidebar -->
+<div class="sidebar-desktop d-none d-lg-block text-light">
   <div class="text-center mb-4">
-      <h4 class="text-light">TechNest</h4>
+    <h4>TechNest</h4>
   </div>
   <nav>
-      <ul class="nav flex-column">
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/">profile</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/address">Address</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/cart">cart</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/wishlist">wishlist</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/orders">Orders</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/coupons">Coupons</a>
-          </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/profile/wallet">Wallet</a>
-          </li>
-      </ul>
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/">Profile</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/address">Address</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/cart">Cart</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/wishlist">Wishlist</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/orders">Orders</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/coupons">Coupons</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/profile/wallet">Wallet</a>
+      </li>
+    </ul>
   </nav>
 </div>
 
+<!-- Mobile Sidebar -->
+<div class="offcanvas offcanvas-start d-lg-none bg-dark text-light" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="mobileSidebarLabel">TechNest</h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <nav>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/address">Address</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/cart">Cart</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/wishlist">Wishlist</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/orders">Orders</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/coupons">Coupons</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/profile/wallet">Wallet</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
 
-<nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">TechNest</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item">
-            <a class="nav-link" href="/">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/about">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/shop">Shop</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav ms-auto">
-          <% if (user) { %>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <div class="container-fluid">
+       
+        <button
+          class="btn btn-outline-light d-lg-none me-2"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#mobileSidebar"
+          aria-controls="mobileSidebar"
+        >
+          ☰
+        </button>
+        <a class="navbar-brand" href="#">TechNest</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a href="/profile/" class="text-decoration-none"><span class="nav-link"><%= user.name %></span></a>
+              <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/shop">Shop</a>
+            </li>
+          </ul>
+          <div class="position-relative">
+            <form class="d-flex ms-lg-3" id="searchForm" onsubmit="return false;">
+              <input 
+                class="form-control me-2" 
+                type="text" 
+                name="text" 
+                id="searchInput" 
+                placeholder="Search" 
+                aria-label="Search" 
+                oninput="handleInput(event)" 
+                required
+              >
+              <button class="btn btn-outline-light" type="submit">Search</button>
+            </form>
+            <!-- Dropdown for search results -->
+            <div id="searchResults" class="position-absolute bg-white shadow rounded w-100" style="z-index: 1000; display: none;">
+            </div>
+          </div>
+          <ul class="navbar-nav ms-auto">
+            <% if (user) { %>
+            <!-- On mobile, only the user's name is displayed -->
+            <li class="nav-item">
+              <a href="/profile/" class="nav-link"><%= user.name %></a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/logout">Logout</a>
             </li>
-          <% } else { %>
+            <% } else { %>
             <li class="nav-item">
               <a class="nav-link" href="/signup">Sign Up</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/login">Log In</a>
             </li>
-          <% } %>
-        </ul>
+            <% } %>
+          </ul>
+        </div>
       </div>
-    </div>
-  </nav>
-  
+    </nav>
+
+    <script>
+      // Function to set the active link
+      function setActiveLink() {
+        const currentUrl = window.location.pathname; // Get the current URL path
+        const sidebarLinks = document.querySelectorAll('.sidebar-desktop .nav-link, .offcanvas-body .nav-link');
+    
+        sidebarLinks.forEach(link => {
+          if (link.getAttribute('href') === currentUrl) {
+            link.classList.add('active');
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+    
+      // Call the function on page load
+      document.addEventListener('DOMContentLoaded', setActiveLink);
+    
+      // Call the function when the offcanvas is shown (for mobile)
+      document.getElementById('mobileSidebar').addEventListener('shown.bs.offcanvas', setActiveLink);
+      async function handleInput(event) {
+    const text = event.target.value; // Get the input value
+    const resultsDiv = document.getElementById("searchResults");
+
+    if (text.trim() === "") {
+      resultsDiv.style.display = "none"; // Hide the dropdown when input is empty
+      resultsDiv.innerHTML = ""; // Clear previous results
+      return;
+    }
+
+    try {
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        console.error("Error from server:", response.statusText);
+        return;
+      }
+
+      const matches = await response.json(); // Expecting JSON response from the server
+      renderMatches(matches); // Render matches under the search input
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+    }
+  }
+
+  function renderMatches(matches) {
+    const resultsDiv = document.getElementById("searchResults");
+    resultsDiv.innerHTML = ""; // Clear previous results
+
+    if (matches.length === 0) {
+      resultsDiv.style.display = "block";
+      resultsDiv.innerHTML = "<p class='text-muted text-center p-2'>No matches found.</p>";
+      return;
+    }
+
+    matches.forEach((match) => {
+      const link = document.createElement("a");
+      link.textContent = match.productName;
+      link.href = `/productDetails?id=${match._id}`;
+      link.className = "d-block text-dark p-2";
+      link.style.textDecoration = "none";
+      link.addEventListener("mouseover", () => {
+        link.style.backgroundColor = "#f8f9fa";
+      });
+      link.addEventListener("mouseout", () => {
+        link.style.backgroundColor = "white";
+      });
+
+      resultsDiv.appendChild(link);
+    });
+
+    resultsDiv.style.display = "block"; 
+  }
+
+
+  document.addEventListener("click", (event) => {
+    const resultsDiv = document.getElementById("searchResults");
+    const searchInput = document.getElementById("searchInput");
+    if (!resultsDiv.contains(event.target) && !searchInput.contains(event.target)) {
+      resultsDiv.style.display = "none";
+    }
+  });
+    </script>

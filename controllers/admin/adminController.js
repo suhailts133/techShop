@@ -51,7 +51,7 @@ const loadDashboard = async (req, res) => {
             startDate: moment().startOf('day').format('YYYY-MM-DD'),
             endDate: moment().endOf('day').format('YYYY-MM-DD'),
             report: null,
-            chartData: JSON.stringify([])
+            chartReport: JSON.stringify([])
         })
     } catch (error) {
         console.log("error while loading admin dashboard", error.message);

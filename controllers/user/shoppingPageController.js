@@ -1,8 +1,7 @@
 const Category = require("../../models/categorySchema.js");
-const Product = require("../../models/productSchema.js")
-const Brand = require("../../models/brandSchema.js")
-const User = require("../../models/userSchema.js")
-const Wishlist = require("../../models/wishlishSchema.js")
+const Product = require("../../models/productSchema.js");
+const Brand = require("../../models/brandSchema.js");
+const Wishlist = require("../../models/wishlishSchema.js");
 
 const loadShoppingPage = async (req, res) => {
     try {
@@ -10,51 +9,71 @@ const loadShoppingPage = async (req, res) => {
         const limit = 8;
         const skip = (page - 1) * limit;
 
-        const sort = req.query.sort || null;
-        const category = req.query.category || null;
-        const brand = req.query.brand || null;
+        const { sort, category, brand } = req.query;
 
+        // Fetch filters
         const categories = await Category.find({ isListed: true }).lean();
         const brands = await Brand.find({ isListed: true }).lean();
 
+        // Build query
         const query = {
             isBlocked: false,
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
         };
 
         if (category) {
-            query.category = categories._id;
+            query.category = category; // Directly use category ID from query
         }
+
         if (brand) {
-            query.brand = brands.brandName;
+            const brandDoc = await Brand.findById(brand);
+            if (brandDoc) query.brand = brandDoc.brandName;
         }
 
+        // Build sort
         let sortQuery = {};
-        if (sort === 'price-asc') {
-            sortQuery = { 'variants.salePrice': 1 };
-        } else if (sort === 'price-desc') {
-            sortQuery = { 'variants.salePrice': -1 };
-        } else if (sort === 'name-asc') {
-            sortQuery = { productName: 1 };
-        } else if (sort === 'name-desc') {
-            sortQuery = { productName: -1 };
+        switch (sort) {
+            case 'price-asc':
+                sortQuery = { 'variants.salePrice': 1 };
+                break;
+            case 'price-desc':
+                sortQuery = { 'variants.salePrice': -1 };
+                break;
+            case 'name-asc':
+                sortQuery = { productName: 1 };
+                break;
+            case 'name-desc':
+                sortQuery = { productName: -1 };
+                break;
+            case 'popularity-asc':
+                sortQuery = { averageRating: -1, reviewCount: -1 };
+                break;
+            case 'popularity-desc':
+                sortQuery = { averageRating: 1, reviewCount: 1 };
+                break;
         }
 
+        // Fetch products
         const products = await Product.find(query)
             .sort(sortQuery)
+            .collation({ locale: "en", strength: 2 })
             .skip(skip)
-            .limit(limit).populate("category")
+            .limit(limit)
+            .populate("category")
             .lean();
 
+        // Pagination
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
+
+        // Wishlist
         let wishlistItems = [];
         if (req.session.user) {
             const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
-            wishlistItems = userWishlist ? userWishlist.items.map(item => ({
+            wishlistItems = userWishlist?.items.map(item => ({
                 productId: item.productId.toString(),
                 variantId: item.variantId.toString()
-            })) : [];
+            })) || [];
         }
 
         res.render("shop", {
@@ -63,8 +82,8 @@ const loadShoppingPage = async (req, res) => {
             page,
             totalPages,
             wishlistItems,
-            category: categories,
-            brand: brands,
+            categories,
+            brands,
             selectedCategory: category,
             selectedBrand: brand,
             selectedSort: sort
@@ -72,96 +91,10 @@ const loadShoppingPage = async (req, res) => {
 
     } catch (error) {
         console.log("Error while loading shop", error.message);
-    }
-};
-
-const filterProducts = async (req, res) => {
-    try {
-
-        const page = parseInt(req.query.page) || 1;
-        const limit = 8;
-        const skip = (page - 1) * limit;
-
-
-        const category = req.query.category;
-        const brand = req.query.brand;
-        const sort = req.query.sort;
-
-
-        const findCategory = category ? await Category.findOne({ _id: category }) : null;
-        const findBrand = brand ? await Brand.findOne({ _id: brand }) : null;
-
-        const brands = await Brand.find({ isListed: true }).lean();
-        const categories = await Category.find({ isListed: true }).lean();
-
-        const query = {
-            isBlocked: false,
-            variants: { $elemMatch: { quantity: { $gt: 0 } } }
-        };
-
-        
-        if (findCategory) {
-            query.category = findCategory._id;
-        }
-        if (findBrand) {
-            query.brand = findBrand.brandName;
-        }
-        let sortQuery = {};
-        if (sort === 'price-asc') {
-            sortQuery = { 'variants.salePrice': 1 };
-        } else if (sort === 'price-desc') {
-            sortQuery = { 'variants.salePrice': -1 };
-        } else if (sort === 'name-asc') {
-            sortQuery = { productName: 1 };
-        } else if (sort === 'name-desc') {
-            sortQuery = { productName: -1 };
-        } else if (sort === 'popularity-asc') {
-            sortQuery = { averageRating: -1, reviewCount: -1 }
-        } else if (sort === 'popularity-desc') {
-            sortQuery = { averageRating: 1, reviewCount: 1 }
-        }
-
-        let findProducts = await Product.find(query)
-            .sort(sortQuery)
-            .collation({ locale: "en", strength: 2 })
-            .skip(skip)
-            .limit(limit)
-            .populate("category")
-            .lean();
-            let wishlistItems = [];
-            if (req.session.user) {
-                const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
-                wishlistItems = userWishlist ? userWishlist.items.map(item => ({
-                    productId: item.productId.toString(),
-                    variantId: item.variantId.toString()
-                })) : [];
-            }
-            for(let i =0;i<findProducts.length;i++){
-                console.log(findProducts[i].productName)
-            }
-            
-        const totalCount = await Product.countDocuments(query);
-        const totalPages = Math.ceil(totalCount / limit);
-
-
-        res.render("shop", {
-            title: "Shop",
-            products: findProducts,
-            page,
-            totalPages,
-            brand: brands,
-            wishlistItems,
-            category: categories,
-            selectedCategory: category || null,
-            selectedBrand: brand || null,
-            selectedSort: sort || null
-        });
-    } catch (error) {
-        console.log("Error while filtering", error.message);
+        res.status(500).send("Internal Server Error");
     }
 };
 
 module.exports = {
-    loadShoppingPage,
-    filterProducts
-}
+    loadShoppingPage
+};

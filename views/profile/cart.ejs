@@ -1,6 +1,253 @@
 <% layout("../layouts/profileboilerPlate") %>
-    <%= title %>
 
+<style>
+    :root {
+    --primary-color: #1a1a1a;
+    --accent-color: #2c3e50;
+    --accent-hover: #34495e;
+    --bg-gradient: linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%);
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --border-color: rgba(44, 62, 80, 0.15);
+    --gold-accent: #c0a080;
+    --text-muted: #666;
+}
+
+/* Main Content Styling */
+.content {
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.container-extended {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Page Title */
+h2 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--gold-accent);
+    padding-bottom: 0.5rem;
+}
+
+/* Cart Items Container */
+.cart-items {
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    margin-bottom: 2rem;
+}
+
+/* Individual Cart Item */
+.cart-item {
+    display: grid;
+    grid-template-columns: 120px 2fr 1fr 1fr 1fr 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+/* Product Image */
+.product-img img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Product Details */
+.product-name p {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.product-color p,
+.product-size p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Quantity Input */
+.product-quantity input {
+    width: 80px;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1rem;
+    margin-right: 0.5rem;
+}
+
+.update-btn {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.update-btn:hover {
+    background: var(--accent-hover);
+}
+
+/* Price Display */
+.product-price p {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Delete Button */
+.btn-danger {
+    background: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Cart Summary */
+.cart-summary {
+    position: sticky;
+    top: 2rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.summary-card h5 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--gold-accent);
+    padding-bottom: 0.5rem;
+}
+
+.summary-card p {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.checkout-btn {
+    display: block;
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.checkout-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Empty Cart Alert */
+.alert {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-size: 1.1rem;
+}
+
+.alert-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.alert-link:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+}
+
+/* Delete Modal */
+.modal-content {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    border-bottom: 2px solid var(--gold-accent);
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .cart-item {
+        grid-template-columns: 100px 2fr 1fr 1fr auto;
+        gap: 1rem;
+    }
+    
+    .product-color,
+    .product-size {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-item {
+        grid-template-columns: 80px 1fr auto;
+        gap: 1rem;
+    }
+    
+    .product-quantity,
+    .product-price {
+        grid-column: 2;
+    }
+    
+    .btn-danger {
+        grid-column: 3;
+        grid-row: span 2;
+    }
+}
+</style>
         <!-- Main Content Area -->
         <div class="content">
             <div class="container-extended mt-5">
@@ -18,8 +265,10 @@
                                 <div class="cart-item">
                                     <!-- Product Image -->
                                     <div class="product-img">
-                                        <img src="/uploads/products/<%= item.productId.productImage[0] %>"
+                                        <a href="/productDetails?id=<%= item.productId._id %>">
+                                            <img src="/uploads/products/<%= item.productId.productImage[0] %>"
                                             alt="<%= item.productId.productName %>">
+                                        </a>
                                     </div>
 
                                     <!-- Product Name -->

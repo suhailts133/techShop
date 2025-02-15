@@ -78,7 +78,7 @@ const addBrand = async (req, res) => {
         const findBrand = await Brand.findOne({ brandName });
         if (findBrand) {
             req.flash("error", "brand already exists");
-            res.redirect("/admin/brands/add");
+            return res.redirect("/admin/brands/add");
         }
 
         const image = req.file.filename;
@@ -87,7 +87,7 @@ const addBrand = async (req, res) => {
             logo: image
         });
         await newBrand.save();
-
+        req.flash("success", "New Brand Added")
         res.redirect("/admin/brands");
 
     } catch (error) {
@@ -101,7 +101,7 @@ const loadEditBrand = async (req, res) => {
     const brandData = await Brand.findById(id);
     if (!brandData) {
         req.flash("error", "brand did not find");
-        res.redirect("/admin/brands")
+        return res.redirect("/admin/brands")
     }
     res.render("editbrand", { title: "edit brand", brandData })
 }

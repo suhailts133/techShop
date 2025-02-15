@@ -2,16 +2,16 @@ const User = require("../../models/userSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
 const Brand = require("../../models/brandSchema.js")
-const category = require("../../models/categorySchema.js")
 const Product = require("../../models/productSchema.js")
 const Coupon = require("../../models/couponsSchema.js")
 const Wallet = require("../../models/walletSchema.js");
+const Transaction = require("../../models/transactionSchema.js")
+const Category = require("../../models/categorySchema.js")
 
 const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
 const { v4: uuidv4 } = require("uuid");
-const { ReturnDocument } = require("mongodb")
-const Category = require("../../models/categorySchema.js")
+
 
 
 
@@ -184,6 +184,30 @@ const checkOut = async (req, res) => {
                 await user.save();
                 await order.save();
             }
+        }
+        // transcation for the ledger book
+        if(paymentMethod === "Wallet" || paymentMethod === "Razorpay"){
+            const onlineTransaction = new Transaction({
+                orderId:order._id,
+                userId:user._id,
+                amount:order.totalAmount,
+                paymentMethod,
+                paymentStatus:"Purchase",
+                action:"Credited"
+            })
+            await onlineTransaction.save()
+        }
+         // transcation for the ledger book
+        if(paymentMethod === "COD"){
+            const codTransaction = new Transaction({
+                orderId:order._id,
+                userId:user._id,
+                amount:order.totalAmount,
+                paymentMethod,
+                paymentStatus:"Purchase",
+                action:"Pending"
+            })
+            await codTransaction.save()
         }
 
         // update product stock

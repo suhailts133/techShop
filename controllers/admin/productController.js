@@ -119,7 +119,7 @@ const addProduct = async (req, res) => {
         });
 
         await newProduct.save();
-
+        req.flash("success", "New Product Added")
         return res.redirect("/admin/products");
     } catch (error) {
         console.error("Error while saving product:", error);

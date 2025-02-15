@@ -24,7 +24,7 @@ router.post("/", userController.searchRecomendation)
 
 // shop page
 router.get("/shop", shoppingPageController.loadShoppingPage)
-router.get("/filter", shoppingPageController.filterProducts)
+
 // signup route
 router.get("/signup",checkAuthUserSignUp, userController.loadSignup)
 router.post("/signup", checkAuthUserSignUp,userController.signup)
