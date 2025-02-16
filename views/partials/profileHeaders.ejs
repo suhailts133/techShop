@@ -1,20 +1,31 @@
 <style>
-  /* Sidebar styling */
+  /* Standalone Navbar Color Palette */
+  :root {
+    --primary-color: #2c3e50;
+    --primary-light: #34495e;
+    --primary-dark: #243444;
+    --accent-color: #e74c3c;
+    --accent-hover: #c0392b;
+    --text-light: #ecf0f1;
+    --text-muted: #bdc3c7;
+    --border-color: #405d7d;
+  }
+
+  /* Sidebar Styling */
   .sidebar-desktop {
     width: 250px;
     height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
-    background-color: #343a40;
+    background-color: var(--primary-color);
     padding: 20px;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   }
 
-  /* Sidebar link styling */
   .sidebar-desktop .nav-link {
-    color: #f8f9fa;
+    color: var(--text-light);
     padding: 10px 15px;
     margin: 5px 0;
     border-radius: 4px;
@@ -24,25 +35,24 @@
   }
 
   .sidebar-desktop .nav-link:hover {
-    background-color: #495057;
+    background-color: var(--primary-light);
     text-decoration: none;
   }
 
-  /* Active link styling */
   .sidebar-desktop .nav-link.active {
-    background-color: #495057;
-    color: #fff;
+    background-color: var(--primary-light);
+    color: var(--text-light);
     font-weight: bold;
   }
 
-  /* Offcanvas sidebar for mobile */
+  /* Offcanvas Sidebar for Mobile */
   .offcanvas-start {
     width: 250px;
-    background-color: #343a40;
+    background-color: var(--primary-color);
   }
 
   .offcanvas-body .nav-link {
-    color: #f8f9fa;
+    color: var(--text-light);
     padding: 10px 15px;
     margin: 5px 0;
     border-radius: 4px;
@@ -50,16 +60,16 @@
   }
 
   .offcanvas-body .nav-link:hover {
-    background-color: #495057;
+    background-color: var(--primary-light);
   }
 
   .offcanvas-body .nav-link.active {
-    background-color: #495057;
-    color: #fff;
+    background-color: var(--primary-light);
+    color: var(--text-light);
     font-weight: bold;
   }
 
-  /* Content margin for desktop */
+  /* Content Margin for Desktop */
   @media (min-width: 992px) {
     .navbar {
       margin-left: 250px;
@@ -70,17 +80,124 @@
     }
   }
 
-  /* Navbar styling */
+  /* Navbar Styling */
   .navbar {
+    background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+    border-bottom: 1px solid var(--border-color);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-</style>
-   
-   <!-- Desktop Sidebar -->
-<div class="sidebar-desktop d-none d-lg-block text-light">
-  <div class="text-center mb-4">
 
-  </div>
+  .navbar-brand {
+    font-size: 2rem;
+    font-family: 'Georgia', serif;
+    background: linear-gradient(to right, var(--text-light), var(--accent-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-decoration: none;
+    padding: 0.5rem 0;
+  }
+
+  .nav-link {
+    color: var(--text-light) !important;
+    transition: all 0.3s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--accent-color) !important;
+  }
+
+  .btn-outline-light {
+    border-color: var(--text-light);
+    color: var(--text-light);
+  }
+
+  .btn-outline-light:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+
+/* Update the existing search input styles */
+.search-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px !important;
+    background-color: var(--primary-dark) !important;
+    color: var(--text-light) !important;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
+}
+
+.search-input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* Add search button styling */
+.search-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.search-button:hover {
+    color: var(--accent-color);
+}
+
+/* Update search results dropdown */
+#searchResults {
+    background-color: var(--primary-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#searchResults a {
+    color: var(--text-light) !important;
+    padding: 0.8rem 1rem;
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+#searchResults a:hover {
+    background-color: var(--primary-light);
+    color: var(--accent-color) !important;
+}
+  .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login {
+        background: var(--accent-color);
+        color: var(--text-light);
+        font-weight: 500;
+    }
+    
+    .btn-login:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+    }
+</style>
+
+<!-- Desktop Sidebar -->
+<div class="sidebar-desktop d-none d-lg-block text-light">
+  <div class="text-center mb-4"></div>
   <nav>
     <ul class="nav flex-column">
       <li class="nav-item">
@@ -143,110 +260,112 @@
   </div>
 </div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-      <div class="container-fluid">
-       
-        <button
-          class="btn btn-outline-light d-lg-none me-2"
-          type="button"
-          data-bs-toggle="offcanvas"
-          data-bs-target="#mobileSidebar"
-          aria-controls="mobileSidebar"
-        >
-          ☰
-        </button>
-        <a class="navbar-brand" href="#">TechNest</a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav me-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/about">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/shop">Shop</a>
-            </li>
-          </ul>
-          <div class="position-relative">
-            <form class="d-flex ms-lg-3" id="searchForm" onsubmit="return false;">
-              <input 
-                class="form-control me-2" 
-                type="text" 
-                name="text" 
-                id="searchInput" 
-                placeholder="Search" 
-                aria-label="Search" 
-                oninput="handleInput(event)" 
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+  <div class="container-fluid">
+    <button
+      class="btn btn-outline-light d-lg-none me-2"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileSidebar"
+      aria-controls="mobileSidebar"
+    >
+      ☰
+    </button>
+    <a class="navbar-brand" href="#">TechNest</a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/shop">Shop</a>
+        </li>
+      </ul>
+      <div class="position-relative" style="flex: 1; max-width: 400px; margin: 0 1rem;">
+        <form class="d-flex" id="searchForm" onsubmit="return false;">
+            <input
+                class="form-control search-input"
+                type="text"
+                name="text"
+                id="searchInput"
+                placeholder="Search products..."
+                aria-label="Search"
+                oninput="handleInput(event)"
                 required
-              >
-              <button class="btn btn-outline-light" type="submit">Search</button>
-            </form>
-            <!-- Dropdown for search results -->
-            <div id="searchResults" class="position-absolute bg-white shadow rounded w-100" style="z-index: 1000; display: none;">
-            </div>
-          </div>
-          <ul class="navbar-nav ms-auto">
-            <% if (user) { %>
-            <!-- On mobile, only the user's name is displayed -->
-            <li class="nav-item">
-              <a href="/profile/" class="nav-link"><%= user.name %></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/logout">Logout</a>
-            </li>
-            <% } else { %>
-            <li class="nav-item">
-              <a class="nav-link" href="/signup">Sign Up</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/login">Log In</a>
-            </li>
-            <% } %>
-          </ul>
-        </div>
-      </div>
-    </nav>
+            >
+            <button type="submit" class="search-button">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+        </form>
+        <div id="searchResults" class="search-results position-absolute w-100" style="z-index: 1000; display: none;"></div>
+    </div>
+      <ul class="navbar-nav ms-auto">
+        <% if (user) { %>
+          <li class="nav-item">
+            <a href="/profile/" class="nav-link"><%= user.name %></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-login" href="/logout">Logout</a>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link btn btn-login" href="/signup">Sign Up</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-login" href="/login">Log In</a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-    <script>
-      // Function to set the active link
-      function setActiveLink() {
-        const currentUrl = window.location.pathname; // Get the current URL path
-        const sidebarLinks = document.querySelectorAll('.sidebar-desktop .nav-link, .offcanvas-body .nav-link');
-    
-        sidebarLinks.forEach(link => {
-          if (link.getAttribute('href') === currentUrl) {
-            link.classList.add('active');
-          } else {
-            link.classList.remove('active');
-          }
-        });
+<script>
+  // Function to set the active link
+  function setActiveLink() {
+    const currentUrl = window.location.pathname;
+    const sidebarLinks = document.querySelectorAll('.sidebar-desktop .nav-link, .offcanvas-body .nav-link');
+    sidebarLinks.forEach(link => {
+      if (link.getAttribute('href') === currentUrl) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
       }
-    
-      // Call the function on page load
-      document.addEventListener('DOMContentLoaded', setActiveLink);
-    
-      // Call the function when the offcanvas is shown (for mobile)
-      document.getElementById('mobileSidebar').addEventListener('shown.bs.offcanvas', setActiveLink);
-      async function handleInput(event) {
-    const text = event.target.value; // Get the input value
+    });
+  }
+
+  // Call the function on page load
+  document.addEventListener('DOMContentLoaded', setActiveLink);
+
+  // Call the function when the offcanvas is shown (for mobile)
+  document.getElementById('mobileSidebar').addEventListener('shown.bs.offcanvas', setActiveLink);
+
+  // Search functionality
+  async function handleInput(event) {
+    const text = event.target.value;
     const resultsDiv = document.getElementById("searchResults");
 
     if (text.trim() === "") {
-      resultsDiv.style.display = "none"; // Hide the dropdown when input is empty
-      resultsDiv.innerHTML = ""; // Clear previous results
+      resultsDiv.style.display = "none";
+      resultsDiv.innerHTML = "";
       return;
     }
 
@@ -264,8 +383,8 @@
         return;
       }
 
-      const matches = await response.json(); // Expecting JSON response from the server
-      renderMatches(matches); // Render matches under the search input
+      const matches = await response.json();
+      renderMatches(matches);
     } catch (error) {
       console.error("Error fetching matches:", error);
     }
@@ -273,7 +392,7 @@
 
   function renderMatches(matches) {
     const resultsDiv = document.getElementById("searchResults");
-    resultsDiv.innerHTML = ""; // Clear previous results
+    resultsDiv.innerHTML = "";
 
     if (matches.length === 0) {
       resultsDiv.style.display = "block";
@@ -297,9 +416,8 @@
       resultsDiv.appendChild(link);
     });
 
-    resultsDiv.style.display = "block"; 
+    resultsDiv.style.display = "block";
   }
-
 
   document.addEventListener("click", (event) => {
     const resultsDiv = document.getElementById("searchResults");
@@ -308,4 +426,4 @@
       resultsDiv.style.display = "none";
     }
   });
-    </script>
+</script>
