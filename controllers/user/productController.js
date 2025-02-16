@@ -40,7 +40,9 @@ const getProductDetails = async (req, res) => {
             _id: { $ne: product._id }
         })
             .populate('category')
+            .limit(4)
             .lean();
+
 
         const processedRelated = relatedProducts.map(prod => {
             const offer = prod.productOffer > 0

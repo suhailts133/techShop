@@ -231,7 +231,7 @@ const editProduct = async (req, res) => {
 
         // Save the updated product
         await product.save();
-
+        req.flash("success", "Product Edited Successfully")
         return res.redirect("/admin/products");
     } catch (error) {
         console.error("Error while updating the product:", error);

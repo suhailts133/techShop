@@ -91,84 +91,88 @@ function changeQuantity(amount) {
     }
 }
 
+async function addToCart() {
+    try {
+        const variantSelect = document.getElementById('variant');
+        const variantId = variantSelect.value;
+        const productId = variantSelect.getAttribute('data-product-id');
+        const quantity = parseInt(document.getElementById('selected-quantity').textContent, 10); // Get the selected quantity
+        const productImage = document.getElementById('main-image').src.split('/').pop(); // Get the main image filename
 
-function addToCart() {
-    const variantSelect = document.getElementById('variant');
-    const variantId = variantSelect.value;
-    const productId = variantSelect.getAttribute('data-product-id');
-    const quantity = parseInt(document.getElementById('selected-quantity').textContent, 10);  // Get the selected quantity
-    const productImage = document.getElementById('main-image').src.split('/').pop();  // Get the main image of the product (image filename)
+        // Prepare data to send in the POST request
+        const data = {
+            productId: productId,
+            variantId: variantId,
+            quantity: quantity,
+            productImage: productImage // Only the image filename
+        };
+        console.log(data);
 
-    // Prepare data to send in the POST request
-    const data = {
-        productId: productId,
-        variantId: variantId,
-        quantity: quantity,
-        productImage: productImage  // Only the image filename
-    };
-    console.log(data);
- 
-    // Send the data to the backend via POST request
-    fetch('/addToCart', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-        },
-        body: JSON.stringify(data)
-    })
-        .then(response => response.json())
-        .then(data => {
-            const messageEl = document.getElementById('cart-message');
-            const message = data.message || 'An unexpected error occurred.';
-    
-            if (data.success) {
-                // Show success message
-                messageEl.innerHTML = `
+        // Send the data to the backend via POST request
+        const response = await fetch('/addToCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        if (response.status === 401) {
+            window.location.href = "/login";
+            return;
+        }
+
+
+        const result = await response.json();
+        const messageEl = document.getElementById('cart-message');
+        const message = result.message || 'An unexpected error occurred.';
+
+        if (result.success) {
+            // Show success message
+            messageEl.innerHTML = `
                 <div class="alert alert-success" role="alert">
-                ${message}
+                    ${message}
                 </div>`;
 
-                if (data.redirectTo) {
-                    setTimeout(() => {
-                        console.log('Redirecting to:', data.redirectTo);
-                        window.location.href = data.redirectTo;  // Redirect to wishlist page
-                    }, 2000); // You can adjust the timeout
-                }
-            } else {
-                // Show error message
-                messageEl.innerHTML = `
+            if (result.redirectTo) {
+                setTimeout(() => {
+                    console.log('Redirecting to:', result.redirectTo);
+                    window.location.href = result.redirectTo; 
+                }, 2000); 
+            }
+        } else {
+          
+            messageEl.innerHTML = `
                 <div class="alert alert-danger" role="alert">
                     ${message}
                 </div>`;
 
-                // If the response has a redirectTo URL, redirect to the login page
-                if (data.redirectTo) {
-                    setTimeout(() => {
-                        console.log('Redirecting to:', data.redirectTo);
-                        window.location.href = data.redirectTo;  // Redirect to login page
-                    }, 2000); // You can adjust the timeout
-                }
+           
+            if (result.redirectTo) {
+                setTimeout(() => {
+                    console.log('Redirecting to:', result.redirectTo);
+                    window.location.href = result.redirectTo; 
+                }, 2000); 
             }
+        }
 
-            // Clear the message after 3 seconds
-            setTimeout(() => {
-                messageEl.innerHTML = '';
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
+       
+        setTimeout(() => {
+            messageEl.innerHTML = '';
+        }, 3000);
+    } catch (error) {
+        console.error('Error:', error);
 
-            // Show error message
-            const messageEl = document.getElementById('cart-message');
-            messageEl.innerHTML = `
+      
+        const messageEl = document.getElementById('cart-message');
+        messageEl.innerHTML = `
             <div class="alert alert-danger" role="alert">
-                An error occurred while adding the product to the cart. Please try again later. lol
+                An error occurred while adding the product to the cart. Please try again later.
             </div>`;
 
-            // Clear the message after 3 seconds
-            setTimeout(() => {
-                messageEl.innerHTML = '';
-            }, 1000);
-        });
+       
+        setTimeout(() => {
+            messageEl.innerHTML = '';
+        }, 3000);
+    }
 }
