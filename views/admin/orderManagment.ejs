@@ -1,6 +1,101 @@
 <%- layout("../layouts/adminboilerplate") %>
 <title><%= title %></title>
+<style>
+  :root {
+    --primary-color: #2c3e50;
+    --primary-light: #34495e;
+    --primary-dark: #243444;
+    --accent-color: #e74c3c;
+    --accent-hover: #c0392b;
+    --text-light: #ecf0f1;
+    --text-muted: #bdc3c7;
+    --border-color: #405d7d;
+}
 
+/* Container */
+.container {
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+/* Headings */
+h2 {
+    color: var(--primary-color);
+}
+
+/* Form Styling */
+.form-control {
+    color: var(--primary-color);
+    border-color: var(--border-color);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+/* Table Styling */
+.table {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+}
+
+.table th {
+    background-color: var(--primary-dark);
+    color: var(--text-light);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Badge Styling */
+.badge.bg-danger {
+    background-color: var(--accent-color);
+}
+
+.badge.bg-success {
+    background-color: #28a745;
+}
+
+.badge.bg-warning {
+    background-color: #f1c40f;
+    color: #212529;
+}
+
+.badge.bg-info {
+    background-color: #3498db;
+}
+
+/* Pagination */
+.pagination .page-link {
+    background-color: var(--primary-dark);
+    color: var(--text-light);
+    border-color: var(--border-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+</style>
 <div class="container mt-5">
   <h2 class="mb-4">Manage Orders</h2>
   <table class="table table-bordered">
@@ -11,6 +106,7 @@
         <th>Total Amount</th>
         <th>Shipping Address</th>
         <th>Status</th>
+        <th>Request Status</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -22,6 +118,19 @@
           <td>₹<%= order.totalAmount.toFixed(2) %></td>
           <td><%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></td>
           <td><%= order.orderStatus %></td>
+          <td>
+            <% 
+              const hasCancellationRequest = order.items.some(item => item.orderStatus === "Cancellation Requested");
+              const hasReturnRequest = order.items.some(item => item.orderStatus === "Return Requested");
+            %>
+             <% if (hasCancellationRequest) { %>
+              <span class="badge bg-warning text-dark">Cancellation Requested</span>
+            <% } else if (hasReturnRequest) { %>
+              <span class="badge bg-info">Return Requested</span>
+            <% } else { %>
+              <span class="badge bg-success">All Good</span>
+            <% } %>
+          </td>
           <td>
             <a href="/admin/orders/view?id=<%= order._id %>" class="btn btn-info btn-sm">View</a>
           </td>
@@ -43,7 +152,7 @@
             </li>
           <% } %>
 
-          <% for (let i = 1; i <= totalPages; i++) { %> 
+          <% for (let i = 1; i <= totalPages; i++) { %>
             <li class="page-item <%= page === i ? 'active' : '' %>">
               <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
             </li>

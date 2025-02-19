@@ -72,8 +72,8 @@ const checkOut = async (req, res) => {
             req.flash("error", "Cart is empty");
             return res.redirect("/profile/cart");
         }
-        // if(paymentMethod === "COD" && cart.totalAmount >= 20000){
-        //     req.flash("error", "COD is only available for orders under ₹20000");
+        // if(paymentMethod === "COD" && cart.totalAmount >= 50000){
+        //     req.flash("error", "COD is only available for orders under ₹50000");
         //     return res.redirect("/checkout")
         // }
         let totalAmount = cart.totalAmount;
@@ -164,7 +164,7 @@ const checkOut = async (req, res) => {
             })
 
             await newWallet.save()
-            user.WalletHistory = newWallet._id;  
+            user.WalletHistory.push(newWallet._id);
             await user.save()
         }
         user.orderHistory.push(order._id);
@@ -244,6 +244,7 @@ const checkOut = async (req, res) => {
             items: orderPopulated.items.map(item => ({
                 productName: item.productId.productName,
                 quantity: item.quantity,
+                unitPrice:item.noDiscountPrice,
                 price: item.price,
             })),
             totalAmount: orderPopulated.totalAmount,

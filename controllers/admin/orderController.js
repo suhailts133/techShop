@@ -5,22 +5,22 @@ const Wallet = require("../../models/walletSchema.js");
 
 const orderManagment = async (req, res) => {
   try {
-   
+
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10; 
+    const pageSize = 10;
 
     const totalOrders = await Order.countDocuments();
 
     const totalPages = Math.ceil(totalOrders / pageSize);
 
-   
+
     const orders = await Order.find()
       .populate("userId")
       .populate("items.productId")
       .populate("shippingAddress")
       .sort({ createdAt: -1 })
-      .skip((page - 1) * pageSize) 
-      .limit(pageSize); 
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
 
     const search = req.query.search || '';
 
@@ -80,33 +80,13 @@ const itemDetails = async (req, res) => {
 };
 
 
-const updateStatus = async (req, res) => {
-  try {
-    const { id } = req.query;
-    const { status } = req.body
-    const availableStatus = ["Pending", "Shipped", "Delivered", "Return Accepted", "Returned"]
-    if (!availableStatus.includes(status)) {
-      req.flash("error", "Invalid order status.");
-      return res.redirect(`/admin/orders/view?id=${id}`);
-    }
-    const order = await Order.findByIdAndUpdate(id, { orderStatus: status }, { new: true });
-    if (!order) {
-      req.flash("error", "Order not found.");
-      return res.redirect("/admin/orders");
-    }
-    req.flash("success", `Order status updated to ${status}.`);
-    res.redirect(`/admin/orders/view?id=${id}`);
-  } catch (error) {
-    console.log("error while updateing the status", error.message)
-  }
-}
 
 const updateItemStatus = async (req, res) => {
   try {
     const { orderId, itemId } = req.query;
     const { status } = req.body;
 
-    
+
     const order = await Order.findById(orderId)
       .populate("userId")
       .populate("couponRefrence");
@@ -115,80 +95,62 @@ const updateItemStatus = async (req, res) => {
       req.flash("error", "Order not found");
       return res.redirect("/admin/orders");
     }
-
-    
     const item = order.items.find((i) => i._id.toString() === itemId);
     if (!item) {
       req.flash("error", "Item not found");
       return res.redirect(`/admin/orders/view?id=${orderId}`);
     }
-
-   
     item.orderStatus = status;
     await order.save();
-
     const user = await User.findById(order.userId);
-    if(user){
-      if(status === "Delivered" && order.paymentMethod === "COD"){
-        const codTransaction = new Transaction({
-          orderId:order._id,
-          userId:user._id,
-          amount:item.price,
-          paymentMethod:"COD",
-          paymentStatus:"Purchase",
-          action:"Credited"
-        })
-        await codTransaction.save()
-      }
-    }
     if (user) {
       if (status === "Returned") {
-  
+
         user.wallet += item.price;
         const returnWallet = new Wallet({
-          userId:user._id,
-          amount:item.price,
-          action:"Credited",
+          userId: user._id,
+          amount: item.price,
+          action: "Credited",
           orderItemId: item._id,
-          purpose:"Refund",
-          orderId:order._id
+          purpose: "Refund",
+          orderId: order._id
         })
         await returnWallet.save();
-        user.WalletHistory = returnWallet._id
+        user.WalletHistory.push(returnWallet._id);
         await user.save();
         const returnTransaction = new Transaction({
-          orderId:order._id,
-          userId:user._id,
-          amount:item.price,
-          paymentMethod:"Wallet",
-          paymentStatus:"Refund",
-          action:"Debited"
+          orderId: order._id,
+          userId: user._id,
+          amount: item.price,
+          paymentMethod: "Wallet",
+          paymentStatus: "Refund",
+          action: "Debited"
         })
         await returnTransaction.save()
       } else if (status === "Cancelled" && (order.paymentMethod === "Wallet" || order.paymentMethod === "Razorpay")) {
-     
+
         user.wallet += item.price;
         const cancelWallet = new Wallet({
-          userId:user._id,
-          amount:item.price,
-          action:"Credited",
+          userId: user._id,
+          amount: item.price,
+          action: "Credited",
           orderItemId: item._id,
-          purpose:"Refund",
-          orderId:order._id
+          purpose: "Refund",
+          orderId: order._id
         })
         await cancelWallet.save();
-        user.WalletHistory = cancelWallet._id
+        user.WalletHistory.push(cancelWallet._id);
         await user.save();
 
         const cancelledTransaction = new Transaction({
-          orderId:order._id,
-          userId:user._id,
-          amount:item.price,
-          paymentMethod:"Wallet",
-          paymentStatus:"Cancelled",
-          action:"Debited"
+          orderId: order._id,
+          userId: user._id,
+          amount: item.price,
+          paymentMethod: "Wallet",
+          paymentStatus: "Cancelled",
+          action: "Debited"
         })
-        await returnTransaction.save()
+        await cancelledTransaction.save()
       }
       if (order.couponRefrence) {
         const couponCountBefore = user.coupons.length;
@@ -205,6 +167,49 @@ const updateItemStatus = async (req, res) => {
       }
     }
 
+ 
+const statuses = order.items.map(item => item.orderStatus);
+let newOrderStatus = null;
+if (statuses.every(status => status === "Delivered")) {
+  newOrderStatus = "Delivered";
+} else if (statuses.every(status => status === "Returned")) {
+  newOrderStatus = "Returned";
+} else if (statuses.every(status => status === "Cancelled")) {
+  newOrderStatus = "Cancelled";
+} else if (statuses.every(status => status === "Shipped")) {
+  newOrderStatus = "Shipped";
+} else {
+  
+  if (statuses.includes("Returned")) {
+    newOrderStatus = "Partially Returned";
+  } else if (statuses.includes("Delivered")) {
+    newOrderStatus = "Partially Delivered";
+  } else if (statuses.includes("Cancelled")) {
+    newOrderStatus = "Partially Cancelled";
+  } else if (statuses.includes("Shipped")) {
+    newOrderStatus = "Partially Shipped";
+  }
+}
+
+if (newOrderStatus) {
+  order.orderStatus = newOrderStatus;
+  if (newOrderStatus === "Delivered") {
+    await Transaction.findOneAndUpdate(
+      { orderId: orderId },
+      {
+        $set: {
+          action: "Credited",
+          updatedAt: new Date()
+        }
+      },
+      { new: true }
+    );
+  }
+  
+  await order.save();
+}
+
+
     req.flash("success", "Item status updated successfully");
     res.redirect(`/admin/orders/itemDetails?orderId=${orderId}&itemId=${itemId}`);
   } catch (error) {
@@ -217,7 +222,6 @@ const updateItemStatus = async (req, res) => {
 module.exports = {
   orderManagment,
   orderDetails,
-  updateStatus,
   itemDetails,
   updateItemStatus
 }

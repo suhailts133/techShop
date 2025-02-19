@@ -11,18 +11,18 @@ const loadShoppingPage = async (req, res) => {
 
         const { sort, category, brand } = req.query;
 
-        // Fetch filters
+
         const categories = await Category.find({ isListed: true }).lean();
         const brands = await Brand.find({ isListed: true }).lean();
 
-        // Build query
+
         const query = {
             isBlocked: false,
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
         };
 
         if (category) {
-            query.category = category; // Directly use category ID from query
+            query.category = category; 
         }
 
         if (brand) {
@@ -30,7 +30,7 @@ const loadShoppingPage = async (req, res) => {
             if (brandDoc) query.brand = brandDoc.brandName;
         }
 
-        // Build sort
+    
         let sortQuery = {};
         switch (sort) {
             case 'price-asc':
@@ -53,7 +53,7 @@ const loadShoppingPage = async (req, res) => {
                 break;
         }
 
-        // Fetch products
+   
         const products = await Product.find(query)
             .sort(sortQuery)
             .collation({ locale: "en", strength: 2 })
@@ -62,11 +62,10 @@ const loadShoppingPage = async (req, res) => {
             .populate("category")
             .lean();
 
-        // Pagination
+
         const totalCount = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalCount / limit);
 
-        // Wishlist
         let wishlistItems = [];
         if (req.session.user) {
             const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();

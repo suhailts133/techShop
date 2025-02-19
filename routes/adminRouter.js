@@ -27,9 +27,9 @@ router.get("/", adminCheckAuthLogin, adminController.adminLoadLogin);
 router.post("/",adminCheckAuthLogin, adminController.adminLogin);
 
 router.get("/dashboard", adminCheckAuth, adminController.loadDashboard)
-router.get('/sales-report', adminController.getSalesReport);
-router.get("/best-selling", extrasContoller.bestSelling)
-router.get("/ledger-book", extrasContoller.ledgerBook)
+router.get('/sales-report', adminCheckAuth,adminController.getSalesReport);
+router.get("/best-selling", adminCheckAuth,extrasContoller.bestSelling)
+router.get("/ledger-book",adminCheckAuth, extrasContoller.ledgerBook)
 
 // customer routes
 router.get("/users", adminCheckAuth, customerController.customerInfo)
@@ -66,7 +66,6 @@ router.get("/products/block", adminCheckAuth, productController.blockProduct)
 // order Mangemnet;
 router.get("/orders",adminCheckAuth, orderController.orderManagment);  
 router.get("/orders/view",adminCheckAuth, orderController.orderDetails)
-router.post("/orders/view/update", adminCheckAuth, orderController.updateStatus)  // to update the staus of the entire order
 router.get("/orders/itemDetails", adminCheckAuth, orderController.itemDetails)
 router.post("/orders/itemDetails/update", adminCheckAuth, orderController.updateItemStatus)  // to update the status of a single order item
 
@@ -84,7 +83,7 @@ router.get("/coupon/delete",  adminCheckAuth, couponController.deleteCoupon);
 
 
 // wallet 
-router.get("/wallet", walletController.walletTransation);
-router.get("/wallet/walletDetails", walletController.walletTransationDetail);
+router.get("/wallet",adminCheckAuth, walletController.walletTransation);
+router.get("/wallet/walletDetails",adminCheckAuth, walletController.walletTransationDetail);
 
 module.exports = router

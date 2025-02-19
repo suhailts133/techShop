@@ -2,16 +2,19 @@
 <style>
     /* Base Styles */
     :root {
-      --primary-color: #1a1a1a;
-      --accent-color: #2c3e50;
-      --accent-hover: #34495e;
-      --bg-gradient: linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --border-color: rgba(44, 62, 80, 0.15);
+        --primary-color: #2c3e50;
+  
+        --accent-color: #e74c3c;
+        --accent-hover: #c0392b;
+     
+        --border-color: #405d7d;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        
     }
+   
 
     body {
-      background: var(--bg-gradient);
+
       font-family: 'Segoe UI', system-ui, sans-serif;
       color: var(--primary-color);
     }
@@ -232,7 +235,7 @@
             <div class="payment-methods">
               <div class="payment-method">
                 <input type="radio" name="paymentMethod" value="COD" id="cod" checked>
-                <label for="cod" class="ms-3">Cash on Delivery (Orders under ₹20,000)</label>
+                <label for="cod" class="ms-3">Cash on Delivery (Orders under ₹50,000)</label>
               </div>
               <div class="payment-method">
                 <input type="radio" name="paymentMethod" value="Wallet" id="Wallet">

@@ -317,8 +317,6 @@ const displayWallet = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 5; 
         const walletAmount = await User.findById(userId);
-
-     
         const totalWalletCount = await Wallet.countDocuments({ userId });
         const totalPages = Math.ceil(totalWalletCount / limit);
         const walletDetails = await Wallet.find({ userId }).populate("orderId")

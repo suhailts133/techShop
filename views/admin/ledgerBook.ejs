@@ -1,189 +1,255 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    :root {
-      --primary-color: #1a1a1a;
-      --accent-color: #2c3e50;
-      --accent-hover: #34495e;
-      --bg-gradient: linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --border-color: rgba(44, 62, 80, 0.15);
+<% layout("../layouts/adminboilerplate") %>
+<title>
+    <%= title %>
+</title>
+
+    <style>
+      
+        :root {
+        --primary-color: #2c3e50;
+        --text-color: #333;
+        --accent-color: #e74c3c;
+        
+        --border-color: #405d7d;
     }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f8f9fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, sans-serif;
-    }
+        .ledger-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
 
-    body {
-      min-height: 100vh;
-      background: var(--bg-gradient);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
-    }
+        .ledger-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .ledger-container {
-      width: 100%;
-      max-width: 1200px;
-      background: var(--card-bg);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
+        .ledger-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+        }
 
-    .ledger-header {
-      background: var(--primary-color);
-      padding: 2rem;
-      color: white;
-      position: relative;
-    }
+        .ledger-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: linear-gradient(45deg, #f8f9fa, #ffffff);
+        }
 
-    .ledger-header h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
+        .summary-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--accent-color);
+        }
 
-    .ledger-header p {
-      opacity: 0.8;
-      font-size: 0.9rem;
-    }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+            font-size: 16px;
+        }
 
-    .ledger-content {
-      padding: 2rem;
-    }
+        .summary-card p {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
 
-    .transaction-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
 
-    .transaction-table th {
-      background: var(--accent-color);
-      color: white;
-      text-align: left;
-      padding: 1rem;
-      font-weight: 500;
-    }
+        .ledger-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
 
-    .transaction-table tr:nth-child(even) {
-      background: rgba(44, 62, 80, 0.03);
-    }
+        .ledger-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    .transaction-table td {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--primary-color);
-    }
+        .ledger-table tr:hover {
+            background: #f8f9fa;
+        }
 
-    .status-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      display: inline-block;
-    }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
 
-    .status-credited {
-      background: rgba(72, 187, 120, 0.1);
-      color: #2f855a;
-    }
+        .status-Purchase {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
 
-    .status-debited {
-      background: rgba(245, 101, 101, 0.1);
-      color: #c53030;
-    }
+        .status-Refund {
+            background: #fbe9e7;
+            color: #d84315;
+        }
 
-    .transaction-id {
-      font-family: 'SFMono-Regular', Consolas, monospace;
-      font-size: 0.85rem;
-      color: var(--accent-color);
-    }
+        .status-Cancelled {
+            background: #efebe9;
+            color: #5d4037;
+        }
 
-    .amount {
-      font-weight: 600;
-    }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            gap: 10px;
+        }
 
-    .ledger-footer {
-      padding: 1.5rem 2rem;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      color: var(--accent-color);
-      font-size: 0.9rem;
-    }
+        .pagination a {
+            padding: 8px 16px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+        }
 
-    @media (max-width: 768px) {
-      .ledger-container {
-        margin: 1rem;
-        border-radius: 12px;
-      }
+        .pagination a:hover {
+            background: var(--accent-color);
+        }
 
-      .transaction-table {
-        display: block;
-        overflow-x: auto;
-      }
+        .pagination span {
+            padding: 8px 16px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
 
-      .ledger-header {
-        padding: 1.5rem;
-      }
+        .pagination .active {
+            background: var(--accent-color);
+        }
 
-      .ledger-content {
-        padding: 1rem;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="ledger-container">
-    <div class="ledger-header">
-      <h1>Transaction Ledger</h1>
-      <p>All transactions are recorded in real-time</p>
+        .pagination .disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .ledger-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ledger-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .summary-card {
+                text-align: center;
+            }
+        }
+    </style>
+
+    <div class="ledger-container">
+      
+
+        <div class="ledger-summary">
+            <div class="summary-card">
+                <h3>Total Transactions</h3>
+                <p><%= totalTransactions %></p>
+            </div>
+            <div class="summary-card">
+                <h3>Total Amount</h3>
+                <p>₹<%= totalAmount %></p>
+            </div>
+            <div class="summary-card">
+                <h3>Pending Amount</h3>
+                <p>₹<%= pendingAmount %></p>
+            </div>
+            <div class="summary-card">
+                <h3>Return and Cancelled Amont</h3>
+                <p>₹<%= returnRefundAmount %></p>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% transactions.forEach(transaction => { %>
+                        <tr>
+                            <td><%= transaction.transactionId %></td>
+                            <td><%= transaction.updatedAt.toLocaleDateString() %></td>
+                            <td><%= transaction.updatedAt.toLocaleTimeString() %></td>
+                            <td>₹<%= transaction.amount %></td>
+                            <td><%= transaction.paymentMethod %></td>
+                            <td>
+                                <span class="status-badge status-<%= transaction.paymentStatus %>">
+                                    <%= transaction.paymentStatus %>
+                                </span>
+                            </td>
+                            <td><%= transaction.action %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>">&lt; Previous</a>
+            <% } else { %>
+                <a class="disabled">&laquo;</a>
+            <% } %>
+
+            <% for(let i = 1; i <= totalPages; i++) { %>
+                <% if (i === currentPage) { %>
+                    <a class="active" href="?page=<%= i %>"><%= i %></a>
+                <% } else { %>
+                    <a href="?page=<%= i %>"><%= i %></a>
+                <% } %>
+            <% } %>
+
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>">Next &gt;</a>
+            <% } else { %>
+                <a class="disabled">&raquo;</a>
+            <% } %>
+        </div>
     </div>
-    
-    <div class="ledger-content">
-      <table class="transaction-table">
-        <thead>
-          <tr>
-            <th>Transaction ID</th>
-            <th>Amount</th>
-            <th>Method</th>
-            <th>Status</th>
-            <th>Action</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="transaction-id">TXN-123e4567-e89b</td>
-            <td class="amount">₹1,250.00</td>
-            <td>Razorpay</td>
-            <td>Purchase</td>
-            <td><span class="status-badge status-credited">Credited</span></td>
-            <td>Feb 14, 2025</td>
-          </tr>
-          <tr>
-            <td class="transaction-id">TXN-987fcdeb-51d3</td>
-            <td class="amount">₹890.50</td>
-            <td>Wallet</td>
-            <td>Purchase</td>
-            <td><span class="status-badge status-debited">Debited</span></td>
-            <td>Feb 14, 2025</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
 
-    <div class="ledger-footer">
-      <span>Updated just now</span>
-      <span>Page 1 of 1</span>
-    </div>
-  </div>
-</body>
-</html>

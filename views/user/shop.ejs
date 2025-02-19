@@ -119,7 +119,7 @@
             <% if (selectedBrand) { %>
               <input type="hidden" name="brand" value="<%= selectedBrand %>">
             <% } %>
-            <input type="hidden" name="page" value="1"> <!-- Reset to page 1 when sorting -->
+            <input type="hidden" name="page" value="1"> 
 
             <div class="d-grid gap-2">
               <button type="submit" name="sort" value="price-asc" 
@@ -203,7 +203,7 @@
         <% } %>
       </div>
 
-      <!-- Pagination -->
+   
       <% if (products.length > 0) { %>
         <div class="d-flex justify-content-center mt-5">
           <nav>

@@ -75,9 +75,9 @@ const getSalesReport = async (req, res) => {
                 dateFormat = "%Y-%m-%d";
                 break;
             case 'monthly':
-                start = moment().startOf('month');
-                end = moment().endOf('month');
-                dateFormat = "%Y-%m";
+                start = moment().startOf('year');
+                end = moment().endOf('year');
+                dateFormat = "%Y-%B";
                 break;
             case 'yearly':
                 start = moment().subtract(4, 'years').startOf('year');
@@ -110,7 +110,7 @@ const getSalesReport = async (req, res) => {
                 $sort: { _id: 1 }
             }
         ]);
-        console.log(chartReport);
+       
 
         const reportData = await Order.aggregate([
             {

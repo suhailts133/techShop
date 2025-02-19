@@ -4,14 +4,24 @@ const Wallet = require("../../models/walletSchema.js");
 
 const walletTransation = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;   // number of documnet in a single page
+        const skip = (page - 1) * limit;  // how much to skip since 5 is the limit in the first page 0 , then 5, 10, 15
         const wallet = await Wallet.find()
             .populate("userId")
             .populate('orderId')
+            .skip(skip)
+            .limit(limit)
+            .sort({createdAt:-1})
             .lean();
-        console.log(wallet);
+            const totalCount = await Wallet.countDocuments();   // for counting the document
+            const totalPages = Math.ceil(totalCount / limit);   // finding the total pages required
+    
         res.render('allWallet', {
             title: "Wallet Managment",
-            wallet
+            wallet,
+            page,
+            totalPages
         })
     } catch (error) {
         console.log("error while loading wallet transations", error.message)

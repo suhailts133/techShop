@@ -1,17 +1,120 @@
 <% layout("../layouts/profileboilerPlate") %>
 
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --primary-light: #34495e;
+        --primary-dark: #243444;
+        --accent-color: #e74c3c;
+        --accent-hover: #c0392b;
+        --text-light: #ecf0f1;
+        --text-muted: #bdc3c7;
+        --border-color: #405d7d;
+    }
 
-<!-- Add Bootstrap Icons -->
+    body {
+        background-color: #f8f9fa;
+        color: var(--primary-dark);
+    }
+
+    .card {
+        border-radius: 1rem;
+        overflow: hidden;
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+    }
+
+    .card-header {
+        background-color: var(--primary-color) !important;
+        color: var(--text-light) !important;
+        text-align: center;
+        padding: 1.5rem;
+    }
+
+    .card-header h2 {
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+
+    .card-header p {
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+
+    .icon-circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        color: var(--text-light);
+    }
+
+    .wallet-balance {
+        color: var(--accent-color);
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    #referralCode {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+        color: var(--primary-dark);
+        font-weight: 600;
+        letter-spacing: 2px;
+    }
+
+    .copy-button {
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+        transition: all 0.3s ease;
+    }
+
+    .copy-button:hover {
+        background-color: var(--accent-color);
+        color: var(--text-light);
+    }
+
+    .btn-accent {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        color: var(--text-light);
+        transition: all 0.3s ease;
+    }
+
+    .btn-accent:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        color: var(--text-light);
+    }
+
+    .btn-outline-primary {
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: var(--text-light);
+    }
+
+    hr.bg-dark {
+        border-top: 1px solid var(--border-color);
+    }
+</style>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
-<!-- Add Clipboard.js -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 
 <div class="content bg-light text-dark">
     <div class="container mt-5">
         <!-- Profile Header -->
-        <div class="card shadow-lg border-0 bg-light text-dark">
-            <div class="card-header bg-secondary text-light text-center py-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-header">
                 <h2 class="mb-0"><%= user.name %></h2>
                 <p class="mb-0">Welcome to your profile</p>
             </div>
@@ -19,12 +122,12 @@
             <div class="card-body">
                 <!-- Wallet Balance -->
                 <div class="d-flex align-items-center mb-4">
-                    <div class="icon-circle bg-secondary text-white mr-3">
+                    <div class="icon-circle mr-3">
                         <i class="bi bi-wallet2 fa-2x"></i>
                     </div>
                     <div>
                         <h5 class="mb-0">Wallet Balance</h5>
-                        <p class="lead text-muted mb-0">₹<%= user.wallet %></p>
+                        <p class="wallet-balance mb-0">₹<%= user.wallet %></p>
                     </div>
                 </div>
 
@@ -33,13 +136,13 @@
                     <h5 class="mb-3">Your Referral Code</h5>
                     <div class="input-group" style="max-width: 400px;">
                         <input type="text" 
-                               class="form-control form-control-lg bg-light text-dark" 
+                               class="form-control form-control-lg" 
                                id="referralCode" 
                                value="<%= user.Referalcode %>" 
                                readonly
                                style="font-weight: 600; letter-spacing: 2px;">
                         <div class="input-group-append">
-                            <button class="btn btn-outline-dark" 
+                            <button class="btn copy-button" 
                                     type="button" 
                                     id="copyButton"
                                     data-clipboard-target="#referralCode">
@@ -54,10 +157,10 @@
 
                 <!-- Action Buttons -->
                 <div class="d-flex justify-content-center gap-3 mt-4">
-                    <a href="/profile/edit" class="btn btn-secondary px-4">
+                    <a href="/profile/edit" class="btn btn-accent px-4">
                         <i class="bi bi-pencil-square mr-2"></i>Edit Profile
                     </a>
-                    <a href="/profile/loadChangePasswordCheck" class="btn btn-outline-secondary px-4">
+                    <a href="/profile/loadChangePasswordCheck" class="btn btn-outline-primary px-4">
                         <i class="bi bi-lock mr-2"></i>Change Password
                     </a>
                 </div>
@@ -79,72 +182,3 @@
         }, 2000);
     });
 </script>
-
-<style>
-    body {
-        background-color: #f8f9fa; 
-        color: #000000; 
-    }
-
-    .card {
-        border-radius: 1rem;
-        overflow: hidden;
-        background-color: #ffffff; 
-        border: 1px solid #e0e0e0; 
-    }
-
-    .icon-circle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: #0d6efd; /* Primary color for icons */
-    }
-
-    #referralCode {
-        background-color: #ffffff; /* Light input field */
-        border: 1px solid #e0e0e0; /* Subtle border for input */
-        color: #000000; /* Dark text in input */
-    }
-    .input-group button {
-        position: relative;
-        margin-left: 10px;
-        margin-top: 5px;
-    }
-
-    .input-group-append button {
-        border-left: 0;
-        background-color: #ffffff; /* Light button background */
-        color: #000000; /* Dark text on button */
-        border: 1px solid #e0e0e0; /* Subtle border for button */
-    }
-
-    .btn-outline-dark {
-        border-color: #000000; /* Dark border for outline button */
-    }
-
-    .btn-outline-dark:hover {
-        background-color: #000000; /* Dark background on hover */
-        color: #ffffff; /* Light text on hover */
-    }
-
-    .btn-primary {
-        background-color: #0d6efd; /* Primary button color */
-        border-color: #0d6efd;
-    }
-
-    .btn-primary:hover {
-        background-color: #0b5ed7; /* Darker primary on hover */
-        border-color: #0b5ed7;
-    }
-
-    hr.bg-dark {
-        border-top: 1px solid #000000; /* Dark horizontal rule */
-    }
-    .icon-circle {
-        position: relative;
-        margin-right: 10px;
-    }
-</style>

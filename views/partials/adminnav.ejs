@@ -1,5 +1,82 @@
  <!-- Sidebar -->
- <div class="sidebar">
+
+ <style>
+    /* Sidebar Styles */
+    :root {
+        --primary-color: #2c3e50;
+        --primary-light: #34495e;
+        --primary-dark: #243444;
+        --accent-color: #e74c3c;
+        --accent-hover: #c0392b;
+        --text-light: #ecf0f1;
+        --text-muted: #bdc3c7;
+        --border-color: #405d7d;
+    }
+.sidebar {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    width: 250px;
+    height: 100vh;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar h4 {
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+
+.sidebar .nav {
+    margin-top: 20px;
+}
+
+.sidebar .nav-link {
+    color: var(--text-light);
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--accent-color);
+    color: var(--text-light);
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    color: var(--text-light);
+    font-weight: bold;
+}
+
+.navbar .btn-danger {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar .btn-danger:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+ </style>
+
+
+
+<div class="sidebar">
     <div class="text-center mb-4">
         <h4 class="text-light">TechNest</h4>
     </div>
@@ -57,3 +134,16 @@
             </div>
         </div>
     </nav>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const navLinks = document.querySelectorAll('.sidebar .nav-link');
+        const currentUrl = window.location.pathname;
+    
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentUrl) {
+                link.classList.add('active');
+            }
+        });
+    });
+    </script>

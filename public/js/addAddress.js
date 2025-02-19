@@ -16,6 +16,7 @@
         const pincodeInput = form.querySelector('#pincode');
         const phoneInput = form.querySelector('#phone');
         const altPhoneInput = form.querySelector('#altPhone');
+        const cityInput = form.querySelector('#city');
   
         // Get the feedback elements
         const addressTypeFeedback = addressTypeInput.nextElementSibling;
@@ -56,6 +57,13 @@
           landMarkInput.setCustomValidity('Landmark is required.');
         } else {
           landMarkInput.setCustomValidity('');
+        }
+        const cityValue = cityInput.value.trim();
+        if (cityValue === '') {
+          isValid = false;
+          cityInput.setCustomValidity('city is required.');
+        } else {
+          cityInput.setCustomValidity('');
         }
   
         // Validate State (must be selected)

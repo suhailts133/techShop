@@ -1,6 +1,87 @@
 <% layout("../layouts/adminboilerplate") %>
 <title><%= title %></title>
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --primary-light: #34495e;
+        --primary-dark: #243444;
+        --accent-color: #e74c3c;
+        --accent-hover: #c0392b;
+        --text-light: #ecf0f1;
+        --text-muted: #bdc3c7;
+        --border-color: #405d7d;
+    }
 
+  
+
+    .container {
+      
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    h2 {
+        color: var(--primary-color);
+    }
+
+    .form-control {
+        color: var(--primary-color);
+        border-color: var(--border-color);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
+
+    .btn-primary {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+    }
+
+    .table {
+        background-color: var(--primary-light);
+        color: var(--text-light);
+    }
+
+    .table-light th {
+        background-color: var(--primary-dark);
+        color: var(--text-light);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--primary-dark);
+    }
+
+    .badge.bg-danger {
+        background-color: var(--accent-color);
+    }
+
+    .badge.bg-success {
+        background-color: #28a745;
+    }
+
+    .pagination .page-link {
+        background-color: var(--primary-dark);
+        color: var(--text-light);
+        border-color: var(--border-color);
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+    }
+</style>
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">

@@ -15,11 +15,17 @@ const loadHomePage = async (req, res) => {
     try {
         const categories = await Category.find({ isListed: true });
 
-        let products = await Product.find({
+        let newArivals = await Product.find({
             isBlocked: false,
             category: { $in: categories.map(category => category._id) },
             variants: { $elemMatch: { quantity: { $gt: 0 } } }
         }).populate("category").sort({ createdAt: -1 }).limit(4);
+
+        let bestSelling = await Product.find({
+            isBlocked: false,
+            category: { $in: categories.map(category => category._id) },
+            variants: { $elemMatch: { quantity: { $gt: 0 } } }
+        }).populate("category").sort({ purchaseCount: -1 }).limit(4);
 
         let wishlistItems = [];
         if (req.session.user) {
@@ -29,13 +35,14 @@ const loadHomePage = async (req, res) => {
                 variantId: item.variantId.toString()
             })) : [];
         }
-        // console.log("wishlist items from home page",wishlistItems);
+       
         
 
         return res.render("home", {
             user: req.session.user || null,
             title: "Home",
-            products,
+            products:newArivals,
+            bestSelling,
             wishlistItems
         });
     } catch (error) {

@@ -118,11 +118,13 @@ const orderSchema = new mongoose.Schema({
             "Pending",
             "Shipped",
             "Delivered",
-            "Cancellation Request",
             "Cancelled",
-            "Return Requested",
-            "Return Accepted",
-            "Returned"
+            "Returned",
+            "Partially Shipped",
+            "Partially Delivered",
+            "Partially Cancelled",
+            "Partially Returned",
+
         ],
         default: "Pending"
     },
