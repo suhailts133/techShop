@@ -136,65 +136,92 @@ const loadOtp = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 }
-// verify the otp and inserting the new user in the database
+// verify the otp
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
-        console.log("t otp",otp);
-        console.log("g otp", req.body.otp)
-        
-        // check the otp form the otp page with the otp in the session
+        console.log("t otp", otp);
+        console.log("g otp", req.body.otp);
+
+        // Check the OTP from the OTP page with the OTP in the session
         if (otp === req.session.userOtp) {
-            const user = req.session.userData;  // user data form the session
-            const passwordHash = await securePassword(user.password);  // hash the password using secure fn
-            // add the new user in db 
+            const user = req.session.userData; // User data from the session
+            const passwordHash = await securePassword(user.password); // Hash the password
+
+            // Add the new user to the database
             const newUser = new User({
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
                 password: passwordHash,
-                googleId: null
+                googleId: null,
             });
-            await newUser.save();  // save the user
-            if(user.Referalcode){
-                newUser.wallet += 200  // 200 is the amount given to the user if it has a referal code
-                
+
+            await newUser.save(); // Save the user
+
+            // Referral system
+            if (user.Referalcode) {
+                newUser.wallet += 200; // 200 is the referral bonus for the new user
+
                 const newWalletReferal = new Wallet({
-                    userId:newUser._id,
-                    amount:200,
-                    action:"Credited",
-                    purpose:"Referal"
-                })
+                    userId: newUser._id,
+                    amount: 200,
+                    action: "Credited",
+                    purpose: "Referral",
+                });
+
                 await newWalletReferal.save();
-                newUser.WalletHistory = newWalletReferal._id
-                await newUser.save()
+                newUser.WalletHistory = newWalletReferal._id;
+                await newUser.save();
             }
-            const signupCoupon = await Coupon.findOne({ code: "EBD5D202" });
+
+            // Find the first available coupon or create a new one
+            let signupCoupon = await Coupon.findOne();
+            if (!signupCoupon) {
+                signupCoupon = new Coupon({
+                    name: "Welcome Coupon",
+                    discountValue: 2000, 
+                    minPurchase: 10000, 
+                    validityDuration: 30, 
+                });
+                await signupCoupon.save();
+            }
+
+            // Assign the coupon to the new user
             newUser.coupons.push({
                 couponId: signupCoupon._id,
-                expiresAt: new Date(Date.now() + signupCoupon.validityDuration * 24 * 60 * 60 * 1000)
-            })
+                expiresAt: new Date(Date.now() + signupCoupon.validityDuration * 24 * 60 * 60 * 1000),
+            });
+
             await newUser.save();
-            // Set user session 
+
+            // Referral bonus for the referring user
             const findUser = await User.findOne({ Referalcode: user.Referalcode });
             if (findUser) {
                 findUser.redeemedUsers.push(newUser._id);
-                findUser.wallet += 500 // 500 is the referal amount
+                findUser.wallet += 500; // Referral amount for the referrer
+
                 const newWalletRefered = new Wallet({
-                    userId:findUser._id,
-                    amount:500,
-                    action:"Credited",
-                    purpose:"Referal"
-                })
+                    userId: findUser._id,
+                    amount: 500,
+                    action: "Credited",
+                    purpose: "Referral",
+                });
+
                 await newWalletRefered.save();
                 findUser.WalletHistory = newWalletRefered._id;
-                await findUser.save()
+                await findUser.save();
             }
-            req.session.user = { id: newUser._id, name: newUser.name, email: newUser.email };  //name is used for displaying username
-            console.log("session from verify otp", req.session.user)
-            req.session.userOtp = null;   // destroying the session  otp
-            req.session.userData = null;  // destroying the session  userData
-            res.json({ success: true, redirectUrl: "/" });  // if all good use the redirecting url to use for ajax
+
+            // Set user session
+            req.session.user = { id: newUser._id, name: newUser.name, email: newUser.email };
+            console.log("session from verify otp", req.session.user);
+
+            // Destroy session OTP and user data
+            req.session.userOtp = null;
+            req.session.userData = null;
+
+            res.json({ success: true, redirectUrl: "/" });
         } else {
             res.status(400).json({ success: false, message: "Invalid OTP, please try again" });
         }
@@ -203,6 +230,7 @@ const verifyOtp = async (req, res) => {
         res.status(500).json({ success: false, message: "An error occurred" });
     }
 };
+
 // resending the otp
 const resendOtp = async (req, res) => {
     try {

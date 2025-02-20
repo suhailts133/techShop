@@ -3,6 +3,7 @@ const express = require("express");
 const env = require("dotenv").config();
 const path = require("path");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const ejsMate = require("ejs-mate");
 const flash = require("connect-flash");
 const nocache = require("nocache");
@@ -21,6 +22,17 @@ const profileRouter = require("./routes/profileRouter.js");
 // mongodb connection activation
 db();
 
+const store = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret:process.env.SESSION_SECRET
+    }
+});
+
+store.on("error", function(error){
+    console.log("Mongo session store error",error.message)
+})
 // middlewares
 app.use(nocache());
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +40,7 @@ app.use(express.json());
 app.use(express.static("public"))
 app.use(flash());
 app.use(session({
+    store,
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
