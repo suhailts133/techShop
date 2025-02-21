@@ -29,14 +29,15 @@ const loadHomePage = async (req, res) => {
         }).populate("category").sort({ purchaseCount: -1 }).limit(4);
 
         let wishlistItems = [];
-        
-            const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
+     
+            if(req.session.user){
+                const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
             wishlistItems = userWishlist ? userWishlist.items.map(item => ({
                 productId: item.productId.toString(),
                 variantId: item.variantId.toString()
             })) : [];
-        const userCart = await Cart.findOne({userId:req.session.user.id}).lean();
-        cartLength = userCart.items.length;
+        
+            }
 
        
         
@@ -47,7 +48,7 @@ const loadHomePage = async (req, res) => {
             products:newArivals,
             bestSelling,
             wishlistItems,
-            cartLength
+         
         });
     } catch (error) {
         console.error("Error while loading the home page:", error.message);

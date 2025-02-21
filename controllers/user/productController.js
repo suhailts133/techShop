@@ -66,14 +66,11 @@ const getProductDetails = async (req, res) => {
                 variantId: item.variantId.toString()
             })) : [];
         }
-        const userCart = await Cart.findOne({userId:req.session.user.id}).lean();
-        cartLength = userCart.items.length;
-        
+       
         res.render('productDetails', {
             product,
             relatedProducts: processedRelated,
             wishlistItems,
-            cartLength, 
             title: "Product Details"
         });
     } catch (error) {
