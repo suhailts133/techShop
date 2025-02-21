@@ -4,6 +4,8 @@ const env = require("dotenv").config();
 
 const createRazorpayOrder = async (req, res) => {
     try {
+        console.log("request body form create razor pay order",req.body);
+        
         const { amount, currency } = req.body;
 
         
@@ -14,7 +16,8 @@ const createRazorpayOrder = async (req, res) => {
         };
 
         const order = await razorpay.orders.create(options);
-
+        console.log("options",order);
+        
         res.json({
             success: true,
             order: {
@@ -37,7 +40,7 @@ const verifyPayment = async (req, res) => {
         console.log('Request Body:', req.body);
 
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
+      
         if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
             return res.status(400).json({
                 success: false,

@@ -4,6 +4,7 @@ const Category = require("../../models/categorySchema.js");
 const Product = require("../../models/productSchema.js")
 const Wallet = require("../../models/walletSchema.js")
 const Wishlist = require("../../models/wishlishSchema.js")
+const Cart = require("../../models/cartSchema.js")
 const fuzzy = require("fuzzy");
 // external files and functions
 const User = require("../../models/userSchema.js") // user model
@@ -28,13 +29,15 @@ const loadHomePage = async (req, res) => {
         }).populate("category").sort({ purchaseCount: -1 }).limit(4);
 
         let wishlistItems = [];
-        if (req.session.user) {
+        
             const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
             wishlistItems = userWishlist ? userWishlist.items.map(item => ({
                 productId: item.productId.toString(),
                 variantId: item.variantId.toString()
             })) : [];
-        }
+        const userCart = await Cart.findOne({userId:req.session.user.id}).lean();
+        cartLength = userCart.items.length;
+
        
         
 
@@ -43,7 +46,8 @@ const loadHomePage = async (req, res) => {
             title: "Home",
             products:newArivals,
             bestSelling,
-            wishlistItems
+            wishlistItems,
+            cartLength
         });
     } catch (error) {
         console.error("Error while loading the home page:", error.message);
