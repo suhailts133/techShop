@@ -23,7 +23,7 @@ const profileRouter = require("./routes/profileRouter.js");
 db();
 
 const store = MongoStore.create({
-    mongoUrl: process.env.MONGODB_ATLAS_URI,
+    mongoUrl: process.env.MONGODB_URI,
     touchAfter: 24 * 60 * 60,
     crypto: {
         secret:process.env.SESSION_SECRET
