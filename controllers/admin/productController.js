@@ -27,7 +27,7 @@ const productInfo = async (req, res) => {
             .sort({ createdAt: -1 })
             .lean()
 
-        console.log(JSON.stringify(productData, null, 2))
+
         const totalCount = await Product.countDocuments();
         const totalPages = Math.ceil(totalCount / limit);
 
@@ -58,8 +58,7 @@ const addProduct = async (req, res) => {
     try {
         const products = req.body;
 
-        // Check if the product already exists
-        const productExists = await Product.findOne({
+        const productExists = await Product.findOne({ // check if the product already exsist
             productName: products.productName,
         });
 
@@ -68,19 +67,17 @@ const addProduct = async (req, res) => {
             return res.redirect("/admin/products/add");
         }
 
-        // Handle images
         const images = [];
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
                 const originalImagePath = req.files[i].path;
-                const uniqueFilename = `resized-${Date.now()}-${i}-${req.files[i].filename}`;
-                const resizedImagePath = path.join(
+                const uniqueFilename = `resized-${Date.now()}-${i}-${req.files[i].filename}`; // give a unique file name
+                const resizedImagePath = path.join( // store it in the public/uploads/products
                     "public",
                     "uploads",
                     "products",
                     uniqueFilename
                 );
-
                 try {
                     await sharp(originalImagePath)
                         .resize({ width: 600, height: 600, fit: "cover" })
@@ -96,16 +93,21 @@ const addProduct = async (req, res) => {
             }
         }
 
-        // Check for a valid category
         const category = await Category.findOne({ name: products.category });
         if (!category) {
-            return res.status(400).json("Invalid category name");
+            req.flash("error", "Category not found");
+            return res.redirect("/admin/products/add");
         }
 
-        // Directly use the 'variants' array from req.body
-        const variants = products.variants || [];
+        const variants = products.variants || [];  // take out the variants for the product
+        const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price)); // check if any of the variant pricea has any iregualaries
+        // saleprice greater than og price
+        if (priceCheck) {
+            req.flash("error", "Sale price cannot be higher than original price");
+            return res.redirect("/admin/products/add");
+        }
 
-        // Create a new product with variants
+// if there is no probelm add the new product to the db
         const newProduct = new Product({
             productName: products.productName,
             productOffer: products.productOffer,
@@ -113,7 +115,7 @@ const addProduct = async (req, res) => {
             brand: products.brand,
             category: category._id,
             productImage: images,
-            variants: variants, // Directly assign the variants array
+            variants: variants,
             productOffer: products.productOffer || 0,
             status: "Available",
         });
@@ -132,8 +134,8 @@ const editProductPage = async (req, res) => {
     try {
         const productId = req.query.id;
         const product = await Product.findById(productId);
-        const categories = await Category.find();
-        const brands = await Brand.find();
+        const brands = await Brand.find({ isListed: true });
+        const categories = await Category.find({ isListed: true })
 
         if (!product) {
             return res.status(404).send('Product not found');
@@ -157,10 +159,18 @@ const editProduct = async (req, res) => {
         const productId = req.query.id;
         const updatedData = req.body;
 
-        // Find the existing product to update
+        const variants = updatedData.variants || [];
+
+        const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
+        if (priceCheck) {
+            req.flash("error", "Sale price cannot be higher than original price");
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+        
         const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json("Product not found");
+            req.flash("error", "Product not found");
+            return res.redirect(`/admin/products`);
         }
 
         // Check if the new product name already exists
@@ -169,21 +179,19 @@ const editProduct = async (req, res) => {
             _id: { $ne: productId }, // Exclude the current product from the check
         });
 
-        if (productExists) {
+        if (productExists) { // if product already exists
             req.flash("error", "Product already exists");
             return res.redirect(`/admin/products/edit?id=${productId}`);
         }
 
-        // Handle images (resizing and saving)
         let images = product.productImage; // Keep existing images if no new images are uploaded
         if (req.files && req.files.length > 0) {
-            // Delete old images from the server (optional)
-            product.productImage.forEach((img) => {
+            product.productImage.forEach((img) => { // delete the old images 
                 fs.unlinkSync(path.join("public", "uploads", "products", img));
             });
 
             images = []; // Reset the images array
-
+            // same logic as the add images
             for (let i = 0; i < req.files.length; i++) {
                 const originalImagePath = req.files[i].path;
                 const uniqueFilename = `resized-${Date.now()}-${i}-${req.files[i].filename}`;
@@ -212,20 +220,16 @@ const editProduct = async (req, res) => {
         // Check for a valid category
         const category = await Category.findOne({ name: updatedData.category });
         if (!category) {
-            return res.status(400).json("Invalid category name");
+            req.flash("error", "Category not found");
+            return res.redirect(`/admin/products/edit?id=${productId}`);
         }
-
-        // Handle variants
-        const variants = updatedData.variants || [];
-
-        // Update the product details
         product.productName = updatedData.productName;
         product.description = updatedData.description;
-        product.productOffer =  updatedData.productOffer;
+        product.productOffer = updatedData.productOffer;
         product.brand = updatedData.brand;
         product.category = category._id;
-        product.productImage = images; // Update images
-        product.variants = variants; // Update variants
+        product.productImage = images;
+        product.variants = variants;
         product.productOffer = updatedData.productOffer || 0;
         product.status = updatedData.status || "Available";
 

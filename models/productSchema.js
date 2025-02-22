@@ -22,12 +22,6 @@ const variantSchema = new Schema({
     salePrice: {
         type: Number,
         required: true,
-        validate: {
-            validator: function (value) {
-                return value <= this.price;
-            },
-            message: 'Sale price cannot be greater than regular price'
-        }
     }
 });
 

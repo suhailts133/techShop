@@ -1,43 +1,70 @@
 const croppers = [];
 
-    function initializeCropper(index) {
-        const input = document.getElementById(`input${index}`);
-        const container = document.getElementById(`crop-container${index}`);
-        const image = document.getElementById(`crop-image${index}`);
-
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                image.src = e.target.result;
-                container.style.display = 'block';
-
-                if (croppers[index]) {
-                    croppers[index].destroy();
-                }
-
-                croppers[index] = new Cropper(image, {
-                    aspectRatio: NaN,
-                    // viewMode: 1,
-                });
-            };
-            reader.readAsDataURL(input.files[0]);
+function initializeCropper(index) {
+    const input = document.getElementById(`input${index}`);
+    const container = document.getElementById(`crop-container${index}`);
+    const image = document.getElementById(`crop-image${index}`);
+    
+    function showError(message) {
+        input.classList.add('is-invalid');
+        const feedback = input.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = message;
         }
     }
 
-    function saveCrop(index) {
-        const cropper = croppers[index];
-        if (!cropper) return;
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!validImageTypes.includes(file.type)) {
+            showError('Please upload only JPG, PNG, or WebP images.');
+            input.value = '';
+            return;
+        }
 
-        cropper.getCroppedCanvas().toBlob((blob) => {
-            const file = new File([blob], `cropped-image-${index}.jpeg`, { type: 'image/jpeg' });
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            document.getElementById(`input${index}`).files = dataTransfer.files;
-            document.getElementById(`crop-container${index}`).style.display = 'none';
-            cropper.destroy();
-            croppers[index] = null;
-        });
+        
+
+        // Clear any previous errors
+        input.classList.remove('is-invalid');
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            image.src = e.target.result;
+            container.style.display = 'block';
+
+            if (croppers[index]) {
+                croppers[index].destroy();
+            }
+
+            croppers[index] = new Cropper(image, {
+                aspectRatio: NaN,
+        
+            });
+        };
+
+        reader.onerror = () => {
+            showError('Error reading file');
+            input.value = '';
+        };
+
+        reader.readAsDataURL(file);
     }
+}
+function saveCrop(index) {
+    const cropper = croppers[index];
+    if (!cropper) return;
+
+    cropper.getCroppedCanvas().toBlob((blob) => {
+        const file = new File([blob], `cropped-image-${index}.jpeg`, { type: 'image/jpeg' });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById(`input${index}`).files = dataTransfer.files;
+        document.getElementById(`crop-container${index}`).style.display = 'none';
+        cropper.destroy();
+        croppers[index] = null;
+    });
+}
     function addVariant() {
         const variantCount = document.querySelectorAll('.variant-section').length;
         const newVariant = document.createElement('div');
