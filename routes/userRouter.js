@@ -12,6 +12,7 @@ const productController = require("../controllers/user/productController.js")
 const checkOutController = require("../controllers/user/checkOutController.js")
 const shoppingPageController = require("../controllers/user/shoppingPageController.js")
 const wishlistController = require("../controllers/user/wishlistController.js")
+const env = require("dotenv").config();
 const { checkAuth,checkAuthUserLogin, checkAuthUserSignUp, checkAuthCart } = require("../middlewares/auth.js")
 
 // home route
@@ -38,8 +39,12 @@ router.get("/auth/google/callback",
   passport.authenticate('google', { failureRedirect: "/signup" }), 
   (req, res) => {
     req.session.user = { name: req.user.name, email: req.user.email,id:req.user._id };
-    console.log(req.session.user);
-    res.redirect("/"); 
+    
+    if(process.env.NODE_ENV === "production"){
+      res.redirect("https://www.techlux.shop/");
+    }else{
+      res.redirect("http://localhost:3000/");
+    }
   }
 );
 // login logout route
