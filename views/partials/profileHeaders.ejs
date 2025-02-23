@@ -1,14 +1,14 @@
 <style>
   /* Standalone Navbar Color Palette */
   :root {
-  --primary-color: #0F172A;     /* Midnight Blue */
-  --primary-light: #1E293B;     /* Medium Midnight */
-  --primary-dark: #0A1121;      /* Deep Midnight */
-  --accent-color: #475569;      /* Shadow */
-  --accent-hover: #334155;      /* Dark Shadow */
-  --text-light: #F8FAFC;        /* Light Blue */
-  --text-muted: #94A3B8;        /* Muted Blue */
-  --border-color: #1E293B;      /* Border Midnight */
+  --primary-color: #FFFFFF;       /* Pure White */
+  --primary-light: #F4F7F1;      /* Light Matcha */
+  --accent-color: #A3B899;       /* Matcha Green */
+  --text-light: #2C352A;         /* Deep Green */
+  --text-muted: #8C9A86;         /* Muted Green */
+  --border-color: #E5EBE1;       /* Soft Green */
+  --success-color: #779668;      /* Forest Green */
+  --error-color: #B9937A;        /* Warm Brown */
 }
 
   /* Sidebar Styling */
@@ -45,27 +45,49 @@
     font-weight: bold;
   }
 
+  .sidebar-desktop .sidebar-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .sidebar-desktop .sidebar-section {
+    margin-bottom: 20px;
+  }
+
+  .sidebar-desktop .sidebar-section h6 {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
   /* Offcanvas Sidebar for Mobile */
   .offcanvas-start {
     width: 250px;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color) !important;
   }
 
   .offcanvas-body .nav-link {
-    color: var(--text-light);
+    color: var(--text-light) !important;
     padding: 10px 15px;
     margin: 5px 0;
     border-radius: 4px;
     transition: all 0.3s ease;
   }
+  #mobileSidebarLabel {
+    color: #2C352A;
+  }
 
   .offcanvas-body .nav-link:hover {
-    background-color: var(--primary-light);
+    background-color: var(--primary-light) !important;
   }
 
   .offcanvas-body .nav-link.active {
     background-color: var(--primary-light);
-    color: var(--text-light);
+    color: var(--text-light) !important;
     font-weight: bold;
   }
 
@@ -88,7 +110,7 @@
   }
 
   .navbar-brand {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-family: 'Georgia', serif;
     background: linear-gradient(to right, var(--text-light), var(--accent-color));
     -webkit-background-clip: text;
@@ -117,8 +139,8 @@
     border-color: var(--accent-color);
   }
 
-/* Update the existing search input styles */
-.search-input {
+  /* Search Input and Button */
+  .search-input {
     width: 100%;
     padding: 0.8rem 1rem;
     border: 1px solid var(--border-color) !important;
@@ -126,20 +148,19 @@
     background-color: var(--primary-dark) !important;
     color: var(--text-light) !important;
     transition: all 0.3s ease;
-}
+  }
 
-.search-input:focus {
+  .search-input:focus {
     outline: none;
     border-color: var(--accent-color) !important;
     box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2) !important;
-}
+  }
 
-.search-input::placeholder {
+  .search-input::placeholder {
     color: var(--text-muted) !important;
-}
+  }
 
-/* Add search button styling */
-.search-button {
+  .search-button {
     position: absolute;
     right: 10px;
     top: 50%;
@@ -149,22 +170,14 @@
     color: var(--text-muted);
     cursor: pointer;
     transition: color 0.3s ease;
-}
+  }
 
-.search-button:hover {
+  .search-button:hover {
     color: var(--accent-color);
-}
+  }
 
-/* Update search results dropdown */
-#searchResults {
-    background-color: var(--primary-dark);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    margin-top: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-#searchResults a {
+  /* Search Results Dropdown */
+  #searchResults a {
     color: var(--text-light) !important;
     padding: 0.8rem 1rem;
     text-decoration: none;
@@ -174,65 +187,100 @@
 
 #searchResults a:hover {
     background-color: var(--primary-light);
-    color: var(--accent-color) !important;
+    color: var(--success-color) !important; /* Better contrast */
 }
+
+
+  /* Buttons */
   .btn {
-        padding: 0.8rem 1.5rem;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-login {
-        background: var(--accent-color);
-        color: var(--text-light);
-        font-weight: 500;
-    }
-    
-    .btn-login:hover {
-        background: var(--accent-hover);
-        transform: translateY(-1px);
-    }
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .btn-login {
+    background: var(--accent-color);
+    color: var(--text-light);
+    font-weight: 500;
+  }
+
+  .btn-login:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
 </style>
 
 <!-- Desktop Sidebar -->
 <div class="sidebar-desktop d-none d-lg-block text-light">
-  <div class="text-center mb-4"></div>
+  <div class="sidebar-header">Techlux</div>
   <nav>
-    <ul class="nav flex-column">
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/">Profile</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/address">Address</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/cart">Cart</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/wishlist">Wishlist</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/orders">Orders</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/coupons">Coupons</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/profile/wallet">Wallet</a>
-      </li>
-    </ul>
+    <div class="sidebar-section">
+      <h6>Menu</h6>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/shop">Shop</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/about">About</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <h6>Accounts</h6>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/">Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/address">Address</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/cart">Cart</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/wishlist">Wishlist</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/orders">Orders</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/coupons">Coupons</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile/wallet">Wallet</a>
+        </li>
+      </ul>
+    </div>
   </nav>
 </div>
 
 <!-- Mobile Sidebar -->
 <div class="offcanvas offcanvas-start d-lg-none bg-dark text-light" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
   <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="mobileSidebarLabel">TechNest</h5>
+    <h5 class="offcanvas-title" id="mobileSidebarLabel">Techlux</h5>
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    <nav>
+    <div class="sidebar-section">
+      <h6>Menu</h6>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/shop">Shop</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-light" href="/about">About</a>
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <h6>Accounts</h6>
       <ul class="nav flex-column">
         <li class="nav-item">
           <a class="nav-link text-light" href="/profile/">Profile</a>
@@ -255,8 +303,20 @@
         <li class="nav-item">
           <a class="nav-link text-light" href="/profile/wallet">Wallet</a>
         </li>
+        <% if (user) { %>
+          <li class="nav-item">
+            <a class="nav-link btn btn-login" href="/logout">Logout</a>
+          </li>
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link btn btn-login" href="/signup">Sign Up</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-login" href="/login">Log In</a>
+          </li>
+        <% } %>
       </ul>
-    </nav>
+    </div>
   </div>
 </div>
 
@@ -272,51 +332,29 @@
     >
       ☰
     </button>
-    <a class="navbar-brand" href="#">TechNest</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarNav"
-      aria-controls="navbarNav"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <a class="navbar-brand d-lg-none" href="#">Techlux</a>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/about">About</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/shop">Shop</a>
-        </li>
-      </ul>
       <div class="position-relative" style="flex: 1; max-width: 400px; margin: 0 1rem;">
         <form class="d-flex" id="searchForm" onsubmit="return false;">
-            <input
-                class="form-control search-input"
-                type="text"
-                name="text"
-                id="searchInput"
-                placeholder="Search products..."
-                aria-label="Search"
-                oninput="handleInput(event)"
-                required
-            >
-            <button type="submit" class="search-button">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </button>
+          <input
+            class="form-control search-input"
+            type="text"
+            name="text"
+            id="searchInput"
+            placeholder="Search products..."
+            aria-label="Search"
+            oninput="handleInput(event)"
+            required
+          >
+          <button type="submit" class="search-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
         </form>
         <div id="searchResults" class="search-results position-absolute w-100" style="z-index: 1000; display: none;"></div>
-    </div>
+      </div>
       <ul class="navbar-nav ms-auto">
         <% if (user) { %>
           <li class="nav-item">

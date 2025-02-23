@@ -107,7 +107,8 @@ const loadAddressPage = async (req, res) => {
 
 const loadAddressAddPage = async (req, res) => {
     try {
-        res.render("add-address", { title: "Add Address" })
+        const returnTo = req.query.returnTo || "/profile/address"
+        res.render("add-address", { title: "Add Address", returnTo })
     } catch (error) {
         console.log("error while loading add address page", error.message)
     }
@@ -127,7 +128,8 @@ const addAddress = async (req, res) => {
         findUser.address.push(newAddress);
         await newAddress.save();
         await findUser.save();
-        res.redirect("/profile/address");
+        const returnTo = req.query.returnTo || "/profile/address";
+        res.redirect(returnTo);
     } catch (error) {
         console.log("error while adding address", error.message)
     }

@@ -1,5 +1,112 @@
 <% layout("../layouts/profileboilerPlate") %>
 
+<style>
+
+
+    .content {
+   
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    h1 {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .card {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .text-muted {
+        color: var(--text-muted) !important;
+    }
+
+    .pricing-details {
+        background: var(--primary-light);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .badge {
+        background: var(--success-color);
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .badge.bg-warning {
+        background: var(--error-color) !important;
+    }
+
+    .badge.bg-primary {
+        background: var(--accent-color) !important;
+    }
+
+    .btn-danger {
+        background: var(--error-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        filter: brightness(90%);
+    }
+
+    .btn-primary {
+        background: var(--success-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        filter: brightness(90%);
+    }
+
+    .btn-secondary {
+        background: var(--text-muted);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        filter: brightness(90%);
+    }
+
+    .rating-stars label {
+        color: var(--border-color);
+    }
+
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+        color: var(--success-color);
+    }
+
+    .form-control {
+        background: var(--primary-light);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 2px rgba(163, 184, 153, 0.25);
+    }
+</style>
+
 <div class="content">
     <div class="container mt-5">
         <h1 class="mb-4">Order Item Details</h1>
@@ -10,7 +117,10 @@
                 <div class="row">
                     <!-- Product Image -->
                     <div class="col-md-4">
-                        <img src="/uploads/products/<%= item.productId.productImage[0] %>" class="img-fluid rounded" alt="<%= item.productId.productName %>">
+                        <img src="/uploads/products/<%= item.productId.productImage[0] %>" 
+                             class="img-fluid rounded" 
+                             alt="<%= item.productId.productName %>"
+                             style="border: 1px solid var(--border-color);">
                     </div>
 
                     <!-- Product Details -->
@@ -20,29 +130,30 @@
                         <!-- Variant Details -->
                         <% if (item.variantDetails && item.variantDetails.color) { %>
                             <p class="text-muted mb-0"><strong>Color:</strong> <%= item.variantDetails.color %></p>
-                            <p class="text-muted mt-0"> <Strong>Size:</Strong> <%= item.variantDetails.size %></p>
+                            <p class="text-muted mt-0"><strong>Size:</strong> <%= item.variantDetails.size %></p>
                         <% } else { %>
                             <p class="text-muted"><strong>Variant:</strong> N/A</p>
                         <% } %>
-                        <p class="text-muted"><Strong>Payment method</Strong> <%= item.paymentOption  %></p>
+                        <p class="text-muted"><strong>Payment method:</strong> <%= item.paymentOption %></p>
+                        
                         <!-- Quantity -->
                         <p class="mb-2"><strong>Quantity:</strong> <%= item.quantity %></p>
 
                         <!-- Pricing Breakdown -->
                         <div class="pricing-details mb-3">
-                            <p class="mb-1"><strong>Original Price:</strong> ₹<%= item.ogRegularPrice.toFixed(2) * item.quantity%></p>
-                            <p class="mb-1"><strong>Sale Price:</strong> ₹<%= item.ogSalePrice.toFixed(2) * item.quantity%></p>
-                            <% if(item.itemDiscount > 0) {%>
-                                <p class="mb-1"><strong>Coupon Discount:</strong> ₹<%= item.itemDiscount.toFixed(2)%></p>
-                                <% } %>
-                            <p class="mb-1"><strong>Discount:</strong> ₹<%= ( (item.ogRegularPrice.toFixed(2) * item.quantity) - (item.ogSalePrice.toFixed(2) * item.quantity))%></p>
-                            <p class="mb-1"><strong>Additional Discount:</strong> ₹<%= ((item.ogSalePrice.toFixed(2) * item.quantity) - (item.noDiscountPrice.toFixed(2) * item.quantity)).toFixed(2) %></p>
+                            <p class="mb-1"><strong>Original Price:</strong> ₹<%= (item.ogRegularPrice * item.quantity).toFixed(2) %></p>
+                            <p class="mb-1"><strong>Sale Price:</strong> ₹<%= (item.ogSalePrice * item.quantity).toFixed(2) %></p>
+                            <% if(item.itemDiscount > 0) { %>
+                                <p class="mb-1"><strong>Coupon Discount:</strong> ₹<%= item.itemDiscount.toFixed(2) %></p>
+                            <% } %>
+                            <p class="mb-1"><strong>Discount:</strong> ₹<%= ((item.ogRegularPrice * item.quantity) - (item.ogSalePrice * item.quantity)).toFixed(2) %></p>
+                            <p class="mb-1"><strong>Additional Discount:</strong> ₹<%= ((item.ogSalePrice * item.quantity) - (item.noDiscountPrice * item.quantity)).toFixed(2) %></p>
                             <p class="mb-1"><strong>Final Price:</strong> ₹<%= item.price.toFixed(2) %></p>
                         </div>
 
-                        <% if(item.couponUsed) {%>
-                          <p class="text-danger">Note:- Coupon has used while placing the order</p>
-                          <% } %>
+                        <% if(item.couponUsed) { %>
+                            <p class="text-danger">Note:- Coupon has been used while placing the order</p>
+                        <% } %>
 
                         <!-- Order Status -->
                         <p class="mb-3">
@@ -125,49 +236,3 @@
     </div>
 </div>
 
-<!-- Styles -->
-<style>
-    .card {
-        border: none;
-        border-radius: 10px;
-    }
-
-    .card-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-    }
-
-    .pricing-details {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
-    }
-
-    .rating-stars {
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: flex-end;
-    }
-
-    .rating-stars input {
-        display: none;
-    }
-
-    .rating-stars label {
-        font-size: 2rem;
-        color: #ddd;
-        cursor: pointer;
-        transition: color 0.2s;
-    }
-
-    .rating-stars input:checked ~ label,
-    .rating-stars label:hover,
-    .rating-stars label:hover ~ label {
-        color: #ffd700;
-    }
-
-    .badge {
-        font-size: 0.9rem;
-        padding: 0.5rem 0.75rem;
-    }
-</style> 

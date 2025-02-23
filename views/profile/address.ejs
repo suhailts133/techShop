@@ -1,15 +1,135 @@
 <% layout("../layouts/profileboilerPlate") %>
 
+<style>
+    /* Address Page Styles */
+    .content {
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .card {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-title {
+        color: var(--text-light);
+        font-weight: 600;
+        border-bottom: 2px solid var(--accent-color);
+        padding-bottom: 0.5rem;
+    }
+
+    .card-text {
+        color: var(--text-light);
+    }
+
+    .card-text strong {
+        color: var(--text-muted);
+    }
+
+    /* Add Address Button Styling */
+    .btn-add-address {
+        background: var(--success-color);
+        border: none;
+        color: var(--primary-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        transition: filter 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-add-address:hover {
+        filter: brightness(90%);
+        transform: translateY(-2px);
+    }
+
+    .btn-add-address i {
+        font-size: 1.5rem;
+    }
+
+    .btn-outline-dark {
+        border-color: var(--text-light);
+        color: var(--text-light);
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-dark:hover {
+        background: var(--text-light);
+        color: var(--primary-color);
+    }
+
+    .btn-warning {
+        background: var(--success-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-warning:hover {
+        filter: brightness(90%);
+    }
+
+    .btn-danger {
+        background: transparent;
+        border: 1px solid var(--error-color);
+        color: var(--error-color);
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        background: var(--error-color);
+        color: var(--primary-color);
+    }
+
+    .alert {
+        background: var(--primary-light);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
+
+    .alert-heading {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .modal-content {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+    }
+
+    .modal-title,
+    .modal-body {
+        color: var(--text-light);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-footer {
+        border-top: 1px solid var(--border-color);
+    }
+</style>
 
 <!-- Main Content Area -->
 <div class="content">
     <div class="container mt-5">
-
         <% if (user.address.length === 0) { %>
             <!-- No addresses: Show a '+' icon -->
             <div class="d-flex justify-content-center align-items-center" style="height: 70vh;">
-                <a href="/profile/address/add" class="btn btn-outline-dark d-flex justify-content-center align-items-center">
-                    <i class="bi bi-plus-circle fs-1 me-2"></i>
+                <a href="/profile/address/add" class="btn btn-add-address">
+                    <i class="bi bi-plus-circle"></i>
                     <span>Add Address</span>
                 </a>
             </div>
@@ -46,8 +166,8 @@
             </div>
 
             <!-- Add New Address Button -->
-            <% if(user.address.length >= 6) { %>
-                <div class="alert alert-warning text-center mt-4" role="alert">
+            <% if(user.address.length >= 3) { %>
+                <div class="alert text-center mt-4" role="alert">
                     <h5 class="alert-heading">Address Limit Reached</h5>
                     <p>You already have too many addresses (maximum of 6 allowed).</p>
                     <hr>
@@ -55,20 +175,19 @@
                 </div>
             <% } else { %>
                 <div class="text-center mt-4">
-                    <a href="/profile/address/add" class="btn btn-dark d-flex justify-content-center align-items-center">
-                        <i class="bi bi-plus-circle me-2"></i>
+                    <a href="/profile/address/add" class="btn btn-add-address">
+                        <i class="bi bi-plus-circle"></i>
                         <span>Add New Address</span>
                     </a>
                 </div>
             <% } %>
-            
         <% } %>
     </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>

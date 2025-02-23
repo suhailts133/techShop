@@ -1,245 +1,261 @@
 <% layout("../layouts/boilerplate") %>
 <title><%= title %></title>
 
+
 <style>
-
-  .card {
-    border: none;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border-radius: 8px;
-    overflow: hidden;
+  :root {
+      --primary-color: #FFFFFF;       /* Pure White */
+      --primary-light: #F4F7F1;      /* Light Matcha */
+      --accent-color: #A3B899;       /* Matcha Green */
+      --text-light: #2C352A;         /* Deep Green */
+      --text-muted: #8C9A86;         /* Muted Green */
+      --border-color: #E5EBE1;       /* Soft Green */
+      --success-color: #779668;      /* Forest Green */
+      --error-color: #B9937A;        /* Warm Brown */
   }
 
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  .container {
+      padding: 2rem;
+      border-radius: 12px;
   }
 
-  .card img {
-    transition: all 0.5s ease;
-    padding: 1rem;
+  .bg-light {
+      background: var(--primary-color) !important;
+      border: 1px solid var(--border-color);
   }
 
-  .card:hover img {
-    transform: scale(1.05);
+  .btn-outline-dark {
+      border-color: var(--text-light);
+      color: var(--text-light);
+      transition: all 0.3s ease;
   }
 
-  .card-body {
-    padding: 1.5rem;
+  .btn-outline-dark:hover, .btn-outline-dark.active {
+      background: var(--accent-color);
+      color: var(--primary-color);
   }
 
-  .card-title {
-    color: #1a1a1a;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
+  .h5, .h6 {
+      color: var(--text-light);
   }
 
-  .text-muted.small {
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #666;
+  .border-bottom {
+      border-bottom: 1px solid var(--border-color) !important;
+  }
+
+  .text-secondary {
+      color: var(--text-muted) !important;
+  }
+
+  .text-dark {
+      color: var(--text-light) !important;
   }
 
   .text-success {
-    color: #2c3e50 !important;
-    font-size: 1.1rem;
+      color: var(--success-color) !important;
   }
 
   .text-danger {
-    color: #666 !important;
-    font-size: 0.9rem;
+      color: var(--error-color) !important;
   }
 
-  .wishlist-icon {
-    color: #2c3e50;
-    transition: all 0.3s ease;
+  .pagination .page-link {
+      color: var(--text-light);
+      border: 1px solid var(--border-color);
+      background: var(--primary-light);
   }
 
-  .wishlist-icon:hover {
-    transform: scale(1.2);
+  .pagination .page-link:hover, .pagination .page-item.active .page-link {
+      background: var(--accent-color);
+      color: var(--primary-color) !important;
   }
 
-  .bi-heart-fill.text-danger {
-    color: #dc3545 !important;
+  .pagination .page-link.bg-dark {
+      background: var(--text-light) !important;
+      color: var(--primary-color) !important;
+  }
+
+  .pagination .page-link.bg-dark:hover {
+      background: var(--text-light) !important;
+  }
+
+  .hover-dark:hover {
+      color: var(--text-light) !important;
   }
 </style>
 
+
 <div class="container py-5">
-  <div class="row g-4">
-    <!-- Filter Sidebar -->
-    <div class="col-lg-3">
-      <div class="bg-light rounded-3 p-4 shadow-sm">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h4 class="h5 fw-bold m-0">Filters</h4>
-          <a href="/shop" class="btn btn-sm btn-outline-dark rounded-pill" title="Clear all filters">Reset</a>
-        </div>
-
-        <!-- Categories Section -->
-        <div class="mb-4">
-          <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Categories</h5>
-          <ul class="list-unstyled mb-0">
-            <% for (let i=0; i < categories.length; i++) { %>
-              <li class="mb-2 hover-dark">
-                <a href="/shop?category=<%= categories[i]._id %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>&page=1"
-                   class="text-decoration-none <%= selectedCategory === categories[i]._id.toString() ? 'text-dark fw-bold' : 'text-secondary' %>">
-                  <%= categories[i].name %>
-                </a>
-              </li>
-            <% } %>
-          </ul>
-        </div>
-
-        <!-- Brands Section -->
-        <div class="mb-4">
-          <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Brands</h5>
-          <ul class="list-unstyled mb-0">
-            <% for (let i=0; i < brands.length; i++) { %>
-              <li class="mb-2 hover-dark">
-                <a href="/shop?brand=<%= brands[i]._id %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=1"
-                   class="text-decoration-none <%= selectedBrand === brands[i]._id.toString() ? 'text-dark fw-bold' : 'text-secondary' %>">
-                  <%= brands[i].brandName %>
-                </a>
-              </li>
-            <% } %>
-          </ul>
-        </div>
-
-        <!-- Sort Section -->
-        <div>
-          <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Sort By</h5>
-          <form action="/shop" method="GET">
-            <% if (selectedCategory) { %>
-              <input type="hidden" name="category" value="<%= selectedCategory %>">
-            <% } %>
-            <% if (selectedBrand) { %>
-              <input type="hidden" name="brand" value="<%= selectedBrand %>">
-            <% } %>
-            <input type="hidden" name="page" value="1"> 
-
-            <div class="d-grid gap-2">
-              <button type="submit" name="sort" value="price-asc" 
-                      class="btn btn-outline-dark text-start <%= selectedSort === 'price-asc' ? 'active' : '' %>">
-                Price: Low to High
-              </button>
-              <button type="submit" name="sort" value="price-desc" 
-                      class="btn btn-outline-dark text-start <%= selectedSort === 'price-desc' ? 'active' : '' %>">
-                Price: High to Low
-              </button>
-              <button type="submit" name="sort" value="popularity-asc" 
-                      class="btn btn-outline-dark text-start <%= selectedSort === 'popularity-asc' ? 'active' : '' %>">
-                Popularity: High to Low
-              </button>
-              <button type="submit" name="sort" value="popularity-desc" 
-                      class="btn btn-outline-dark text-start <%= selectedSort === 'popularity-desc' ? 'active' : '' %>">
-                Popularity: Low to High
-              </button>
-              <button type="submit" name="sort" value="name-asc" 
-                      class="btn btn-outline-dark text-start <%= selectedSort === 'name-asc' ? 'active' : '' %>">
-                Name: A-Z
-              </button>
-              <button type="submit" name="sort" value="name-desc" 
-                      class="btn btn-outline-dark text-start <%= selectedSort === 'name-desc' ? 'active' : '' %>">
-                Name: Z-A
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Products Grid -->
-    <div class="col-lg-9">
-      <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
-        <% if (products.length > 0) { %>
-          <% products.forEach(product => { %>
-            <div class="col">
-              <div class="card h-100 shadow-sm shadow-hover">
-                <a href="/productDetails?id=<%= product._id %>" class="text-decoration-none">
-                  <div class="position-relative" style="padding-top: 100%;">
-                    <img src="/uploads/products/<%= product.productImage[0] %>"
-                         class="position-absolute top-0 start-0 w-100 h-100"
-                         style="object-fit: contain;"
-                         alt="<%= product.productName %>">
-                  </div>
-                </a>
-                <div class="card-body d-flex flex-column">
-                  <h5 class="card-title fs-6 text-truncate mb-2"><%= product.productName %></h5>
-                  <% if (product.variants && product.variants.length > 0) {
-                    const variant = product.variants.find(v => v.quantity > 0);
-                    if (variant) {
-                      let discount = product.productOffer > 0 ? product.productOffer : (product.category?.categoryOffer || 0);
-                      let discountedPrice = (variant.salePrice * (100 - discount) / 100).toFixed(2);
-                  %>
-                    <p class="text-muted small mb-2"><%= variant.color %> - <%= variant.size %></p>
-                    <div class="mt-auto">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                          <span class="text-success fw-bold">₹<%= discountedPrice %></span>
-                          <span class="text-danger text-decoration-line-through small ms-2">₹<%= variant.price.toFixed(2) %></span>
-                        </div>
-                        <button class="btn btn-link p-0 wishlist-icon" data-product-id="<%= product._id %>" data-variant-id="<%= variant._id %>">
-                          <% const isInWishlist = wishlistItems.some(item => 
-                            item.productId === product._id.toString() && 
-                            item.variantId === variant._id.toString()
-                          ); %>
-                          <i class="bi <%= isInWishlist ? 'bi-heart-fill text-danger' : 'bi-heart' %> fs-5"></i>
-                        </button>
-                      </div>
-                    </div>
-                  <% } } %>
+    <div class="row g-4">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="bg-light rounded-3 p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="h5 fw-bold m-0">Filters</h4>
+                    <a href="/shop" class="btn btn-sm btn-outline-dark rounded-pill" title="Clear all filters">Reset</a>
                 </div>
-              </div>
-            </div>
-          <% }); %>
-        <% } else { %>
-          <div class="col-12 text-center py-5">
-            <h3 class="text-muted">No products found!</h3>
-          </div>
-        <% } %>
-      </div>
 
-   
-      <% if (products.length > 0) { %>
-        <div class="d-flex justify-content-center mt-5">
-          <nav>
-            <ul class="pagination">
-              <% if (page > 1) { %>
-                <li class="page-item">
-                  <a class="page-link rounded-circle mx-1" 
-                     href="/shop?page=<%= page - 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
-                    <i class="bi bi-chevron-left"></i>
-                  </a>
-                </li>
-              <% } %>
-              
-              <% for (let i=1; i <= totalPages; i++) { %>
-                <li class="page-item">
-                  <a class="page-link rounded-circle mx-1 <%= page === i ? 'bg-dark text-white border-dark' : '' %>" 
-                     href="/shop?page=<%= i %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
-                    <%= i %>
-                  </a>
-                </li>
-              <% } %>
-              
-              <% if (page < totalPages) { %>
-                <li class="page-item">
-                  <a class="page-link rounded-circle mx-1" 
-                     href="/shop?page=<%= page + 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
-                    <i class="bi bi-chevron-right"></i>
-                  </a>
-                </li>
-              <% } %>
-            </ul>
-          </nav>
+                <!-- Categories Section -->
+                <div class="mb-4">
+                    <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Categories</h5>
+                    <ul class="list-unstyled mb-0">
+                        <% for (let i=0; i < categories.length; i++) { %>
+                            <li class="mb-2 hover-dark">
+                                <a href="/shop?category=<%= categories[i]._id %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>&page=1"
+                                   class="text-decoration-none <%= selectedCategory === categories[i]._id.toString() ? 'text-dark fw-bold' : 'text-secondary' %>">
+                                    <%= categories[i].name %>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+
+                <!-- Brands Section -->
+                <div class="mb-4">
+                    <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Brands</h5>
+                    <ul class="list-unstyled mb-0">
+                        <% for (let i=0; i < brands.length; i++) { %>
+                            <li class="mb-2 hover-dark">
+                                <a href="/shop?brand=<%= brands[i]._id %>&category=<%= selectedCategory %>&sort=<%= selectedSort %>&page=1"
+                                   class="text-decoration-none <%= selectedBrand === brands[i]._id.toString() ? 'text-dark fw-bold' : 'text-secondary' %>">
+                                    <%= brands[i].brandName %>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div>
+
+                <!-- Sort Section -->
+                <div>
+                    <h5 class="h6 fw-bold pb-2 mb-3 border-bottom">Sort By</h5>
+                    <form action="/shop" method="GET">
+                        <% if (selectedCategory) { %>
+                            <input type="hidden" name="category" value="<%= selectedCategory %>">
+                        <% } %>
+                        <% if (selectedBrand) { %>
+                            <input type="hidden" name="brand" value="<%= selectedBrand %>">
+                        <% } %>
+                        <input type="hidden" name="page" value="1"> 
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" name="sort" value="price-asc" 
+                                    class="btn btn-outline-dark text-start <%= selectedSort === 'price-asc' ? 'active' : '' %>">
+                                Price: Low to High
+                            </button>
+                            <button type="submit" name="sort" value="price-desc" 
+                                    class="btn btn-outline-dark text-start <%= selectedSort === 'price-desc' ? 'active' : '' %>">
+                                Price: High to Low
+                            </button>
+                            <button type="submit" name="sort" value="popularity-asc" 
+                                    class="btn btn-outline-dark text-start <%= selectedSort === 'popularity-asc' ? 'active' : '' %>">
+                                Popularity: High to Low
+                            </button>
+                            <button type="submit" name="sort" value="popularity-desc" 
+                                    class="btn btn-outline-dark text-start <%= selectedSort === 'popularity-desc' ? 'active' : '' %>">
+                                Popularity: Low to High
+                            </button>
+                            <button type="submit" name="sort" value="name-asc" 
+                                    class="btn btn-outline-dark text-start <%= selectedSort === 'name-asc' ? 'active' : '' %>">
+                                Name: A-Z
+                            </button>
+                            <button type="submit" name="sort" value="name-desc" 
+                                    class="btn btn-outline-dark text-start <%= selectedSort === 'name-desc' ? 'active' : '' %>">
+                                Name: Z-A
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-      <% } %>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+                <% if (products.length > 0) { %>
+                    <% products.forEach(product => { %>
+                        <div class="col">
+                            <div class="card h-100 shadow-sm shadow-hover">
+                                <a href="/productDetails?id=<%= product._id %>" class="text-decoration-none">
+                                    <div class="position-relative" style="padding-top: 100%;">
+                                        <img src="/uploads/products/<%= product.productImage[0] %>"
+                                             class="position-absolute top-0 start-0 w-100 h-100"
+                                             style="object-fit: contain;"
+                                             alt="<%= product.productName %>">
+                                    </div>
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title fs-6 text-truncate mb-2"><%= product.productName %></h5>
+                                    <% if (product.variants && product.variants.length > 0) {
+                                        const variant = product.variants.find(v => v.quantity > 0);
+                                        if (variant) {
+                                            let discount = product.productOffer > 0 ? product.productOffer : (product.category?.categoryOffer || 0);
+                                            let discountedPrice = (variant.salePrice * (100 - discount) / 100).toFixed(2);
+                                    %>
+                                        <p class="text-muted small mb-2"><%= variant.color %> - <%= variant.size %></p>
+                                        <div class="mt-auto">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="text-success fw-bold">₹<%= discountedPrice %></span>
+                                                    <span class="text-danger text-decoration-line-through small ms-2">₹<%= variant.price.toFixed(2) %></span>
+                                                </div>
+                                                <button class="btn btn-link p-0 wishlist-icon" data-product-id="<%= product._id %>" data-variant-id="<%= variant._id %>">
+                                                    <% const isInWishlist = wishlistItems.some(item => 
+                                                        item.productId === product._id.toString() && 
+                                                        item.variantId === variant._id.toString()
+                                                    ); %>
+                                                    <i class="bi <%= isInWishlist ? 'bi-heart-fill text-danger' : 'bi-heart' %> fs-5"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% } } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="col-12 text-center py-5">
+                        <h3 class="text-muted">No products found!</h3>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Pagination -->
+            <% if (products.length > 0) { %>
+                <div class="d-flex justify-content-center mt-5">
+                    <nav>
+                        <ul class="pagination">
+                            <% if (page > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link rounded-circle mx-1" 
+                                       href="/shop?page=<%= page - 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
+                                        <i class="bi bi-chevron-left"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% for (let i=1; i <= totalPages; i++) { %>
+                                <li class="page-item">
+                                    <a class="page-link rounded-circle mx-1 <%= page === i ? 'bg-dark text-white border-dark' : '' %>" 
+                                       href="/shop?page=<%= i %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (page < totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link rounded-circle mx-1" 
+                                       href="/shop?page=<%= page + 1 %>&category=<%= selectedCategory %>&brand=<%= selectedBrand %>&sort=<%= selectedSort %>">
+                                        <i class="bi bi-chevron-right"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                </div>
+            <% } %>
+        </div>
     </div>
-  </div>
 </div>
 
 <script src="/js/homeShopWishlist.js"></script>

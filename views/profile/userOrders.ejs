@@ -1,5 +1,139 @@
 <% layout("../layouts/profileboilerPlate") %>
 
+<style>
+    :root {
+        --primary-color: #FFFFFF;       /* Pure White */
+        --primary-light: #F4F7F1;      /* Light Matcha */
+        --accent-color: #A3B899;       /* Matcha Green */
+        --text-light: #2C352A;         /* Deep Green */
+        --text-muted: #8C9A86;         /* Muted Green */
+        --border-color: #E5EBE1;       /* Soft Green */
+        --success-color: #779668;      /* Forest Green */
+        --error-color: #B9937A;        /* Warm Brown */
+    }
+
+    .content {
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    h1 {
+        color: var(--text-light);
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    .card {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-title {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .card-body p {
+        color: var(--text-muted);
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .badge.bg-warning {
+        background: var(--error-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-info {
+        background: var(--accent-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-success {
+        background: var(--success-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-secondary {
+        background: var(--text-muted) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-danger {
+        background: var(--error-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-primary {
+        background: var(--accent-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-dark {
+        background: var(--text-light) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .alert {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .alert-link {
+        color: var(--success-color);
+        font-weight: 600;
+    }
+
+    .alert-link:hover {
+        color: var(--success-color);
+        text-decoration: underline;
+    }
+
+    .btn-primary {
+        background: var(--success-color);
+        border: none;
+        color: var(--primary-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: var(--success-color);
+        filter: brightness(90%);
+    }
+    .pagination .page-item.active .page-link {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: var(--primary-color);
+    }
+
+    .pagination .page-link {
+        color: var(--text-light);
+        border: 1px solid var(--border-color);
+    }
+
+    .pagination .page-link:hover {
+        background: var(--primary-light);
+        color: var(--text-light);
+    }
+</style>
 
 <div class="content">
     <div class="container mt-5">
@@ -25,7 +159,7 @@
                                     <!-- Product Details -->
                                     <div class="col-6 col-md-8">
                                         <div class="card-body">
-                                            <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>&itemId=<%= item._id %>" class="text-decoration-none text-dark">
+                                            <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>&itemId=<%= item._id %>" class="text-decoration-none">
                                                 <h5 class="card-title"><%= item.productId.productName %></h5>
                                             </a>
 
@@ -38,23 +172,20 @@
 
                                             <!-- Quantity -->
                                             <p class="mb-0"><strong>Quantity:</strong> <%= item.quantity %></p>
-
-                                            <!-- Item Order Status Badge -->
-                                           
                                         </div>
                                     </div>
                                     
                                     <!-- Overall Order Status (Badge for whole order) -->
                                     <div class="col-3 col-md-2 text-center">
                                         <span class="badge 
-                                            <%= item.orderStatus === 'Pending' ? 'bg-warning text-dark' : '' %>
-                                            <%= item.orderStatus === 'Shipped' ? 'bg-info text-white' : '' %>
-                                            <%= item.orderStatus === 'Delivered' ? 'bg-success text-white' : '' %>
-                                            <%= item.orderStatus === 'Return Requested' ? 'bg-secondary text-white' : '' %>
-                                            <%= item.orderStatus === 'Return Accepted' ? 'bg-danger text-white' : '' %>
-                                            <%= item.orderStatus === 'Returned' ? 'bg-primary text-white' : '' %>
-                                            <%= item.orderStatus === 'Cancelled' ? 'bg-dark text-white' : '' %>
-                                            <%= item.orderStatus === 'Cancellation Requested' ? 'bg-danger text-white' : '' %>">
+                                            <%= item.orderStatus === 'Pending' ? 'bg-warning' : '' %>
+                                            <%= item.orderStatus === 'Shipped' ? 'bg-info' : '' %>
+                                            <%= item.orderStatus === 'Delivered' ? 'bg-success' : '' %>
+                                            <%= item.orderStatus === 'Return Requested' ? 'bg-secondary' : '' %>
+                                            <%= item.orderStatus === 'Return Accepted' ? 'bg-danger' : '' %>
+                                            <%= item.orderStatus === 'Returned' ? 'bg-primary' : '' %>
+                                            <%= item.orderStatus === 'Cancelled' ? 'bg-dark' : '' %>
+                                            <%= item.orderStatus === 'Cancellation Requested' ? 'bg-danger' : '' %>">
                                             <%= item.orderStatus %>
                                         </span>
                                     </div>
@@ -65,11 +196,43 @@
                 <% }); %>
             </div>
         <% } else { %>
-            <p class="text-center">You have no orders yet.</p>
+            <div class="alert">
+                Your order history is empty. <a href="/" class="alert-link">Go shopping!</a>
+            </div>
         <% } %>
 
         <div class="text-center mt-4">
             <a href="/" class="btn btn-primary">Back to Home</a>
         </div>
+    </div>
+</div>
+<!-- Pagination -->
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-center">
+        <nav>
+            <ul class="pagination">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/profile/orders?page=<%= currentPage - 1 %>" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                <% } %>
+
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/profile/orders?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/profile/orders?page=<%= currentPage + 1 %>" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
     </div>
 </div>

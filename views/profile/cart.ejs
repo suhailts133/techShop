@@ -1,20 +1,9 @@
 <% layout("../layouts/profileboilerPlate") %>
 
 <style>
-   :root {
-  --primary-color: #0F172A;     /* Midnight Blue */
-  --primary-light: #1E293B;     /* Medium Midnight */
-  --primary-dark: #0A1121;      /* Deep Midnight */
-  --accent-color: #475569;      /* Shadow */
-  --accent-hover: #334155;      /* Dark Shadow */
-  --text-light: #F8FAFC;        /* Light Blue */
-  --text-muted: #94A3B8;        /* Muted Blue */
-  --border-color: #1E293B;      /* Border Midnight */
-}
 
 /* Main Content Styling */
 .content {
-    background: var(--bg-gradient);
     min-height: 100vh;
     padding: 2rem 0;
 }
@@ -27,21 +16,20 @@
 
 /* Page Title */
 h2 {
-    color: var(--primary-color);
+    color: var(--text-light);
     font-size: 2.5rem;
-    font-weight: 300;
+    font-weight: 600;
     letter-spacing: 1px;
     margin-bottom: 2rem;
-    border-bottom: 2px solid var(--gold-accent);
+    border-bottom: 2px solid var(--accent-color);
     padding-bottom: 0.5rem;
 }
 
 /* Cart Items Container */
 .cart-items {
-    background: var(--card-bg);
+    background: var(--primary-color);
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(10px);
     margin-bottom: 2rem;
 }
 
@@ -57,7 +45,7 @@ h2 {
 }
 
 .cart-item:hover {
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--primary-light);
 }
 
 /* Product Image */
@@ -71,9 +59,9 @@ h2 {
 
 /* Product Details */
 .product-name p {
-    color: var(--primary-color);
+    color: var(--text-light) !important;
     font-size: 1.1rem;
-    font-weight: 500;
+    font-weight: 600;
     margin: 0;
 }
 
@@ -95,25 +83,27 @@ h2 {
     text-align: center;
     font-size: 1rem;
     margin-right: 0.5rem;
+    background: var(--primary-light);
+    color: var(--text-light);
 }
 
 .update-btn {
-    background: var(--accent-color);
-    color: white;
+    background: var(--success-color);
+    color: var(--primary-color);
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: filter 0.3s ease;
 }
 
 .update-btn:hover {
-    background: var(--accent-hover);
+    filter: brightness(90%);
 }
 
 /* Price Display */
 .product-price p {
-    color: var(--primary-color);
+    color: var(--text-light);
     font-size: 1.2rem;
     font-weight: 600;
     margin: 0;
@@ -122,16 +112,16 @@ h2 {
 /* Delete Button */
 .btn-danger {
     background: transparent;
-    color: #dc3545;
-    border: 1px solid #dc3545;
+    color: var(--error-color);
+    border: 1px solid var(--error-color);
     padding: 0.5rem;
     border-radius: 6px;
     transition: all 0.3s ease;
 }
 
 .btn-danger:hover {
-    background: #dc3545;
-    color: white;
+    background: var(--error-color);
+    color: var(--primary-color);
 }
 
 /* Cart Summary */
@@ -141,76 +131,85 @@ h2 {
 }
 
 .summary-card {
-    background: var(--card-bg);
+    background: var(--primary-color);
     border-radius: 12px;
     padding: 2rem;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
 }
 
 .summary-card h5 {
-    color: var(--primary-color);
+    color: var(--text-light);
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
-    border-bottom: 2px solid var(--gold-accent);
+    border-bottom: 2px solid var(--accent-color);
     padding-bottom: 0.5rem;
 }
 
 .summary-card p {
+    color: var(--text-light);
     font-size: 1.1rem;
     margin-bottom: 1.5rem;
 }
 
 .checkout-btn {
     display: block;
-    background: var(--accent-color);
-    color: white;
+    background: var(--success-color);
+    color: var(--primary-color);
     text-decoration: none;
     padding: 1rem 2rem;
     border-radius: 8px;
     text-align: center;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+    font-weight: 600;
+    transition: filter 0.3s ease;
 }
 
 .checkout-btn:hover {
-    background: var(--accent-hover);
+    filter: brightness(90%);
     transform: translateY(-2px);
 }
 
 /* Empty Cart Alert */
 .alert {
-    background: var(--card-bg);
+    background: var(--primary-light);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.5rem;
     font-size: 1.1rem;
+    color: var(--text-light);
 }
 
 .alert-link {
-    color: var(--accent-color);
+    color: var(--success-color);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .alert-link:hover {
-    color: var(--accent-hover);
+    color: var(--success-color);
     text-decoration: underline;
 }
 
 /* Delete Modal */
 .modal-content {
-    background: var(--card-bg);
+    background: var(--primary-color);
     border-radius: 12px;
-    border: none;
+    border: 1px solid var(--border-color);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
 }
 
 .modal-header {
-    border-bottom: 2px solid var(--gold-accent);
+    border-bottom: 2px solid var(--border-color);
     padding: 1.5rem;
+}
+
+.modal-title {
+    color: var(--text-light) !important;
+    font-weight: 600;
+}
+
+.modal-body {
+    color: var(--text-light);
 }
 
 .modal-footer {
@@ -248,109 +247,98 @@ h2 {
     }
 }
 </style>
-        <!-- Main Content Area -->
-        <div class="content" id="mainContent"> 
-            <div class="container-extended mt-5">
-                <h2 class="mb-4">Your Shopping Cart</h2>
 
-                <% if(cart.items.length===0) { %>
-                    <div class="alert alert-warning" role="alert">
-                        Your cart is empty. <a href="/" class="alert-link">Go shopping!</a>
-                    </div>
-                    <% } else { %>
+<!-- Main Content Area --> 
+<div class="content" id="mainContent">
+    <div class="container-extended mt-5">
+        <h2 class="mb-4">Your Shopping Cart</h2>
 
-                        <div class="cart-items">
-                            <!-- Loop through cart items -->
-                            <% cart.items.forEach(item=> { %>
-                                <div class="cart-item">
-                                    <!-- Product Image -->
-                                    <div class="product-img">
-                                        <a href="/productDetails?id=<%= item.productId._id %>">
-                                            <img src="/uploads/products/<%= item.productId.productImage[0] %>"
-                                            alt="<%= item.productId.productName %>">
-                                        </a>
-                                    </div>
-
-                                    <!-- Product Name -->
-                                    <div class="product-name">
-                                        <p>
-                                            <%= item.productId.productName %>
-                                        </p>
-                                    </div>
-
-                                    <!-- Product Color -->
-                                    <div class="product-color">
-                                        <p>
-                                            <%= item.color %>
-                                        </p>
-                                    </div>
-
-                                    <!-- Product Size -->
-                                    <div class="product-size">
-                                        <p>
-                                            <%= item.size %>
-                                        </p>
-                                    </div>
-
-                                    <!-- Product Quantity -->
-                                    <div class="product-quantity">
-                                        <form action="/profile/cart/update?itemId=<%= item._id %>" method="POST">
-                                            <input type="number" name="quantity" value="<%= item.quantity %>" min="1">
-                                            <button type="submit" class="update-btn">Update</button>
-                                        </form>
-                                    </div>
-
-                                    <!-- Product Subtotal -->
-                                    <div class="product-price">
-                                        <p>₹<%= item.totalPrice.toFixed(2) %>
-                                        </p>
-                                    </div>
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal" onclick="deleteCartItem('<%= item._id %>')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-
-                                </div>
-                                <% }) %>
-                        </div>
-
-                        <!-- Cart Summary (Right Side) -->
-                        <div class="cart-summary">
-                            <div class="summary-card">
-                                <h5>Cart Summary</h5>
-                                <p><strong>Total Amount:</strong> ₹<%= cart.totalAmount.toFixed(2) %>
-                                </p>
-                                <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
-                            </div>
-                        </div>
-
-                        <% } %>
+        <% if(cart.items.length===0) { %>
+            <div class="alert">
+                Your cart is empty. <a href="/" class="alert-link">Go shopping!</a>
             </div>
-        </div>
+        <% } else { %>
+            <div class="cart-items">
+                <% cart.items.forEach(item=> { %>
+                    <div class="cart-item">
+                        <!-- Product Image -->
+                        <div class="product-img">
+                            <a href="/productDetails?id=<%= item.productId._id %>">
+                                <img src="/uploads/products/<%= item.productId.productImage[0] %>"
+                                     alt="<%= item.productId.productName %>">
+                            </a>
+                        </div>
 
+                        <!-- Product Details -->
+                        <div class="product-name">
+                            <p><%= item.productId.productName %></p>
+                        </div>
 
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">  <!-- Added centered class here -->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <!-- Product Options -->
+                        <div class="product-color">
+                            <p><%= item.color %></p>
+                        </div>
+                        <div class="product-size">
+                            <p><%= item.size %></p>
+                        </div>
+
+                        <!-- Quantity Controls -->
+                        <div class="product-quantity">
+                            <form action="/profile/cart/update?itemId=<%= item._id %>" method="POST">
+                                <input type="number" name="quantity" value="<%= item.quantity %>" min="1">
+                                <button type="submit" class="update-btn">Update</button>
+                            </form>
+                        </div>
+
+                        <!-- Pricing -->
+                        <div class="product-price">
+                            <p>₹<%= item.totalPrice.toFixed(2) %></p>
+                        </div>
+
+                        <!-- Delete Button -->
+                        <button type="button" class="btn btn-danger btn-sm" 
+                                data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                onclick="deleteCartItem('<%= item._id %>')">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete this item from your wishlist? This action cannot be undone.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
-                    </div>
+                <% }) %>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary">
+                <div class="summary-card">
+                    <h5>Cart Summary</h5>
+                    <p><strong>Total Amount:</strong> ₹<%= cart.totalAmount.toFixed(2) %></p>
+                    <a href="/checkout" class="checkout-btn">Proceed to Checkout</a>
                 </div>
             </div>
-        </div>
+        <% } %>
+    </div>
+</div>
 
-        <script>
-            function deleteCartItem(itemId) {
-                const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-                confirmDeleteBtn.href = `/profile/cart/delete?itemId=${itemId}`;
-            }
-        </script>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this item from your cart?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteCartItem(itemId) {
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        confirmDeleteBtn.href = `/profile/cart/delete?itemId=${itemId}`;
+    }
+</script>

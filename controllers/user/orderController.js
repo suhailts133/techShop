@@ -5,15 +5,17 @@ const Review = require('../../models/reviewSchema.js')
 const getUserOrders = async (req, res) => {
     try {
         const userId = req.session.user.id;
+        const page = parseInt(req.query.page)  || 1
+        const limit = 4
+        const skip = (page - 1) * limit
+        const totalOrders = await Order.countDocuments({userId})
+        const orders = await Order.find({ userId })
+            .populate('items.productId')
+            .sort({createdAt:-1})
+            .skip(skip)
+            .limit(limit)
 
-
-        const orders = await Order.find({ userId }).populate('items.productId').sort({createdAt:-1});
-
-        if (orders.length === 0) {
-            req.flash("error", "You don't have any orders yet.");
-            return res.redirect("/profile");
-        }
-
+        
         orders.forEach(order => {
             order.items.forEach(item => {
                 const product = item.productId;
@@ -26,10 +28,12 @@ const getUserOrders = async (req, res) => {
                 }
             });
         });
-
+        const totalPages = Math.ceil(totalOrders / limit);
         res.render("userOrders", {
             title: "Your Orders",
             orders,
+            currentPage: page,
+            totalPages
         });
     } catch (error) {
         console.error("Error loading user orders:", error.message);

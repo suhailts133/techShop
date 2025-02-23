@@ -16,7 +16,7 @@
         <hr>
 
         <!-- Add Address Form -->
-        <form id="addAddressForm" method="post" action="/profile/address/add" novalidate>
+        <form id="addAddressForm" method="post" action="/profile/address/add?returnTo=<%= returnTo%>" novalidate>
           <!-- Address Type -->
           <div class="mb-3">
             <label for="addressType" class="form-label">Address Type</label>

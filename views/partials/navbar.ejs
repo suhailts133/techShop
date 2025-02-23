@@ -1,14 +1,14 @@
 
   <style>
-  :root {
-  --primary-color: #0F172A;     /* Midnight Blue */
-  --primary-light: #1E293B;     /* Medium Midnight */
-  --primary-dark: #0A1121;      /* Deep Midnight */
-  --accent-color: #475569;      /* Shadow */
-  --accent-hover: #334155;      /* Dark Shadow */
-  --text-light: #F8FAFC;        /* Light Blue */
-  --text-muted: #94A3B8;        /* Muted Blue */
-  --border-color: #1E293B;      /* Border Midnight */
+:root {
+  --primary-color: #FFFFFF;       /* Pure White */
+  --primary-light: #F4F7F1;      /* Light Matcha */
+  --accent-color: #A3B899;       /* Matcha Green */
+  --text-light: #2C352A;         /* Deep Green */
+  --text-muted: #8C9A86;         /* Muted Green */
+  --border-color: #E5EBE1;       /* Soft Green */
+  --success-color: #779668;      /* Forest Green */
+  --error-color: #B9937A;        /* Warm Brown */
 }
     * {
         margin: 0;
@@ -17,7 +17,7 @@
     }
     
     .navbar {
-        background: linear-gradient(to right, var(--primary-color), var(--primary-light));
+        background: var(--primary-color);
         padding: 0.5rem 2rem;
         border-bottom: 1px solid var(--border-color);
         position: sticky;
@@ -112,31 +112,36 @@
     }
     
     .search-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background-color: var(--primary-dark);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        margin-top: 0.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        display: none;
-    }
-    
-    .search-result-item {
-        display: block;
-        padding: 0.8rem 1rem;
-        color: var(--text-light);
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-    
-    .search-result-item:hover {
-        background-color: var(--primary-light);
-        color: var(--accent-color);
-    }
-    
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--primary-color); /* Changed from primary-dark */
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    display: none;
+}
+
+.search-result-item {
+    display: block;
+    padding: 0.8rem 1rem;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.search-result-item:hover {
+    background-color: var(--primary-light); /* Changed from primary-dark */
+    color: var(--success-color); /* Better contrast */
+}
+
+/* Add this to ensure proper contrast on mobile */
+.mobile-menu .search-results {
+    background-color: var(--primary-color);
+    border-color: var(--border-color);
+}
     .auth-buttons {
         display: flex;
         gap: 1rem;
@@ -265,7 +270,7 @@
 <nav class="navbar">
     <div class="navbar-container">
         <!-- Logo -->
-        <a href="#" class="navbar-brand">TechNest</a>
+        <a href="#" class="navbar-brand">Techlux</a>
 
         <!-- Navigation Links -->
         <div class="nav-links">
