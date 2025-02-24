@@ -48,11 +48,9 @@ app.use(session({
         secure:process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 72 * 60 * 60 * 1000,
-        sameSite: 'lax',
-        domain:process.env.NODE_ENV === "production" ? "www.techlux.shop" : null
     }
 }))
-app.set('trust proxy', 1)
+
 app.use(flash());
 app.use(morgan("tiny"))
 app.use(passport.initialize());
