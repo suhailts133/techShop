@@ -8,7 +8,7 @@
         <!-- Name -->
         <div class="mb-3">
           <label for="name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" name="name" required pattern="^[a-zA-Z]+(\s[a-zA-Z]+)*$">
+          <input type="text" class="form-control" id="name" name="name" required pattern="^[a-zA-Z]+(\s[a-zA-Z]+)*$" value="<%= name %>">
           <div class="invalid-feedback">
           </div>
           <div class="valid-feedback">
@@ -19,7 +19,7 @@
         <!-- Phone -->
         <div class="mb-3">
           <label for="phone" class="form-label">Phone</label>
-          <input type="text" class="form-control" id="phone" name="phone" required pattern="^\d{10}$">
+          <input type="text" class="form-control" id="phone" name="phone" required pattern="^\d{10}$" value="<%= phone %>">
           <div class="invalid-feedback">
             
           </div>

@@ -23,7 +23,13 @@ const loadProfilePage = async (req, res) => {
 
 const loadEditProfilePage = async (req, res) => {
     try {
-        res.render("editProfile", { title: "edit profile" })
+        const findUser = await User.findById(req.session.user.id);
+        
+        res.render("editProfile", {
+             title: "edit profile",
+             name: findUser.name || null,
+             phone: findUser.phone || null
+             })
     } catch (error) {
         console.log("error while loading edit profile page", error.message)
     }
