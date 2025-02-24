@@ -156,14 +156,80 @@
     </div>
 </div>
 
+
 <script>
-    // Keep your existing JavaScript unchanged
     function deleteWishlistItem(itemId) {
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
         confirmDeleteBtn.href = `/profile/wishlist/delete?itemId=${itemId}`;
     }
 
     async function addToCart(productId, variantId, quantity, image) {
-        // ... existing addToCart implementation ...
+        try {
+            const data = {
+                productId: productId,
+                variantId: variantId,
+                quantity: quantity,
+                productImage: image
+            };
+
+            const response = await fetch('/addToCart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            const output = await response.json();
+            const messageEl = document.getElementById('cart-message');
+            const message = output.message || 'An unexpected error occurred.';
+
+            if (output.success) {
+                messageEl.innerHTML = `
+                    <div class="alert alert-success" role="alert">
+                        ${message}
+                    </div>`;
+
+                if (output.redirectTo) {
+                    setTimeout(() => {
+                        window.location.href = output.redirectTo;
+                    }, 2000);
+                }
+            } else {
+                messageEl.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        ${message}
+                    </div>`;
+
+                if (output.redirectTo) {
+                    setTimeout(() => {
+                        window.location.href = output.redirectTo;
+                    }, 2000);
+                }
+            }
+
+            setTimeout(() => {
+                messageEl.innerHTML = '';
+            }, 1000);
+
+        } catch (error) {
+            console.error('Error while adding product from wishlist to cart:', error.message);
+
+            const messageEl = document.getElementById('cart-message');
+            messageEl.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    An error occurred while adding the product to the cart. Please try again later.
+                </div>`;
+
+            setTimeout(() => {
+                messageEl.innerHTML = '';
+            }, 1000);
+        }
     }
 </script>
