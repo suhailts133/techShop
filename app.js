@@ -42,7 +42,7 @@ app.use(flash());
 app.use(session({
     store,
     secret: process.env.SESSION_SECRET,
-    resave: false,
+    resave: process.env.NODE_ENV === "production",
     saveUninitialized: false,
     cookie: {
         secure: false,
