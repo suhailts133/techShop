@@ -38,32 +38,23 @@ app.use(nocache());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"))
-// Session configuration
+app.use(flash());
 app.use(session({
     store,
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,  
+    saveUninitialized: true,
     cookie: {
-        secure: process.env.NODE_ENV === "production",
+        secure:true,
         httpOnly: true,
         maxAge: 72 * 60 * 60 * 1000,
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
-}));
+}))
 
-app.set('trust proxy', 1);
 app.use(flash());
-app.use(morgan("tiny"));
+app.use(morgan("tiny"))
 app.use(passport.initialize());
-app.use(passport.session());
-
-// Add this after your session middleware in app.js
-app.use((req, res, next) => {
-    console.log('Session ID:', req.session.id);
-    console.log('Session User:', req.session.user);
-    next();
-  });
+app.use(passport.session())
 
 // custom middlewares
 app.use((req, res, next) => {
@@ -75,7 +66,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null; 
+    res.locals.user = req.session.user || null; // Add `user` from session
     res.locals.admin = req.session.admin || null
     next();
 });
