@@ -38,13 +38,12 @@ app.use(nocache());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"))
-app.use(flash());
 // Session configuration
 app.use(session({
     store,
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,  
+    saveUninitialized: true,  
     cookie: {
         secure: process.env.NODE_ENV === "production",
         httpOnly: true,
@@ -54,10 +53,7 @@ app.use(session({
 }));
 
 app.set('trust proxy', 1);
-
 app.use(flash());
-
-
 app.use(morgan("tiny"));
 app.use(passport.initialize());
 app.use(passport.session());
