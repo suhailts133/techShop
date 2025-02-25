@@ -45,12 +45,13 @@ app.use(session({
     resave: false,
     saveUninitialized:true,
     cookie: {
-        secure:true,
+        secure:process.env.NODE_ENV === "production" ? true : false,
         httpOnly: true,
         maxAge: 72 * 60 * 60 * 1000,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
 }))
-
+app.set('trust proxy', 1); 
 app.use(flash());
 app.use(morgan("tiny"))
 app.use(passport.initialize());

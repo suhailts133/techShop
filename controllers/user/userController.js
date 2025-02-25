@@ -30,27 +30,23 @@ const loadHomePage = async (req, res) => {
 
         let wishlistItems = [];
         let cartQuantity = 0;
-            if(req.session.user){
-                const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
+        if (req.session.user) {
+            const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
             wishlistItems = userWishlist ? userWishlist.items.map(item => ({
                 productId: item.productId.toString(),
                 variantId: item.variantId.toString()
             })) : [];
-            const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
+            const cartItems = await Cart.findOne({ userId: req.session.user.id }).lean()
             cartQuantity = cartItems?.items?.length || 0
-            }
-
-       
-        
-
+        }
         return res.render("home", {
             user: req.session.user || null,
             title: "Home",
-            products:newArivals,
+            products: newArivals,
             bestSelling,
             wishlistItems,
             cartQuantity
-         
+
         });
     } catch (error) {
         console.error("Error while loading the home page:", error.message);
@@ -187,9 +183,9 @@ const verifyOtp = async (req, res) => {
             if (!signupCoupon) {
                 signupCoupon = new Coupon({
                     name: "Welcome Coupon",
-                    discountValue: 2000, 
-                    minPurchase: 10000, 
-                    validityDuration: 30, 
+                    discountValue: 2000,
+                    minPurchase: 10000,
+                    validityDuration: 30,
                 });
                 await signupCoupon.save();
             }
