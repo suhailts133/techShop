@@ -39,23 +39,28 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"))
 app.use(flash());
+// Session configuration
 app.use(session({
     store,
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized:true,
+    saveUninitialized: false,  
     cookie: {
-        secure:process.env.NODE_ENV === "production" ? true : false,
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
         maxAge: 72 * 60 * 60 * 1000,
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     }
-}))
-app.set('trust proxy', 1); 
+}));
+
+app.set('trust proxy', 1);
+
 app.use(flash());
-app.use(morgan("tiny"))
+
+
+app.use(morgan("tiny"));
 app.use(passport.initialize());
-app.use(passport.session())
+app.use(passport.session());
 
 // custom middlewares
 app.use((req, res, next) => {
@@ -67,7 +72,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null; // Add `user` from session
+    res.locals.user = req.session.user || null; 
     res.locals.admin = req.session.admin || null
     next();
 });
