@@ -27,11 +27,20 @@ const loadCheckOutPage = async (req, res) => {
             req.flash("error", "Your cart is empty");
             return res.redirect("/profile/cart");
         }
+       
+        let cartQuantity = 0;
+            if(req.session.user){
+             
+            const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
+            cartQuantity = cartItems?.items?.length || 0
+            }
+
 
         res.render("checkout", {
             cart,
             user: findUser,
-            title: "Check Out"
+            title: "Check Out",
+            cartQuantity
         });
     } catch (error) {
         console.log("Error while loading checkout page", error.message);
@@ -272,8 +281,13 @@ const orderConfirmed = async (req, res) => {
         const id = req.session.orderId
         console.log("orderid for confirmation",id)
         const order = await Order.findById(id).populate("userId").populate("items.productId").populate("shippingAddress");
-        // console.log(order);
-        res.render("orderConfirmed", {title:"Order Placed", order})
+        let cartQuantity = 0;
+        if(req.session.user){
+         
+        const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
+        cartQuantity = cartItems?.items?.length || 0
+        }
+        res.render("orderConfirmed", {title:"Order Placed", order, cartQuantity})
     } catch (error) {
         console.log("error while loading order confirmed page");
 

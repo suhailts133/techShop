@@ -1,88 +1,118 @@
 <% layout("../layouts/adminboilerplate") %>
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --primary-light: #34495e;
-            --primary-dark: #243444;
-            --accent-color: #e74c3c;
-            --accent-hover: #c0392b;
-            --text-light: #ecf0f1;
-            --text-muted: #bdc3c7;
-            --border-color: #405d7d;
-        }
-
-      
-
-        .container {
-          
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        h2 {
-            color: var(--primary-color);
-        }
-
-        .form-control {
-            color: var(--primary-color);
-            border-color: var(--border-color);
-        }
-
-        .form-control::placeholder {
-            color: var(--text-muted);
-        }
-
-        .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-
-        .table {
-            background-color: var(--primary-light);
-            color: var(--text-light);
-        }
-
-        .table-light th {
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-        }
-
-        .table-hover tbody tr:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .badge.bg-danger {
-            background-color: var(--accent-color);
-        }
-
-        .badge.bg-success {
-            background-color: #28a745;
-        }
-
-        .pagination .page-link {
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-            border-color: var(--border-color);
-        }
-
-        .pagination .page-item.active .page-link {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .pagination .page-link:hover {
-            background-color: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-    </style>
+<style>
 
 
+    .container {
+        background: var(--primary-light);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+
+    h2 {
+        color: var(--text-light);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-muted);
+    }
+
+    .btn-primary {
+        background: var(--success-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        filter: brightness(90%);
+    }
+
+    .table {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table th {
+        background: var(--primary-light);
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .table td {
+        color: var(--text-light);
+    }
+
+    .table-hover tbody tr:hover {
+        background: var(--primary-light);
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+    }
+
+    .badge.bg-danger {
+        background: var(--error-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .badge.bg-success {
+        background: var(--success-color) !important;
+        color: var(--primary-color) !important;
+    }
+
+    .btn-danger {
+        background: var(--error-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        filter: brightness(90%);
+    }
+
+    .btn-success {
+        background: var(--success-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
+
+    .btn-success:hover {
+        filter: brightness(90%);
+    }
+
+    .pagination .page-link {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: var(--primary-color);
+    }
+
+    .pagination .page-link:hover {
+        background: var(--primary-light);
+    }
+</style>
+
+<main class="main-content">
     <div class="container mt-4">
         <div class="row">
             <div class="col-12">
@@ -90,27 +120,27 @@
             </div>
         </div>
 
+        <!-- Search Form -->
         <div class="row mt-3">
             <div class="col-12">
                 <form action="/admin/users/" method="get">
                     <div class="input-group position-relative">
                         <input type="text" name="search" class="form-control" placeholder="Search customers..."
                             value="<%= search || '' %>" id="searchInput" />
-
-                        <a href="/admin/users/" class="text-decoration-none" style="cursor: pointer; color: #aaa;">
+                        <a href="/admin/users/" class="text-decoration-none" style="cursor: pointer; color: var(--text-muted);">
                             <span class="reset-icon">&#10005;</span>
                         </a>
-
                         <button type="submit" class="btn btn-primary ms-2">Search</button>
                     </div>
                 </form>
             </div>
         </div>
 
+        <!-- Customers Table -->
         <div class="row mt-4">
             <div class="col-12">
                 <table class="table table-bordered table-hover">
-                    <thead class="table-light">
+                    <thead>
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
@@ -139,15 +169,11 @@
                                     </td>
                                     <td>
                                         <% if (userData[i].isBlocked === false) { %>
-                                            <button class="btn btn-small btn-danger">
-                                                <a href="/admin/users/blockCustomer?id=<%= userData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                    class="text-decoration-none text-light">Block</a>
-                                            </button>
+                                            <a href="/admin/users/blockCustomer?id=<%= userData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
+                                                class="btn btn-danger btn-sm">Block</a>
                                         <% } else { %>
-                                            <button class="btn btn-small btn-success">
-                                                <a href="/admin/users/unBlockCustomer?id=<%= userData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                    class="text-decoration-none text-light">Unblock</a>
-                                            </button>
+                                            <a href="/admin/users/unBlockCustomer?id=<%= userData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
+                                                class="btn btn-success btn-sm">Unblock</a>
                                         <% } %>
                                     </td>
                                 </tr>
@@ -158,7 +184,7 @@
             </div>
         </div>
 
-        <!-- Bootstrap Pagination -->
+        <!-- Pagination -->
         <div class="row mt-3">
             <div class="col-12 d-flex justify-content-center">
                 <nav>
@@ -171,7 +197,7 @@
                             </li>
                         <% } %>
 
-                        <% for (let i = 1; i <= totalPages; i++) { %> 
+                        <% for (let i = 1; i <= totalPages; i++) { %>
                             <li class="page-item <%= page === i ? 'active' : '' %>">
                                 <a class="page-link" href="/admin/users/?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
                             </li>
@@ -189,3 +215,4 @@
             </div>
         </div>
     </div>
+</main>

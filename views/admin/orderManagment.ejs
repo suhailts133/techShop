@@ -1,172 +1,196 @@
 <%- layout("../layouts/adminboilerplate") %>
 <title><%= title %></title>
 <style>
-  :root {
-    --primary-color: #2c3e50;
-    --primary-light: #34495e;
-    --primary-dark: #243444;
-    --accent-color: #e74c3c;
-    --accent-hover: #c0392b;
-    --text-light: #ecf0f1;
-    --text-muted: #bdc3c7;
-    --border-color: #405d7d;
-}
+    /* Container */
+    .container {
+        background: var(--primary-light);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
 
-/* Container */
-.container {
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 20px;
-}
+    /* Headings */
+    h2 {
+        color: var(--text-light);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
 
-/* Headings */
-h2 {
-    color: var(--primary-color);
-}
+    /* Table Styling */
+    .table {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+    }
 
-/* Form Styling */
-.form-control {
-    color: var(--primary-color);
-    border-color: var(--border-color);
-}
+    .table th {
+        background: var(--primary-light);
+        color: var(--text-light);
+        font-weight: 600;
+        padding: 1rem;
+    }
 
-.form-control::placeholder {
-    color: var(--text-muted);
-}
+    .table td {
+        color: var(--text-light);
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
 
-/* Buttons */
-.btn-primary {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-}
+    .table-hover tbody tr:hover {
+        background: var(--primary-light);
+    }
 
-.btn-primary:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
+    /* Badge Styling */
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: inline-block;
+    }
 
-/* Table Styling */
-.table {
-    background-color: var(--primary-light);
-    color: var(--text-light);
-}
+    .badge.bg-warning {
+        background: var(--accent-color);
+        color: var(--primary-color);
+    }
 
-.table th {
-    background-color: var(--primary-dark);
-    color: var(--text-light);
-}
+    .badge.bg-info {
+        background: var(--success-color);
+        color: var(--primary-color);
+    }
 
-.table-hover tbody tr:hover {
-    background-color: var(--primary-dark);
-}
+    .badge.bg-success {
+        background: var(--success-color);
+        color: var(--primary-color);
+    }
 
-/* Badge Styling */
-.badge.bg-danger {
-    background-color: var(--accent-color);
-}
+    /* Buttons */
+    .btn-info {
+        background: var(--accent-color);
+        border: none;
+        color: var(--primary-color);
+        transition: filter 0.3s ease;
+    }
 
-.badge.bg-success {
-    background-color: #28a745;
-}
+    .btn-info:hover {
+        filter: brightness(90%);
+    }
 
-.badge.bg-warning {
-    background-color: #f1c40f;
-    color: #212529;
-}
+    /* Pagination */
+    .pagination .page-link {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
 
-.badge.bg-info {
-    background-color: #3498db;
-}
+    .pagination .page-item.active .page-link {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: var(--primary-color);
+    }
 
-/* Pagination */
-.pagination .page-link {
-    background-color: var(--primary-dark);
-    color: var(--text-light);
-    border-color: var(--border-color);
-}
-
-.pagination .page-item.active .page-link {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
-.pagination .page-link:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
-
+    .pagination .page-link:hover {
+        background: var(--primary-light);
+    }
 </style>
-<div class="container mt-5">
-  <h2 class="mb-4">Manage Orders</h2>
-  <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th>Order ID</th>
-        <th>User</th>
-        <th>Total Amount</th>
-        <th>Shipping Address</th>
-        <th>Status</th>
-        <th>Request Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% orders.forEach(order => { %>
-        <tr>
-          <td><%= order.orderId %></td>
-          <td><%= order.userId.name %></td>
-          <td>₹<%= order.totalAmount.toFixed(2) %></td>
-          <td><%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></td>
-          <td><%= order.orderStatus %></td>
-          <td>
-            <% 
-              const hasCancellationRequest = order.items.some(item => item.orderStatus === "Cancellation Requested");
-              const hasReturnRequest = order.items.some(item => item.orderStatus === "Return Requested");
-            %>
-             <% if (hasCancellationRequest) { %>
-              <span class="badge bg-warning text-dark">Cancellation Requested</span>
-            <% } else if (hasReturnRequest) { %>
-              <span class="badge bg-info">Return Requested</span>
-            <% } else { %>
-              <span class="badge bg-success">All Good</span>
-            <% } %>
-          </td>
-          <td>
-            <a href="/admin/orders/view?id=<%= order._id %>" class="btn btn-info btn-sm">View</a>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
 
-  <!-- Pagination Section -->
-  <div class="row mt-3">
-    <div class="col-12 d-flex justify-content-center">
-      <nav>
-        <ul class="pagination">
-          <% if (page > 1) { %>
-            <li class="page-item">
-              <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= page - 1 %>" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-          <% } %>
+<main class="main-content">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-center">Manage Orders</h2>
+            </div>
+        </div>
 
-          <% for (let i = 1; i <= totalPages; i++) { %>
-            <li class="page-item <%= page === i ? 'active' : '' %>">
-              <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
-            </li>
-          <% } %>
+        <!-- Orders Table -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>User</th>
+                            <th>Total Amount</th>
+                            <th>Shipping Address</th>
+                            <th>Status</th>
+                            <th>Request Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders.length === 0) { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No orders found</td>
+                            </tr>
+                        <% } else { %>
+                            <% orders.forEach(order => { %>
+                                <tr>
+                                    <td><%= order.orderId %></td>
+                                    <td><%= order.userId.name %></td>
+                                    <td>₹<%= order.totalAmount.toFixed(2) %></td>
+                                    <td>
+                                        <%= order.shippingAddress.houseAddress %>, 
+                                        <%= order.shippingAddress.pincode %>
+                                    </td>
+                                    <td>
+                                        <span class="badge <%= order.orderStatus === 'Delivered' ? 'bg-success' : 'bg-warning' %>">
+                                            <%= order.orderStatus %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <% 
+                                            const hasCancellationRequest = order.items.some(item => item.orderStatus === "Cancellation Requested");
+                                            const hasReturnRequest = order.items.some(item => item.orderStatus === "Return Requested");
+                                        %>
+                                        <% if (hasCancellationRequest) { %>
+                                            <span class="badge bg-warning">Cancellation Requested</span>
+                                        <% } else if (hasReturnRequest) { %>
+                                            <span class="badge bg-info">Return Requested</span>
+                                        <% } else { %>
+                                            <span class="badge bg-success">All Good</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/orders/view?id=<%= order._id %>" class="btn btn-info btn-sm">View</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-          <% if (page < totalPages) { %>
-            <li class="page-item">
-              <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= page + 1 %>" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          <% } %>
-        </ul>
-      </nav>
+        <!-- Pagination -->
+        <div class="row mt-3">
+            <div class="col-12 d-flex justify-content-center">
+                <nav>
+                    <ul class="pagination">
+                        <% if (page > 1) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= page - 1 %>" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        <% } %>
+
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <li class="page-item <%= page === i ? 'active' : '' %>">
+                                <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+
+                        <% if (page < totalPages) { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/admin/orders?search=<%= search || '' %>&page=<%= page + 1 %>" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+</main>

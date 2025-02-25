@@ -1,149 +1,259 @@
- <!-- Sidebar -->
-
- <style>
-    /* Sidebar Styles */
-    :root {
-        --primary-color: #2c3e50;
-        --primary-light: #34495e;
-        --primary-dark: #243444;
-        --accent-color: #e74c3c;
-        --accent-hover: #c0392b;
-        --text-light: #ecf0f1;
-        --text-muted: #bdc3c7;
-        --border-color: #405d7d;
+<style>
+:root {
+    --primary-color: #FFFFFF;
+    --primary-light: #F4F6F9;
+    --accent-color: #2C3139;
+    --text-light: #1A1E22;
+    --text-muted: #525761;
+    --border-color: #E3E6E9;
+    --success-color: #3B424D;
+    --error-color: #5D758B;
+}
+    body {
+        background: var(--primary-light);
+        font-family: 'Inter', sans-serif;
+        padding-top: 70px; /* Add padding for fixed navbar */
     }
-.sidebar {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    width: 250px;
-    height: 100vh;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-}
 
-.sidebar h4 {
-    color: var(--text-light);
-    margin-bottom: 20px;
-}
+    /* Fixed Top Navbar */
+    .admin-navbar {
+        background-color: var(--primary-color);
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 70px;
+        z-index: 1030;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+    }
 
-.sidebar .nav {
-    margin-top: 20px;
-}
+    .navbar-brand {
+        color: var(--text-light);
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
 
-.sidebar .nav-link {
-    color: var(--text-light);
-    padding: 10px 15px;
-    margin: 5px 0;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
+    .toggle-sidebar {
+        background: none;
+        border: none;
+        color: var(--text-light);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        margin-right: 1rem;
+        display: none;
+    }
 
-.sidebar .nav-link:hover {
-    background-color: var(--primary-light);
-    color: var(--text-light);
-}
+    .btn-logout {
+        background-color: var(--accent-color);
+        color: white;
+        text-decoration: none;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
 
-.sidebar .nav-link.active {
-    background-color: var(--accent-color);
-    color: var(--text-light);
-}
+    .btn-logout:hover {
+        background-color: var(--text-muted);
+    }
 
-/* Navbar Styles */
-.navbar {
-    background-color: var(--primary-light);
-    color: var(--text-light);
-    padding: 10px 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+    /* Sidebar */
+    .admin-sidebar {
+        background-color: var(--primary-color);
+        width: 280px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 70px; /* Start below navbar */
+        padding: 1rem;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        z-index: 1020;
+        overflow-y: auto;
+    }
 
-.navbar-brand {
-    color: var(--text-light);
-    font-weight: bold;
-}
+    .sidebar-logo {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1rem;
+    }
 
-.navbar .btn-danger {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-}
+    .nav-pills .nav-link {
+        color: var(--text-light);
+        padding: 0.8rem 1rem;
+        margin: 0.2rem 0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
 
-.navbar .btn-danger:hover {
-    background-color: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
+    .nav-pills .nav-link:hover {
+        background-color: var(--primary-light);
+        transform: translateX(5px);
+    }
 
- </style>
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-color);
+        color: var(--primary-color);
+    }
 
+    .nav-pills .nav-link i {
+        width: 20px;
+        text-align: center;
+    }
 
+    /* Main Content Area */
+    .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        min-height: calc(100vh - 70px);
+        transition: all 0.3s ease;
+    }
 
-<div class="sidebar">
-    <div class="text-center mb-4">
-        <h4 class="text-light">TechNest</h4>
-    </div>
-    <nav>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/best-selling">Top Items</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/ledger-book">Ledger Book</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/users">Customers</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/categories">Category</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/brands">Brands</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/products">Products</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/coupon">Coupon</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/wallet">Wallet</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/orders">Orders</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/logout">LogOut</a>
-            </li>
-        </ul>
-    </nav>
-</div>
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .toggle-sidebar {
+            display: block;
+        }
 
-<!-- Main Content -->
-<div class="content">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <% if(admin) {%>
-                <span class="navbar-brand"><%= admin.name %></span>
-                <% } else {%>
-                <span class="navbar-brand">noraml name</span>
-                    <% } %>
-            <div class="ms-auto">
-                <a href="/admin/logout" class="btn btn-small btn-danger">Logout</a>
-            </div>
+        .admin-sidebar {
+            left: -280px;
+        }
+
+        .admin-sidebar.mobile-show {
+            left: 0;
+        }
+
+        .main-content {
+            margin-left: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1010;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+    }
+</style>
+
+   <nav class="admin-navbar">
+        <button class="toggle-sidebar" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <a href="#" class="navbar-brand">Techlux</a>
+        <div class="ms-auto">
+            <a href="/admin/logout" class="btn-logout">
+                <i class="fas fa-sign-out-alt me-2"></i>
+                Logout
+            </a>
         </div>
     </nav>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-        const navLinks = document.querySelectorAll('.sidebar .nav-link');
-        const currentUrl = window.location.pathname;
-    
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === currentUrl) {
-                link.classList.add('active');
-            }
-        });
+    <!-- Sidebar -->
+    <div class="admin-sidebar" id="adminSidebar">
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="/admin/dashboard">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/best-selling">
+                    <i class="fas fa-chart-line"></i>
+                    Top Items
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/ledger-book">
+                    <i class="fas fa-book"></i>
+                    Ledger Book
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/users">
+                    <i class="fas fa-users"></i>
+                    Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/categories">
+                    <i class="fas fa-th-large"></i>
+                    Category
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/brands">
+                    <i class="fas fa-tag"></i>
+                    Brands
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/products">
+                    <i class="fas fa-box"></i>
+                    Products
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/coupon">
+                    <i class="fas fa-ticket-alt"></i>
+                    Coupon
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/wallet">
+                    <i class="fas fa-wallet"></i>
+                    Wallet
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/orders">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
+
+<script>
+    document.getElementById('toggleSidebar').addEventListener('click', function() {
+        document.getElementById('adminSidebar').classList.toggle('mobile-show');
+        document.getElementById('overlay').classList.toggle('show');
     });
-    </script>
+
+    document.getElementById('overlay').addEventListener('click', function() {
+        document.getElementById('adminSidebar').classList.remove('mobile-show');
+        document.getElementById('overlay').classList.remove('show');
+    });
+
+    // Handle active state of nav items
+    const navLinks = document.querySelectorAll('.nav-link');
+    const currentPath = window.location.pathname;
+
+    navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+</script>

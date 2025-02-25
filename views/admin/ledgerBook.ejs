@@ -1,183 +1,167 @@
 <% layout("../layouts/adminboilerplate") %>
-<title>
-    <%= title %>
-</title>
+<title><%= title %></title>
 
-    <style>
-      
-        :root {
-        --primary-color: #2c3e50;
-        --text-color: #333;
-        --accent-color: #e74c3c;
-        
-        --border-color: #405d7d;
+<style>
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: var(--primary-light);
+        color: var(--text-light);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
     }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #f8f9fa;
-            color: var(--text-color);
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-        }
 
-        .ledger-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+    .ledger-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: var(--primary-color);
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(163, 184, 153, 0.1);
+        overflow: hidden;
+    }
 
-        .ledger-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .ledger-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        padding: 24px;
+        background: var(--primary-color);
+    }
 
-        .ledger-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0;
-        }
+    .summary-card {
+        background: var(--primary-light);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s;
+    }
 
+    .summary-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .summary-card h3 {
+        margin: 0 0 12px 0;
+        color: var(--text-muted);
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-card p {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-light);
+    }
+
+    .ledger-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 20px 0;
+    }
+
+    .ledger-table th {
+        background: var(--primary-light);
+        color: var(--text-light);
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 14px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .ledger-table td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
+
+    .ledger-table tr:hover {
+        background: var(--primary-light);
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .status-Purchase {
+        background: var(--success-color);
+        color: var(--primary-color);
+    }
+
+    .status-Refund {
+        background: var(--error-color);
+        color: var(--primary-color);
+    }
+
+    .status-Cancelled {
+        background: var(--text-muted);
+        color: var(--primary-color);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 24px;
+        gap: 8px;
+    }
+
+    .pagination a {
+        padding: 8px 16px;
+        border: 1px solid var(--border-color);
+        background: var(--primary-color);
+        color: var(--text-light);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .pagination a:hover {
+        background: var(--accent-color);
+        color: var(--primary-color);
+        border-color: var(--accent-color);
+    }
+
+    .pagination .active {
+        background: var(--accent-color);
+        color: var(--primary-color);
+        border-color: var(--accent-color);
+    }
+
+    .pagination .disabled {
+        background: var(--primary-light);
+        color: var(--text-muted);
+        cursor: not-allowed;
+        border-color: var(--border-color);
+    }
+
+    @media (max-width: 768px) {
         .ledger-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            background: linear-gradient(45deg, #f8f9fa, #ffffff);
-        }
-
-        .summary-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .summary-card h3 {
-            margin: 0 0 10px 0;
-            color: var(--primary-color);
-            font-size: 16px;
-        }
-
-        .summary-card p {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--accent-color);
+            grid-template-columns: 1fr;
+            padding: 16px;
         }
 
         .ledger-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .ledger-table th {
-            background: var(--primary-color);
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: 500;
-        }
-
-        .ledger-table td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .ledger-table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-Purchase {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .status-Refund {
-            background: #fbe9e7;
-            color: #d84315;
-        }
-
-        .status-Cancelled {
-            background: #efebe9;
-            color: #5d4037;
+            display: block;
+            overflow-x: auto;
         }
 
         .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            gap: 10px;
+            flex-wrap: wrap;
         }
+    }
+</style>
 
-        .pagination a {
-            padding: 8px 16px;
-            border: none;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-            text-decoration: none;
-        }
-
-        .pagination a:hover {
-            background: var(--accent-color);
-        }
-
-        .pagination span {
-            padding: 8px 16px;
-            background: white;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .pagination .active {
-            background: var(--accent-color);
-        }
-
-        .pagination .disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 768px) {
-            .ledger-header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .ledger-table {
-                display: block;
-                overflow-x: auto;
-            }
-
-            .summary-card {
-                text-align: center;
-            }
-        }
-    </style>
-
+<main class="main-content">
     <div class="ledger-container">
-      
-
         <div class="ledger-summary">
             <div class="summary-card">
                 <h3>Total Transactions</h3>
@@ -192,7 +176,7 @@
                 <p>₹<%= pendingAmount %></p>
             </div>
             <div class="summary-card">
-                <h3>Return and Cancelled Amont</h3>
+                <h3>Return and Cancelled Amount</h3>
                 <p>₹<%= returnRefundAmount %></p>
             </div>
         </div>
@@ -252,4 +236,4 @@
             <% } %>
         </div>
     </div>
-
+</main>

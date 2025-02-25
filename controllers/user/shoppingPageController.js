@@ -2,6 +2,7 @@ const Category = require("../../models/categorySchema.js");
 const Product = require("../../models/productSchema.js");
 const Brand = require("../../models/brandSchema.js");
 const Wishlist = require("../../models/wishlishSchema.js");
+const Cart = require("../../models/cartSchema.js")
 
 const loadShoppingPage = async (req, res) => {
     try {
@@ -67,12 +68,15 @@ const loadShoppingPage = async (req, res) => {
         const totalPages = Math.ceil(totalCount / limit);
 
         let wishlistItems = [];
+        let cartQuantity = 0;
         if (req.session.user) {
             const userWishlist = await Wishlist.findOne({ userId: req.session.user.id }).lean();
             wishlistItems = userWishlist?.items.map(item => ({
                 productId: item.productId.toString(),
                 variantId: item.variantId.toString()
             })) || [];
+            const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
+            cartQuantity = cartItems?.items?.length || 0
         }
 
         res.render("shop", {
@@ -85,7 +89,8 @@ const loadShoppingPage = async (req, res) => {
             brands,
             selectedCategory: category,
             selectedBrand: brand,
-            selectedSort: sort
+            selectedSort: sort,
+            cartQuantity
         });
 
     } catch (error) {

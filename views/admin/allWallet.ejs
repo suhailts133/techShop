@@ -1,134 +1,136 @@
 <% layout("../layouts/adminboilerplate") %>
-    <title>
-        <%= title %>
-    </title>
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --primary-light: #34495e;
-            --primary-dark: #243444;
-            --accent-color: #e74c3c;
-            --accent-hover: #c0392b;
-            --text-light: #ecf0f1;
-            --text-muted: #bdc3c7;
-            --border-color: #405d7d;
-        }
-    
-      
-    
-        .container {
-          
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-    
-        h2 {
-            color: var(--primary-color);
-        }
-    
-        .form-control {
-            color: var(--primary-color);
-            border-color: var(--border-color);
-        }
-    
-        .form-control::placeholder {
-            color: var(--text-muted);
-        }
-    
-        .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-    
-        .btn-primary:hover {
-            background-color: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-    
-        .table {
-            background-color: var(--primary-light);
-            color: var(--text-light);
-        }
-    
-        .table-light th {
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-        }
-    
-        .table-hover tbody tr:hover {
-            background-color: var(--primary-dark);
-        }
-    
-        .badge.bg-danger {
-            background-color: var(--accent-color);
-        }
-    
-        .badge.bg-success {
-            background-color: #28a745;
-        }
-    
-        .pagination .page-link {
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-            border-color: var(--border-color);
-        }
-    
-        .pagination .page-item.active .page-link {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-    
-        .pagination .page-link:hover {
-            background-color: var(--accent-hover);
-            border-color: var(--accent-hover);
-        }
-    </style>
+<title><%= title %></title>
+<style>
+    .container {
+        background: var(--primary-light);
+        padding: 2rem;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+
+    h2 {
+        color: var(--text-light);
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .table {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .table th {
+        background: var(--primary-light);
+        color: var(--text-light);
+        font-weight: 600;
+        padding: 1rem;
+    }
+
+    .table td {
+        color: var(--text-light);
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+
+    .table-hover tbody tr:hover {
+        background: var(--primary-light);
+    }
+
+    .pagination .page-link {
+        background: var(--primary-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-light);
+    }
+
+    .pagination .page-item.active .page-link {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: var(--primary-color);
+    }
+
+    .pagination .page-link:hover {
+        background: var(--primary-light);
+    }
+
+    .text-bold {
+        font-weight: 500;
+        color: var(--accent-color);
+    }
+
+    .badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .badge.credit {
+        background: var(--success-color);
+        color: var(--primary-color);
+    }
+
+    .badge.debit {
+        background: var(--error-color);
+        color: var(--primary-color);
+    }
+</style>
+
+<main class="main-content">
     <div class="container mt-4">
         <div class="row">
             <div class="col-12">
-                <h2 class="text-center">Wallet Transaction</h2>
+                <h2 class="text-center">Wallet Transactions</h2>
             </div>
         </div>
-
-
 
         <div class="row mt-4">
             <div class="col-12">
                 <table class="table table-bordered table-hover">
-                    <thead class="table-light">
+                    <thead>
                         <tr>
                             <th>Transaction ID</th>
-                            <th>Transaction Date</th>
+                            <th>Date</th>
                             <th>User Name</th>
                             <th>Amount</th>
                             <th>Type</th>
-                            <th>Action</th>
+                            <th>Purpose</th>
                         </tr>
                     </thead>
                     <tbody>
-                       <% if (wallet.length === 0) {%>
-                        <tr>
-                            <td colspan="6">No Transaction Yet</td>
-                        </tr>
-                        <% } else {%>
-                            <% wallet.forEach(w=> { %>
+                        <% if (wallet.length === 0) { %>
+                            <tr>
+                                <td colspan="6" class="text-center">No Transactions Found</td>
+                            </tr>
+                        <% } else { %>
+                            <% wallet.forEach(w => { %>
                                 <tr>
-                                    <td><a href="/admin/wallet/walletDetails?transactionId=<%= w.transactionId%>" class="text-decoration-none text-bold"><%= w.transactionId%></a></td>
+                                    <td>
+                                        <a href="/admin/wallet/walletDetails?transactionId=<%= w.transactionId %>" 
+                                           class="text-bold text-decoration-none">
+                                            <%= w.transactionId %>
+                                        </a>
+                                    </td>
                                     <td><%= w.createdAt.toLocaleDateString() %></td>
-                                    <td><%= w.userId.name%></td>
-                                    <td><%= w.amount%></td>
-                                    <td><%= w.action%></td>
-                                    <td><%= w.purpose%></td>
+                                    <td><%= w.userId.name %></td>
+                                    <td>₹<%= w.amount %></td>
+                                    <td>
+                                        <span class="badge <%= w.action.toLowerCase() === 'credit' ? 'credit' : 'debit' %>">
+                                            <%= w.action %>
+                                        </span>
+                                    </td>
+                                    <td><%= w.purpose %></td>
                                 </tr>
-                                <% }) %>
-                            <% } %>
+                            <% }) %>
+                        <% } %>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Bootstrap Pagination -->
+        <!-- Pagination -->
         <div class="row mt-3">
             <div class="col-12 d-flex justify-content-center">
                 <nav>
@@ -140,13 +142,13 @@
                                 </a>
                             </li>
                         <% } %>
-    
-                        <% for (let i = 1; i <= totalPages; i++) { %> 
+
+                        <% for (let i = 1; i <= totalPages; i++) { %>
                             <li class="page-item <%= page === i ? 'active' : '' %>">
                                 <a class="page-link" href="/admin/wallet/?page=<%= i %>"><%= i %></a>
                             </li>
                         <% } %>
-    
+
                         <% if (page < totalPages) { %>
                             <li class="page-item">
                                 <a class="page-link" href="/admin/wallet/?page=<%= page + 1 %>" aria-label="Next">
@@ -158,5 +160,5 @@
                 </nav>
             </div>
         </div>
-
     </div>
+</main>

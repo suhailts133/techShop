@@ -1,21 +1,40 @@
 
   <style>
 :root {
-  --primary-color: #FFFFFF;       /* Pure White */
-  --primary-light: #F4F7F1;      /* Light Matcha */
-  --accent-color: #A3B899;       /* Matcha Green */
-  --text-light: #2C352A;         /* Deep Green */
-  --text-muted: #8C9A86;         /* Muted Green */
-  --border-color: #E5EBE1;       /* Soft Green */
-  --success-color: #779668;      /* Forest Green */
-  --error-color: #B9937A;        /* Warm Brown */
+    --primary-color: #FFFFFF;
+    --primary-light: #F4F6F7;
+    --accent-color: #97A3B8;
+    --text-light: #2A2E35;
+    --text-muted: #899399;
+    --border-color: #E3E7ED;
+    --success-color: #7A8999;
+    --error-color: #B8979D;
 }
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
     }
-    
+    .cart-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -2px;
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    line-height: 1;
+    min-width: 18px;
+    text-align: center;
+}
     .navbar {
         background: var(--primary-color);
         padding: 0.5rem 2rem;
@@ -225,7 +244,15 @@
         .navbar-container {
             height: 60px;
         }
+        .mobile-menu .cart-icon {
+        padding: 1rem;
+        justify-content: center;
+    }
     
+    .mobile-menu .cart-count {
+        right: 8px;
+        top: 8px;
+    }
         .mobile-menu .auth-buttons {
             display: flex;
             flex-direction: column;
@@ -299,12 +326,13 @@
             </form>
             <div id="searchResults" class="search-results"></div>
         </div>
-
-        <!-- Auth Buttons -->
         <div class="auth-buttons">
             <% if (user) { %>
                 <a href="/profile/" class="nav-link"><%= user.name %></a>
-               
+                <a href="/profile/cart" class="nav-link cart-icon">
+                    <i class="bi bi-cart"></i>
+                    <span class="cart-count"><%= cartQuantity %></span>
+                </a>
                 <a href="/logout" class="btn btn-login">Logout</a>
             <% } else { %>
                 <a href="/signup" class="btn btn-signup">Sign Up</a>
@@ -351,6 +379,10 @@
         <div class="auth-buttons">
             <% if (user) { %>
                 <a href="/profile/" class="nav-link"><%= user.name %></a>
+                <a href="/profile/cart" class="nav-link cart-icon">
+                    <i class="bi bi-cart"></i>
+                    <span class="cart-count"><%= cartQuantity %></span>
+                </a>
                 <a href="/logout" class="btn btn-login">Logout</a>
             <% } else { %>
                 <a href="/signup" class="btn btn-signup">Sign Up</a>
