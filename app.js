@@ -45,7 +45,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        secure:true,
+        secure:false,
         httpOnly: true,
         maxAge: 72 * 60 * 60 * 1000,
     }
@@ -66,7 +66,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null; // Add `user` from session
+    res.locals.user = req.session.user || null; 
     res.locals.admin = req.session.admin || null
     next();
 });
