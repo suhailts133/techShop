@@ -3,6 +3,40 @@
     <%= title %>
   </title>
 
+  <style>
+    .form-control, .form-select {
+   padding: 10px 15px;
+   border-radius: 5px;
+   border-color: var(--border-color);
+   color: var(--text-light);
+ }
+ 
+ .form-control:focus, .form-select:focus {
+   box-shadow: 0 0 0 0.2rem rgba(44, 49, 57, 0.25);
+   border-color: var(--accent-color);
+ }
+ 
+ .form-label {
+   color: var(--text-light);
+   font-weight: 500;
+ }
+ 
+ .btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--text-light);
+    border-color: var(--text-light);
+  }
+ .text-center a{
+    color: var(--text-muted);
+ }
+</style>
+  
+
+<main class="main-content">
   <div class="container mt-5">
     <h1 class="text-center">Add New Coupon</h1>
     <form action="/admin/coupon/add" method="POST" class="mt-4" novalidate>
@@ -72,5 +106,6 @@
     </form>
   </div>
 
+</main>
 
 <script src="/js/addCoupon.js"></script>

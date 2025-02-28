@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
+
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
     .alert {
@@ -115,8 +113,9 @@
       animation: slideOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
   </style>
-</head>
-<body>
+
+
+   
   <% if (success) { %>
     <div class="alert alert-success" role="alert">
       <span class="alert-icon">
@@ -143,6 +142,8 @@
     </div>
   <% } %>
 
+
+
   <script>
     function dismissAlert(element) {
       element.classList.add('fade-out');
@@ -157,5 +158,3 @@
       }, 3000);
     });
   </script>
-</body>
-</html>

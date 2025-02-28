@@ -1,238 +1,556 @@
 <% layout("../layouts/profileboilerPlate") %>
 
 <style>
+  .order-details-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-light);
+    font-weight: 700;
+  }
+  
+  .product-card {
+    background: var(--primary-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .product-header {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .product-image {
+    width: 180px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--primary-light);
+  }
+  
+  .product-info {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .product-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-light);
+  }
+  
+  .product-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+  }
+  
+  .meta-label {
+    font-weight: 500;
+    color: var(--text-light);
+  }
+  
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  .status-delivered {
+    background-color: var(--success-color);
+    color: var(--primary-color);
+  }
+  
+  .status-pending {
+    background-color: var(--error-color);
+    color: var(--primary-color);
+  }
+  
+  .status-processing {
+    background-color: var(--accent-color);
+    color: var(--primary-color);
+  }
+  
+  .price-breakdown {
+    background: var(--primary-light);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin: 0 1.5rem 1.5rem;
+  }
+  
+  .price-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text-light);
+  }
+  
+  .price-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem 1.5rem;
+  }
+  
+  .price-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+  }
+  
+  .price-label {
+    color: var(--text-muted);
+  }
+  
+  .price-value {
+    font-weight: 500;
+    color: var(--text-light);
+  }
+  
+  .price-final {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .coupon-note {
+    margin: 1rem 1.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(var(--error-color-rgb), 0.1);
+    border-left: 3px solid var(--error-color);
+    border-radius: 4px;
+    color: var(--error-color);
+    font-size: 0.9rem;
+  }
+  
+  .action-card {
+    background: var(--primary-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    margin: 0 1.5rem 1.5rem;
+    border: 1px solid var(--border-color);
+  }
+  
+  .action-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .action-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin: 0;
+  }
+  
+  .action-body {
+    padding: 1.5rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-light);
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--primary-light);
+    color: var(--text-light);
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  
+  .form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.2);
+    outline: none;
+  }
+  
+  .star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+  
+  .star-rating input {
+    display: none;
+  }
+  
+  .star-rating label {
+    font-size: 1.75rem;
+    color: var(--border-color);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .star-rating label:hover,
+  .star-rating label:hover ~ label,
+  .star-rating input:checked ~ label {
+    color: var(--success-color);
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  
+  .btn-danger {
+    background: var(--error-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-primary {
+    background: var(--success-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-secondary {
+    background: var(--text-muted);
+    color: var(--primary-color);
+  }
+  
+  .btn:hover {
+    filter: brightness(92%);
+    transform: translateY(-1px);
+  }
+  
+  .footer-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
 
-
-    .content {
-   
-        min-height: 100vh;
-        padding: 2rem 0;
+  /* New Timeline Container */
+  .timeline-container {
+    background: var(--primary-light);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .timeline-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-light);
+  }
+  
+  .timeline {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    left: -1.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: var(--border-color);
+  }
+  
+  .dot-completed {
+    background-color: var(--success-color);
+  }
+  
+  .dot-error {
+    background-color: var(--error-color);
+  }
+  
+  .timeline-text {
+    color: var(--text-light);
+    font-size: 0.875rem;
+  }
+  
+  .timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 1rem;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+  }
+  
+  .timeline-item.completed:not(:last-child)::after {
+    background-color: var(--success-color);
+  }
+  
+  @media (max-width: 768px) {
+    .product-header {
+      flex-direction: column;
     }
-
-    h1 {
-        color: var(--text-light);
-        font-weight: 600;
+    
+    .product-image {
+      width: 100%;
+      height: 240px;
     }
-
-    .card {
-        background: var(--primary-color);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    
+    .price-grid {
+      grid-template-columns: 1fr;
     }
-
-    .card-title {
-        color: var(--text-light);
-        font-weight: 600;
-    }
-
-    .text-muted {
-        color: var(--text-muted) !important;
-    }
-
-    .pricing-details {
-        background: var(--primary-light);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 1rem;
-    }
-
-    .badge {
-        background: var(--success-color);
-        color: var(--primary-color);
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-    }
-
-    .badge.bg-warning {
-        background: var(--error-color) !important;
-    }
-
-    .badge.bg-primary {
-        background: var(--accent-color) !important;
-    }
-
-    .btn-danger {
-        background: var(--error-color);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
-
-    .btn-danger:hover {
-        filter: brightness(90%);
-    }
-
-    .btn-primary {
-        background: var(--success-color);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
-
-    .btn-primary:hover {
-        filter: brightness(90%);
-    }
-
-    .btn-secondary {
-        background: var(--text-muted);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
-
-    .btn-secondary:hover {
-        filter: brightness(90%);
-    }
-
-    .rating-stars label {
-        color: var(--border-color);
-    }
-
-    .rating-stars input:checked ~ label,
-    .rating-stars label:hover,
-    .rating-stars label:hover ~ label {
-        color: var(--success-color);
-    }
-
-    .form-control {
-        background: var(--primary-light);
-        border: 1px solid var(--border-color);
-        color: var(--text-light);
-    }
-
-    .form-control:focus {
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 2px rgba(163, 184, 153, 0.25);
-    }
+  }
 </style>
 
-<div class="content">
-    <div class="container mt-5">
-        <h1 class="mb-4">Order Item Details</h1>
-
-        <!-- Item Details Card -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body">
-                <div class="row">
-                    <!-- Product Image -->
-                    <div class="col-md-4">
-                        <img src="/uploads/products/<%= item.productId.productImage[0] %>" 
-                             class="img-fluid rounded" 
-                             alt="<%= item.productId.productName %>"
-                             style="border: 1px solid var(--border-color);">
-                    </div>
-
-                    <!-- Product Details -->
-                    <div class="col-md-8">
-                        <h2 class="card-title"><%= item.productId.productName %></h2>
-
-                        <!-- Variant Details -->
-                        <% if (item.variantDetails && item.variantDetails.color) { %>
-                            <p class="text-muted mb-0"><strong>Color:</strong> <%= item.variantDetails.color %></p>
-                            <p class="text-muted mt-0"><strong>Size:</strong> <%= item.variantDetails.size %></p>
-                        <% } else { %>
-                            <p class="text-muted"><strong>Variant:</strong> N/A</p>
-                        <% } %>
-                        <p class="text-muted"><strong>Payment method:</strong> <%= item.paymentOption %></p>
-                        
-                        <!-- Quantity -->
-                        <p class="mb-2"><strong>Quantity:</strong> <%= item.quantity %></p>
-
-                        <!-- Pricing Breakdown -->
-                        <div class="pricing-details mb-3">
-                            <p class="mb-1"><strong>Original Price:</strong> ₹<%= (item.ogRegularPrice * item.quantity).toFixed(2) %></p>
-                            <p class="mb-1"><strong>Sale Price:</strong> ₹<%= (item.ogSalePrice * item.quantity).toFixed(2) %></p>
-                            <% if(item.itemDiscount > 0) { %>
-                                <p class="mb-1"><strong>Coupon Discount:</strong> ₹<%= item.itemDiscount.toFixed(2) %></p>
-                            <% } %>
-                            <p class="mb-1"><strong>Discount:</strong> ₹<%= ((item.ogRegularPrice * item.quantity) - (item.ogSalePrice * item.quantity)).toFixed(2) %></p>
-                            <p class="mb-1"><strong>Additional Discount:</strong> ₹<%= ((item.ogSalePrice * item.quantity) - (item.noDiscountPrice * item.quantity)).toFixed(2) %></p>
-                            <p class="mb-1"><strong>Final Price:</strong> ₹<%= item.price.toFixed(2) %></p>
-                        </div>
-
-                        <% if(item.couponUsed) { %>
-                            <p class="text-danger">Note:- Coupon has been used while placing the order</p>
-                        <% } %>
-
-                        <!-- Order Status -->
-                        <p class="mb-3">
-                            <strong>Status:</strong>
-                            <span class="badge bg-<%= item.orderStatus === 'Delivered' ? 'success' : item.orderStatus === 'Pending' ? 'warning' : 'primary' %>">
-                                <%= item.orderStatus %>
-                            </span>
-                        </p>
-                    </div>
-                </div>
+<div class="order-details-container">
+  <h1 class="page-title">Order Item Details</h1>
+  
+  <!-- Product Information Card -->
+  <div class="product-card">
+    <div class="product-header">
+      <img src="/uploads/products/<%= item.productId.productImage[0] %>" 
+           class="product-image" 
+           alt="<%= item.productId.productName %>">
+      
+      <div class="product-info">
+        <h2 class="product-name"><%= item.productId.productName %></h2>
+        
+        <div class="product-meta">
+          <% if (item.variantDetails && item.variantDetails.color) { %>
+            <div class="meta-item">
+              <span class="meta-label">Color:</span>
+              <span><%= item.variantDetails.color %></span>
             </div>
+            <div class="meta-item">
+              <span class="meta-label">Size:</span>
+              <span><%= item.variantDetails.size %></span>
+            </div>
+          <% } else { %>
+            <div class="meta-item">
+              <span class="meta-label">Variant:</span>
+              <span>N/A</span>
+            </div>
+          <% } %>
+          <div class="meta-item">
+            <span class="meta-label">Payment Method:</span>
+            <span><%= item.paymentOption %></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Quantity:</span>
+            <span><%= item.quantity %></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Order Status:</span>
+            <span class="status-badge status-<%= item.orderStatus.toLowerCase() %>">
+              <%= item.orderStatus %>
+            </span>
+          </div>
         </div>
-
-        <!-- Return Request Form (only if item status is Delivered) -->
-        <% if (item.orderStatus === "Delivered") { %>
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Request a Return</h5>
-                    <form action="/profile/orders/returnItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-                        <div class="mb-3">
-                            <label for="reason" class="form-label">Reason for Return</label>
-                            <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-danger">Submit Return Request</button>
-                    </form>
-                </div>
+        
+        <!-- Status Timeline Container -->
+        <div class="timeline-container">
+          <h6 class="timeline-title">Status Timeline</h6>
+          <div class="timeline">
+            <div class="timeline-item <%= item.orderStatus === 'Pending' || item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'completed' : '' %>">
+              <div class="timeline-dot <%= item.orderStatus === 'Pending' || item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'dot-completed' : '' %>"></div>
+              <div class="timeline-content">
+                <p class="timeline-text">Ordered</p>
+              </div>
             </div>
-        <% } %>
-
-        <!-- Cancellation Form (only if item status is Pending or Shipped) -->
-        <% if (item.orderStatus === "Pending" || item.orderStatus === "Shipped") { %>
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Cancel Item</h5>
-                    <form action="/profile/orders/cancelItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-                        <div class="mb-3">
-                            <label for="reason" class="form-label">Reason for Cancellation</label>
-                            <textarea id="reason" name="reason" class="form-control" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-danger">Submit Cancellation Request</button>
-                    </form>
-                </div>
+            
+            <div class="timeline-item <%= item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'completed' : '' %>">
+              <div class="timeline-dot <%= item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'dot-completed' : '' %>"></div>
+              <div class="timeline-content">
+                <p class="timeline-text">Shipped</p>
+              </div>
             </div>
-        <% } %>
-
-        <!-- Review Form (only if item status is Delivered and no review exists) -->
-        <% if (item.orderStatus === "Delivered" && !item.review) { %>
-            <div class="card mb-4 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Write a Review</h5>
-                    <form action="/profile/orders/reviews/create?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-                        <!-- Rating Stars -->
-                        <div class="mb-3">
-                            <label class="form-label">Rating</label>
-                            <div class="rating-stars">
-                                <% for (let i = 5; i >= 1; i--) { %>
-                                    <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required>
-                                    <label for="star<%= i %>" class="star">★</label>
-                                <% } %>
-                            </div>
-                        </div>
-
-                        <!-- Review Text -->
-                        <div class="mb-3">
-                            <label for="reviewText" class="form-label">Review</label>
-                            <textarea class="form-control" id="reviewText" name="review" rows="3" required></textarea>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary">Submit Review</button>
-                    </form>
-                </div>
+            
+            <div class="timeline-item <%= item.orderStatus === 'Delivered' ? 'completed' : '' %>">
+              <div class="timeline-dot <%= item.orderStatus === 'Delivered' ? 'dot-completed' : '' %>"></div>
+              <div class="timeline-content">
+                <p class="timeline-text">Delivered</p>
+              </div>
             </div>
-        <% } %>
-
-        <!-- Back to Orders Button -->
-        <div class="text-center mt-4">
-            <a href="/profile/orders" class="btn btn-secondary">Back to Orders</a>
+            
+            <% if (['Return Requested', 'Return Accepted', 'Returned'].includes(item.orderStatus)) { %>
+              <div class="timeline-item <%= ['Return Accepted', 'Returned'].includes(item.orderStatus) ? 'completed' : '' %>">
+                <div class="timeline-dot <%= ['Return Accepted', 'Returned'].includes(item.orderStatus) ? 'dot-error' : '' %>"></div>
+                <div class="timeline-content">
+                  <p class="timeline-text">Return Requested</p>
+                </div>
+              </div>
+              
+              <div class="timeline-item <%= item.orderStatus === 'Returned' ? 'completed' : '' %>">
+                <div class="timeline-dot <%= item.orderStatus === 'Returned' ? 'dot-error' : '' %>"></div>
+                <div class="timeline-content">
+                  <p class="timeline-text">Returned</p>
+                </div>
+              </div>
+            <% } %>
+            
+            <% if (['Cancellation Requested', 'Cancelled'].includes(item.orderStatus)) { %>
+              <div class="timeline-item <%= item.orderStatus === 'Cancelled' ? 'completed' : '' %>">
+                <div class="timeline-dot <%= item.orderStatus === 'Cancelled' ? 'dot-error' : '' %>"></div>
+                <div class="timeline-content">
+                  <p class="timeline-text">Cancelled</p>
+                </div>
+              </div>
+            <% } %>
+          </div>
         </div>
+      </div>
     </div>
+    
+    <!-- Price Breakdown Section -->
+    <div class="price-breakdown">
+      <h3 class="price-title">Price Details</h3>
+      <div class="price-grid">
+        <div class="price-item">
+          <span class="price-label">Original Price:</span>
+          <span class="price-value">₹<%= (item.ogRegularPrice * item.quantity).toFixed(2) %></span>
+        </div>
+        <div class="price-item">
+          <span class="price-label">Sale Price:</span>
+          <span class="price-value">₹<%= (item.ogSalePrice * item.quantity).toFixed(2) %></span>
+        </div>
+        <% if(item.itemDiscount > 0) { %>
+          <div class="price-item">
+            <span class="price-label">Coupon Discount:</span>
+            <span class="price-value">₹<%= item.itemDiscount.toFixed(2) %></span>
+          </div>
+        <% } %>
+        <div class="price-item">
+          <span class="price-label">Discount:</span>
+          <span class="price-value">₹<%= ((item.ogRegularPrice * item.quantity) - (item.ogSalePrice * item.quantity)).toFixed(2) %></span>
+        </div>
+        <div class="price-item">
+          <span class="price-label">Additional Discount:</span>
+          <span class="price-value">₹<%= ((item.ogSalePrice * item.quantity) - (item.noDiscountPrice * item.quantity)).toFixed(2) %></span>
+        </div>
+      </div>
+      <div class="price-item price-final">
+        <span class="price-label">Final Price:</span>
+        <span class="price-value">₹<%= item.price.toFixed(2) %></span>
+      </div>
+    </div>
+    
+    <% if(item.couponUsed) { %>
+      <div class="coupon-note">
+        <strong>Note:</strong> A coupon has been applied to this order
+      </div>
+    <% } %>
+  </div>
+  
+  <!-- Return Request Form (if delivered) -->
+  <% if (item.orderStatus === "Delivered") { %>
+    <div class="action-card">
+      <div class="action-header">
+        <h3 class="action-title">Request a Return</h3>
+      </div>
+      <div class="action-body">
+        <form action="/profile/orders/returnItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+          <div class="form-group">
+            <label for="reason" class="form-label">Reason for Return</label>
+            <textarea id="reason" name="reason" class="form-control" rows="3" required 
+                      placeholder="Please explain why you want to return this item..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger">Submit Return Request</button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+  
+  <!-- Cancellation Form (if pending or shipped) -->
+  <% if (item.orderStatus === "Pending" || item.orderStatus === "Shipped") { %>
+    <div class="action-card">
+      <div class="action-header">
+        <h3 class="action-title">Cancel Item</h3>
+      </div>
+      <div class="action-body">
+        <form action="/profile/orders/cancelItem?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+          <div class="form-group">
+            <label for="reason" class="form-label">Reason for Cancellation</label>
+            <textarea id="reason" name="reason" class="form-control" rows="3" required
+                      placeholder="Please explain why you want to cancel this item..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-danger">Submit Cancellation Request</button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+  
+  <!-- Review Form (if delivered and no review exists) -->
+  <% if (item.orderStatus === "Delivered" && !item.review) { %>
+    <div class="action-card">
+      <div class="action-header">
+        <h3 class="action-title">Write a Review</h3>
+      </div>
+      <div class="action-body">
+        <form action="/profile/orders/reviews/create?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+          <div class="form-group">
+            <label class="form-label">Rating</label>
+            <div class="star-rating">
+              <% for (let i = 5; i >= 1; i--) { %>
+                <input type="radio" id="star<%= i %>" name="rating" value="<%= i %>" required>
+                <label for="star<%= i %>">★</label>
+              <% } %>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reviewText" class="form-label">Your Review</label>
+            <textarea class="form-control" id="reviewText" name="review" rows="3" required
+                      placeholder="Share your thoughts about this product..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit Review</button>
+        </form>
+      </div>
+    </div>
+  <% } %>
+  
+  <!-- Navigation Footer -->
+  <div class="footer-actions">
+    <a href="/profile/orders" class="btn btn-secondary">Back to Orders</a>
+  </div>
 </div>
-

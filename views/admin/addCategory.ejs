@@ -1,77 +1,111 @@
 <% layout("../layouts/adminboilerplate") %>
 <title><%= title  %></title>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-body">
-                    <h3 class="text-center mb-4">Add Category</h3>
+<style>
+    .form-control, .form-select {
+   padding: 10px 15px;
+   border-radius: 5px;
+   border-color: var(--border-color);
+   color: var(--text-light);
+ }
+ 
+ .form-control:focus, .form-select:focus {
+   box-shadow: 0 0 0 0.2rem rgba(44, 49, 57, 0.25);
+   border-color: var(--accent-color);
+ }
+ 
+ .form-label {
+   color: var(--text-light);
+   font-weight: 500;
+ }
+ 
+ .btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--text-light);
+    border-color: var(--text-light);
+  }
+ .text-center a{
+    color: var(--text-muted);
+ }
+</style>
 
-                    <form id="addCategoryForm" method="post" action="/admin/categories/add" novalidate>
-                        <!-- Category Name -->
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Category Name</label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="name" 
-                                name="name" 
-                                placeholder="Enter category name" 
-                                required 
-                            >
-                            <div class="invalid-feedback">
-                                Please enter a category name.
+<main class="main-content">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h3 class="text-center mb-4">Add Category</h3>
+    
+                        <form id="addCategoryForm" method="post" action="/admin/categories/add" novalidate>
+                            <!-- Category Name -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Category Name</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="name" 
+                                    name="name" 
+                                    placeholder="Enter category name" 
+                                    required 
+                                >
+                                <div class="invalid-feedback">
+                                    Please enter a category name.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
                             </div>
-                            <div class="valid-feedback">
-                                Looks good!
+    
+                            <!-- Description -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea 
+                                    class="form-control" 
+                                    id="description" 
+                                    name="description" 
+                                    placeholder="Enter category description" 
+                                    rows="3" 
+                                    required
+                                ></textarea>
+                                <div class="invalid-feedback">
+                                    Please provide a description for the category.
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea 
-                                class="form-control" 
-                                id="description" 
-                                name="description" 
-                                placeholder="Enter category description" 
-                                rows="3" 
-                                required
-                            ></textarea>
-                            <div class="invalid-feedback">
-                                Please provide a description for the category.
+                            <div class="mb-3">
+                                <label for="categoryOffer" class="form-label">Category Offer in %</label>
+                                <input type="number" name="categoryOffer" class="form-control" id="categoryOffer" placeholder="Enter the offer " required>
+                                <div class="invalid-feedback">category offer is required.</div>
+                                <div class="invalid-feedback">
+                                    Please provide category offer
+                                </div>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
                             </div>
-                            <div class="valid-feedback">
-                                Looks good!
+    
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Add Category</button>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="categoryOffer" class="form-label">Category Offer in %</label>
-                            <input type="number" name="categoryOffer" class="form-control" id="categoryOffer" placeholder="Enter the offer " required>
-                            <div class="invalid-feedback">category offer is required.</div>
-                            <div class="invalid-feedback">
-                                Please provide category offer
+    
+                            <!-- Back Link -->
+                            <div class="mt-3 text-center">
+                                <p><a href="/admin/categories">Back to Categories</a></p>
                             </div>
-                            <div class="valid-feedback">
-                                Looks good!
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-dark">Add Category</button>
-                        </div>
-
-                        <!-- Back Link -->
-                        <div class="mt-3 text-center">
-                            <p><a href="/admin/categories">Back to Categories</a></p>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
+    
+</main>
 <script src="/js/addCategory.js"></script>

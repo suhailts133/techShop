@@ -1,72 +1,314 @@
 <%- layout("../layouts/adminboilerplate") %>
 <title><%= title %></title>
 
-<div class="container mt-4">
-  <h2>Order Item Details</h2>
-
-  <!-- Item Information -->
-  <div class="mb-4">
-    <h4><%= item.productId.productName %></h4>
-    <p><strong>Order ID:</strong> <%= order.orderId %></p>
-    <p><strong>Variant:</strong>
-      <% if (item.productId.variants && item.variantId) { %>
-        <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()); %>
-        Color: <%= variant?.color || "N/A" %>, Size: <%= variant?.size || "N/A" %>
-      <% } else { %>
-        N/A
-      <% } %>
-    </p>
-    <p><strong>Quantity:</strong> <%= item.quantity %></p>
-    <p><strong>Price:</strong> ₹<%= item.price.toFixed(2) %></p>
-    <p><strong>Current Status:</strong> <%= item.orderStatus %></p>
-  </div>
-
-  <!-- Reason Section -->
-  <% if (['Return Requested', 'Cancellation Requested'].includes(item.orderStatus)) { %>
-    <div class="alert alert-warning mb-4">
-      <h5><i class="fas fa-exclamation-circle me-2"></i>
-        <%= item.orderStatus === 'Return Requested' ? 'Return' : 'Cancellation' %> Reason
-      </h5>
-      <p class="mb-0"><%= item.returnReason || item.cancelReason %></p>
-    </div>
-    <% } %>
-
-   
-  <!-- Status Update Section -->
-  <div>
-    <h4>Update Status</h4>
-    <form action="/admin/orders/itemDetails/update?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
-      <select name="status" class="form-select mb-2">
-        <% if (item.orderStatus === "Pending") { %>
-          <option value="Pending" selected>Pending</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Cancellation Requested">Cancellation Requested</option>
-        <% } else if (item.orderStatus === "Shipped") { %>
-          <option value="Shipped" selected>Shipped</option>
-          <option value="Delivered">Delivered</option>
-        <% } else if (item.orderStatus === "Delivered") { %>
-          <option value="Delivered" selected>Delivered</option>
-          <option value="Return Requested">Return Requested</option>
-        <% } else if (item.orderStatus === "Return Requested") { %>
-          <option value="Return Requested" selected>Return Requested</option>
-          <option value="Return Accepted">Return Accepted</option>
-          <option value="Delivered">Reject Return</option>
-        <% } else if (item.orderStatus === "Return Accepted") { %>
-          <option value="Return Accepted" selected>Return Accepted</option>
-          <option value="Returned">Returned</option>
-        <% } else if (item.orderStatus === "Cancellation Requested") { %>
-          <option value="Cancellation Requested" selected>Cancellation Requested</option>
-          <option value="Cancelled">Accept Cancellation</option>
-          <option value="Pending">Reject Cancellation</option>
-        <% } else { %>
-          <option><%= item.orderStatus %> (Final)</option>
+<main class="main-content">
+  <div class="container mt-4">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white border-bottom border-light d-flex justify-content-between align-items-center py-3">
+        <h4 class="mb-0 text-dark">Order Item Details</h4>
+        <span class="badge status-badge"><%= item.orderStatus %></span>
+      </div>
+      
+      <div class="card-body">
+        <!-- Product Information -->
+        <div class="row mb-4">
+          <div class="col-md-8">
+            <h5 class="fw-bold text-dark mb-4"><%= item.productId.productName %></h5>
+            
+            <div class="d-flex flex-wrap gap-4 mb-3">
+              <div class="info-group">
+                <p class="text-label mb-1">Order ID</p>
+                <p class="text-value mb-0"><%= order.orderId %></p>
+              </div>
+              
+              <div class="info-group">
+                <p class="text-label mb-1">Variant</p>
+                <p class="text-value mb-0">
+                  <% if (item.productId.variants && item.variantId) { %>
+                    <% const variant = item.productId.variants.find(v => v._id.toString() === item.variantId.toString()); %>
+                    <span class="badge variant-badge me-2">
+                      Color: <%= variant?.color || "N/A" %>
+                    </span>
+                    <span class="badge variant-badge">
+                      Size: <%= variant?.size || "N/A" %>
+                    </span>
+                  <% } else { %>
+                    N/A
+                  <% } %>
+                </p>
+              </div>
+              
+              <div class="info-group">
+                <p class="text-label mb-1">Quantity</p>
+                <p class="text-value mb-0"><%= item.quantity %></p>
+              </div>
+              
+              <div class="info-group">
+                <p class="text-label mb-1">Price</p>
+                <p class="text-value mb-0">₹<%= item.price.toFixed(2) %></p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Status Timeline -->
+          <div class="col-md-4">
+            <div class="card border-0 bg-light rounded-3 timeline-card">
+              <div class="card-body p-3">
+                <h6 class="fw-bold mb-3 timeline-title">Status Timeline</h6>
+                <div class="timeline">
+                  <div class="timeline-item <%= item.orderStatus === 'Pending' || item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'completed' : '' %>">
+                    <div class="timeline-dot <%= item.orderStatus === 'Pending' || item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'dot-completed' : '' %>"></div>
+                    <div class="timeline-content">
+                      <p class="mb-0 timeline-text">Ordered</p>
+                    </div>
+                  </div>
+                  
+                  <div class="timeline-item <%= item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'completed' : '' %>">
+                    <div class="timeline-dot <%= item.orderStatus === 'Shipped' || item.orderStatus === 'Delivered' ? 'dot-completed' : '' %>"></div>
+                    <div class="timeline-content">
+                      <p class="mb-0 timeline-text">Shipped</p>
+                    </div>
+                  </div>
+                  
+                  <div class="timeline-item <%= item.orderStatus === 'Delivered' ? 'completed' : '' %>">
+                    <div class="timeline-dot <%= item.orderStatus === 'Delivered' ? 'dot-completed' : '' %>"></div>
+                    <div class="timeline-content">
+                      <p class="mb-0 timeline-text">Delivered</p>
+                    </div>
+                  </div>
+                  
+                  <% if (['Return Requested', 'Return Accepted', 'Returned'].includes(item.orderStatus)) { %>
+                    <div class="timeline-item <%= ['Return Accepted', 'Returned'].includes(item.orderStatus) ? 'completed' : '' %>">
+                      <div class="timeline-dot <%= ['Return Accepted', 'Returned'].includes(item.orderStatus) ? 'dot-error' : '' %>"></div>
+                      <div class="timeline-content">
+                        <p class="mb-0 timeline-text">Return Requested</p>
+                      </div>
+                    </div>
+                    
+                    <div class="timeline-item <%= item.orderStatus === 'Returned' ? 'completed' : '' %>">
+                      <div class="timeline-dot <%= item.orderStatus === 'Returned' ? 'dot-error' : '' %>"></div>
+                      <div class="timeline-content">
+                        <p class="mb-0 timeline-text">Returned</p>
+                      </div>
+                    </div>
+                  <% } %>
+                  
+                  <% if (['Cancellation Requested', 'Cancelled'].includes(item.orderStatus)) { %>
+                    <div class="timeline-item <%= item.orderStatus === 'Cancelled' ? 'completed' : '' %>">
+                      <div class="timeline-dot <%= item.orderStatus === 'Cancelled' ? 'dot-error' : '' %>"></div>
+                      <div class="timeline-content">
+                        <p class="mb-0 timeline-text">Cancelled</p>
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Reason Section -->
+        <% if (['Return Requested', 'Cancellation Requested'].includes(item.orderStatus)) { %>
+          <div class="mb-4">
+            <div class="alert p-3 border-0 rounded-3 reason-alert">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle me-3 reason-icon"></i>
+                <div>
+                  <h6 class="fw-bold mb-1 reason-title">
+                    <%= item.orderStatus === 'Return Requested' ? 'Return' : 'Cancellation' %> Reason
+                  </h6>
+                  <p class="mb-0 reason-text">
+                    <%= item.returnReason || item.cancelReason %>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         <% } %>
-      </select>
-      <% if (!['Returned', 'Cancelled', 'Delivered'].includes(item.orderStatus)) { %>
-        <button type="submit" class="btn btn-primary">Update Status</button>
-      <% } else { %>
-        <button class="btn btn-secondary" disabled>No Further Updates</button>
-      <% } %>
-    </form>
+        
+        <!-- Status Update Section -->
+        <div class="card border-0 rounded-3 shadow-sm mt-4">
+          <div class="card-body">
+            <h6 class="fw-bold mb-3 section-title">Update Status</h6>
+            <form action="/admin/orders/itemDetails/update?orderId=<%= order._id %>&itemId=<%= item._id %>" method="POST">
+              <div class="row g-3">
+                <div class="col-md-8">
+                  <select name="status" class="form-select status-select border-0 py-3">
+                    <% if (item.orderStatus === "Pending") { %>
+                      <option value="Pending" selected>Pending</option>
+                      <option value="Shipped">Shipped</option>
+                      <option value="Cancellation Requested">Cancellation Requested</option>
+                    <% } else if (item.orderStatus === "Shipped") { %>
+                      <option value="Shipped" selected>Shipped</option>
+                      <option value="Delivered">Delivered</option>
+                    <% } else if (item.orderStatus === "Delivered") { %>
+                      <option value="Delivered" selected>Delivered</option>
+                      <option value="Return Requested">Return Requested</option>
+                    <% } else if (item.orderStatus === "Return Requested") { %>
+                      <option value="Return Requested" selected>Return Requested</option>
+                      <option value="Return Accepted">Return Accepted</option>
+                      <option value="Delivered">Reject Return</option>
+                    <% } else if (item.orderStatus === "Return Accepted") { %>
+                      <option value="Return Accepted" selected>Return Accepted</option>
+                      <option value="Returned">Returned</option>
+                    <% } else if (item.orderStatus === "Cancellation Requested") { %>
+                      <option value="Cancellation Requested" selected>Cancellation Requested</option>
+                      <option value="Cancelled">Accept Cancellation</option>
+                      <option value="Pending">Reject Cancellation</option>
+                    <% } else { %>
+                      <option><%= item.orderStatus %> (Final)</option>
+                    <% } %>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <% if (!['Returned', 'Cancelled', 'Delivered'].includes(item.orderStatus)) { %>
+                    <button type="submit" class="btn w-100 py-3 btn-update">
+                      Update Status
+                    </button>
+                  <% } else { %>
+                    <button class="btn w-100 py-3 btn-disabled" disabled>
+                      No Further Updates
+                    </button>
+                  <% } %>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</main>
+
+<style>
+
+  .card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  
+  .badge {
+    border-radius: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .status-badge {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 0.5rem 1rem;
+  }
+  
+  .variant-badge {
+    background-color: var(--border-color);
+    color: var(--text-muted);
+  }
+  
+  .text-label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  .text-value {
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  
+  .timeline-card {
+    background-color: var(--primary-light);
+  }
+  
+  .timeline-title {
+    color: var(--text-light);
+  }
+  
+  .timeline {
+    position: relative;
+    padding-left: 1.5rem;
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+  }
+  
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    left: -1.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: var(--border-color);
+  }
+  
+  .dot-completed {
+    background-color: var(--success-color);
+  }
+  
+  .dot-error {
+    background-color: var(--error-color);
+  }
+  
+  .timeline-text {
+    color: var(--text-light);
+    font-size: 0.875rem;
+  }
+  
+  .timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 1rem;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--border-color);
+  }
+  
+  .timeline-item.completed:not(:last-child)::after {
+    background-color: var(--success-color);
+  }
+  
+  .reason-alert {
+    background-color: var(--primary-light);
+  }
+  
+  .reason-icon {
+    color: var(--error-color);
+    font-size: 1.25rem;
+  }
+  
+  .reason-title {
+    color: var(--text-light);
+  }
+  
+  .reason-text {
+    color: var(--text-muted);
+  }
+  
+  .section-title {
+    color: var(--text-light);
+  }
+  
+  .status-select {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+  }
+  
+  .btn-update {
+    background-color: var(--accent-color);
+    color: white;
+  }
+  
+  .btn-disabled {
+    background-color: var(--border-color);
+    color: var(--text-muted);
+  }
+  
+  .form-select:focus, .btn:focus {
+    box-shadow: none;
+    border-color: var(--border-color);
+  }
+</style>

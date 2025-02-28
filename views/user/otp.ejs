@@ -7,50 +7,170 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .otp-input {
-      width: 3rem;
-      height: 3rem;
-      font-size: 1.5rem;
-      text-align: center;
-      border: 1px solid #ced4da;
-      border-radius: 0.25rem;
+    :root {
+      --primary-color: #FFFFFF;     /* Pure White */
+      --primary-light: #F4F7F1;     /* Light Matcha */
+      --accent-color: #A3B899;      /* Matcha Green */
+      --text-light: #2C352A;        /* Deep Green */
+      --text-muted: #8C9A86;        /* Muted Green */
+      --border-color: #E5EBE1;      /* Soft Green */
+      --success-color: #779668;     /* Forest Green */
+      --error-color: #B9937A;       /* Warm Brown */
     }
+    
+    body {
+      background-color: var(--primary-light);
+      color: var(--text-light);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+      background-color: var(--primary-color);
+      padding: 2rem;
+    }
+    
+    .card-title {
+      color: var(--text-light);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+    
+    .otp-input {
+      width: 3.5rem;
+      height: 3.5rem;
+      font-size: 1.5rem;
+      font-weight: 500;
+      text-align: center;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      background-color: var(--primary-light);
+      color: var(--text-light);
+      transition: all 0.3s ease;
+    }
+    
     .otp-input:focus {
       outline: none;
-      border-color: #007bff;
-      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(163, 184, 153, 0.3);
+      background-color: var(--primary-color);
+    }
+    
+    .btn-primary {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      color: var(--primary-color);
+      font-weight: 500;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(163, 184, 153, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover, .btn-primary:focus {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+      box-shadow: 0 6px 8px rgba(119, 150, 104, 0.3);
+    }
+    
+    .btn-primary:disabled {
+      background-color: var(--text-muted);
+      border-color: var(--text-muted);
+      opacity: 0.6;
+      box-shadow: none;
+    }
+    
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover, .btn-secondary:focus {
+      background-color: var(--primary-light);
+      color: var(--accent-color);
+      box-shadow: 0 4px 6px rgba(163, 184, 153, 0.1);
+    }
+    
+    .btn-secondary:disabled {
+      border-color: var(--text-muted);
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+    
+    .text-muted {
+      color: var(--text-muted) !important;
+    }
+    
+    .text-danger {
+      color: var(--error-color) !important;
+    }
+    
+    a {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    
+    a:hover {
+      color: var(--success-color);
+    }
+    
+    #otpTimer {
+      font-size: 0.9rem;
+    }
+    
+    .otp-inputs-container {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 2rem;
     }
   </style>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-  <div class="container mt-5">
+  <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-      <div class="col-md-6">
-        <h3 class="text-center mb-4">Email Verification</h3>
-        <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validateOTPForm()">
-          <div class="d-flex justify-content-between mb-3">
-            <!-- OTP inputs -->
-            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 0)" required>
-            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 1)" required>
-            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 2)" required>
-            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 3)" required>
-            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 4)" required>
-            <input type="text" class="otp-input" maxlength="1" pattern="\d*" oninput="moveToNext(this, 5)" required>
-          </div>
-          <!-- Hidden input to hold the full OTP -->
-          <input type="hidden" id="otp" name="otp">
-          <button type="submit" class="btn btn-dark w-100">Verify OTP</button>
-          <div class="d-flex justify-content-between mt-3">
-            <div id="otpTimer" class="d-flex align-items-center">
-              <span id="timerValue" class="fw-bold">60</span> seconds remaining
+      <div class="col-md-7 col-lg-5">
+        <div class="card">
+          <h3 class="card-title text-center">Email Verification</h3>
+          
+          <p class="text-center text-muted mb-4">Please enter the 6-digit code sent to your email</p>
+          
+          <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validateOTPForm()">
+            <div class="otp-inputs-container">
+              <!-- OTP inputs -->
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" oninput="moveToNext(this, 0)" onkeydown="moveToPrevious(this, 0, event)" required>
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" oninput="moveToNext(this, 1)" onkeydown="moveToPrevious(this, 1, event)" required>
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" oninput="moveToNext(this, 2)" onkeydown="moveToPrevious(this, 2, event)" required>
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" oninput="moveToNext(this, 3)" onkeydown="moveToPrevious(this, 3, event)" required>
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" oninput="moveToNext(this, 4)" onkeydown="moveToPrevious(this, 4, event)" required>
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" inputmode="numeric" oninput="moveToNext(this, 5)" onkeydown="moveToPrevious(this, 5, event)" required>
             </div>
-            <button type="button" id="resendOTPButton" class="btn btn-secondary" onclick="resendOTP()" disabled>Resend OTP</button>
+            
+            <!-- Hidden input to hold the full OTP -->
+            <input type="hidden" id="otp" name="otp">
+            <button type="submit" id="verifyOTPButton" class="btn btn-primary w-100 py-3 mb-3">Verify OTP</button>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <div id="otpTimer" class="d-flex align-items-center">
+                <span id="timerValue" class="fw-bold me-1">60</span> seconds remaining
+              </div>
+              <button type="button" id="resendOTPButton" class="btn btn-secondary" onclick="resendOTP()" disabled>Resend OTP</button>
+            </div>
+          </form>
+          
+          <div class="text-center mt-4">
+            <p class="text-muted">Already verified? <a href="/login">Login now</a></p>
           </div>
-        </form>
-        <div class="text-center mt-3">
-          <p class="text-muted">Already verified? <a href="/login">Login now</a></p>
         </div>
       </div>
     </div>
@@ -58,6 +178,174 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/js/otp.js"></script>
+  <script>
+    function moveToNext(input, index) {
+      const inputs = document.querySelectorAll('.otp-input');
+      if (input.value.length === 1 && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+      if (index === inputs.length - 1) {
+        document.getElementById('otp').value = Array.from(inputs).map(input => input.value).join('');
+      }
+    }
+
+    function moveToPrevious(input, index, event) {
+      if (event.key === 'Backspace') {
+        const inputs = document.querySelectorAll('.otp-input');
+        if (input.value.length === 0 && index > 0) {
+          inputs[index - 1].focus();
+        }
+      }
+    }
+
+    document.getElementById("otpForm").addEventListener("submit", () => {
+      document.getElementById("otp").value = Array.from(
+        document.querySelectorAll(".otp-input")
+      )
+        .map((input) => input.value)
+        .join("");
+    });
+
+    let timer = 60;
+    let timerInterval;
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timer--;
+        document.getElementById("timerValue").textContent = timer;
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("timerValue").classList.add("text-danger");
+          document.getElementById("timerValue").textContent = "Expired";
+          
+          
+          document.querySelectorAll(".otp-input").forEach(input => input.disabled = true);
+          
+          document.getElementById("verifyOTPButton").disabled = true;
+          
+          document.getElementById("resendOTPButton").disabled = false;
+        }
+      }, 1000);
+    }
+
+    startTimer();
+
+    function validateOTPForm() {
+      const otpInput = document.getElementById("otp").value;
+      if (otpInput.length !== 6) {
+        Swal.fire({
+          icon: "error",
+          title: "Invalid OTP",
+          text: "Please enter a 6-digit OTP.",
+          confirmButtonColor: '#A3B899'
+        });
+        clearOTPFields();
+        return false;
+      }
+
+      $.ajax({
+        type: "POST",
+        url: "verify-otp",
+        data: { otp: otpInput },
+        timeout: 10000, // 10 second timeout
+        success: function (response) {
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP verified successfully",
+              showConfirmButton: false,
+              timer: 1500
+            }).then(() => {
+              window.location.href = response.redirectUrl;
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: response.message,
+              confirmButtonColor: '#A3B899'
+            });
+            clearOTPFields(); // Clear fields when OTP is invalid
+          }
+        },
+        error: function () {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid OTP",
+            text: "Please try again",
+            confirmButtonColor: '#A3B899'
+          });
+          clearOTPFields(); // Clear fields on error
+        }
+      });
+      return false;
+    }
+
+    function clearOTPFields() {
+      const inputs = document.querySelectorAll('.otp-input');
+      inputs.forEach(input => {
+        input.value = ''; 
+        input.disabled = false; 
+      });
+      inputs[0].focus(); 
+      document.getElementById("otp").value = ''; 
+    }
+
+    function resendOTP() {
+      clearInterval(timerInterval);
+      timer = 60;
+      
+      // Re-enable all OTP inputs
+      document.querySelectorAll(".otp-input").forEach(input => {
+        input.disabled = false;
+        input.value = '';
+      });
+      
+      // Re-enable verify OTP button
+      document.getElementById("verifyOTPButton").disabled = false;
+      
+      // Reset and restart timer
+      document.getElementById("timerValue").classList.remove("text-danger");
+      document.getElementById("timerValue").textContent = timer;
+      startTimer();
+
+      // Disable resend button
+      document.getElementById("resendOTPButton").disabled = true;
+      
+      // Focus on first input
+      document.querySelectorAll(".otp-input")[0].focus();
+
+      $.ajax({
+        type: "POST",
+        url: "resend-otp",
+        timeout: 10000, 
+        success: function (response) {
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP resent successfully",
+              showConfirmButton: false,
+              timer: 1500
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "An error occurred while resending the OTP. Please try again.",
+              confirmButtonColor: '#A3B899'
+            });
+          }
+        },
+        error: function () {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "An unexpected error occurred. Please try again.",
+            confirmButtonColor: '#A3B899'
+          });
+        }
+      });
+    }
+  </script>
 </body>
 </html>

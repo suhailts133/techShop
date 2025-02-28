@@ -1,185 +1,491 @@
 <%- layout("../layouts/adminboilerplate") %>
-<title>
-    <%= title %>
-</title>
+<title><%= title %></title>
 
-<section class="container mt-5">
-    <h2 class="text-center">Edit Product - <%= product.productName %></h2>
-    <form method="post" action="/admin/products/edit?id=<%= product._id %>" enctype="multipart/form-data" id="productForm" novalidate>
+<style>
+  
+  
+  body {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+  }
+  
+  .card {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
+  }
+  
+  .card-header {
+    background-color: var(--primary-light);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+  }
+  
+  .section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-light);
+  }
+  
+  .form-section {
+    padding: 20px;
+  }
+  
+  .form-control, .form-select {
+    padding: 10px 15px;
+    border-radius: 5px;
+    border-color: var(--border-color);
+    color: var(--text-light);
+  }
+  
+  .form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(44, 49, 57, 0.25);
+    border-color: var(--accent-color);
+  }
+  
+  .form-label {
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  
+  .variant-section {
+    background-color: var(--primary-light);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+  }
+  
+  .variant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .btn-primary {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--text-light);
+    border-color: var(--text-light);
+  }
+  
+  .btn-outline-primary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+  
+  .btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+  }
+  
+  .btn-success:hover {
+    background-color: var(--text-light);
+    border-color: var(--text-light);
+  }
+  
+  .btn-outline-danger {
+    color: var(--error-color);
+    border-color: var(--error-color);
+  }
+  
+  .btn-outline-danger:hover {
+    background-color: var(--error-color);
+    border-color: var(--error-color);
+    color: white;
+  }
+  
+  .badge.bg-primary {
+    background-color: var(--accent-color) !important;
+  }
+  
+  .text-muted {
+    color: var(--text-muted) !important;
+  }
+  
+  .input-group-text {
+    background-color: var(--primary-light);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+  }
+  
+  .submit-btn {
+    padding: 10px 30px;
+    font-weight: 600;
+  }
+  
+  .add-variant-btn {
+    margin-bottom: 20px;
+  }
+  
+  .required-field::after {
+    content: "*";
+    color: var(--error-color);
+    margin-left: 4px;
+  }
+  
+  .current-image {
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--primary-color);
+  }
+</style>
+
+<main class="main-content">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <h1 class="text-center mb-4 fw-bold">Edit Product - <%= product.productName %></h1>
         
-        <!-- Product Name -->
-        <div class="mb-3">
-            <label for="product_name" class="form-label">Product Name</label>
-            <input type="text" name="productName" class="form-control" id="product_name" value="<%= product.productName %>" required>
-            <div class="invalid-feedback">Product name is required.</div>
-        </div>
-
-        <!-- Brand -->
-        <div class="mb-3">
-            <label class="form-label">Brand</label>
-            <select class="form-select" name="brand" required>
-                <% brand.forEach(brandItem => { %>
-                    <option value="<%= brandItem.brandName %>" <%= product.brand === brandItem.brandName ? 'selected' : '' %>><%= brandItem.brandName %></option>
-                <% }) %>
-            </select>
-            <div class="invalid-feedback">Brand is required.</div>
-        </div>
-
-        <!-- Description -->
-        <div class="mb-3">
-            <label for="description" class="form-label">Description</label>
-            <textarea name="description" id="description" class="form-control" rows="4" required><%= product.description %></textarea>
-            <div class="invalid-feedback">Description is required.</div>
-        </div>
-        <!--Product offer -->
-        <div class="mb-3">
-            <label for="productOffer" class="form-label">Product Offer in %</label>
-            <input type="number" name="productOffer" class="form-control" id="productOffer" value="<%= product.productOffer %>" required>
-            <div class="invalid-feedback">product offer is required.</div>
-        </div>
-        <!-- Category -->
-        <div class="mb-3">
-            <label class="form-label">Category</label>
-            <select class="form-select" name="category" required>
-                <% category.forEach(cat => { %>
-                    <option value="<%= cat.name %>" <%= product.category === cat.name ? 'selected' : '' %>><%= cat.name %></option>
-                <% }) %>
-            </select>
-            <div class="invalid-feedback">Category is required.</div>
-        </div>
-
-        <!-- Variants Section -->
-        <div id="variants-container">
-            <% product.variants.forEach((variant, index) => { %>
-                <div class="variant-section" id="variant<%= index %>">
-                    <h5>Variant <%= index + 1 %></h5>
-                    <div class="mb-3">
-                        <label class="form-label">Color</label>
-                        <input type="text" name="variants[<%= index %>][color]" class="form-control" value="<%= variant.color %>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Size</label>
-                        <input type="text" name="variants[<%= index %>][size]" class="form-control" value="<%= variant.size %>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Price</label>
-                        <input type="number" name="variants[<%= index %>][price]" class="form-control" value="<%= variant.price %>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Sale Price</label>
-                        <input type="number" name="variants[<%= index %>][salePrice]" class="form-control" value="<%= variant.salePrice %>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Quantity</label>
-                        <input type="number" name="variants[<%= index %>][quantity]" class="form-control" value="<%= variant.quantity %>" required>
-                    </div>
-                    <button type="button" class="btn btn-danger" onclick="removeVariant(<%= index %>)">Delete Variant</button>
-                    <hr>
-                </div>
-            <% }) %>
-        </div>
-
-        <!-- Button to Add More Variants -->
-        <button type="button" class="btn btn-secondary" onclick="addVariant()">Add More Variants</button>
-
-        <!-- Image Upload -->
-        <div>
-            <label class="form-label">Upload Images</label>
-            <div id="imageUploads">
-                <% for (let i = 1; i <= 3; i++) { %>
-                    <div class="image-upload-container">
-                        <% if (product.productImage[i - 1]) { %>
-                            <div class="current-image">
-                                <img src="/uploads/products/<%= product.productImage[i - 1] %>" alt="Current image" class="img-fluid" style="max-width: 200px; margin-bottom: 10px;">
-                                
-                            </div>
-                        <% } %>
-                        <input class="form-control" type="file" name="images" id="input<%= i %>" accept="image/png, image/jpeg, image/webp" onchange="initializeCropper(<%= i %>)" value="<%= product.productImage[i - 1] %>">
-                        <div class="invalid-feedback">Please upload an image.</div>
-                        <div class="image-crop-container" id="crop-container<%= i %>">
-                            <img id="crop-image<%= i %>" class="img-fluid">
-                            <button type="button" class="btn btn-primary mt-2" onclick="saveCrop(<%= i %>)">Save</button>
-                            
-                        </div>
-                        
-                    </div>
-                <% } %>
+        <form method="post" action="/admin/products/edit?id=<%= product._id %>" enctype="multipart/form-data" id="productForm" novalidate>
+          
+          <!-- Basic Information Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Basic Information</h2>
             </div>
-        </div>
+            <div class="form-section">
+              <div class="row">
+                <!-- Product Name -->
+                <div class="col-md-6 mb-3">
+                  <label for="product_name" class="form-label required-field">Product Name</label>
+                  <input type="text" name="productName" class="form-control" id="product_name" value="<%= product.productName %>" required>
+                  <div class="invalid-feedback">Product name is required.</div>
+                </div>
+                
+                <!-- Brand -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required-field">Brand</label>
+                  <select class="form-select" name="brand" required>
+                    <% brand.forEach(brandItem => { %>
+                      <option value="<%= brandItem.brandName %>" <%= product.brand === brandItem.brandName ? 'selected' : '' %>><%= brandItem.brandName %></option>
+                    <% }) %>
+                  </select>
+                  <div class="invalid-feedback">Brand is required.</div>
+                </div>
+              </div>
+              
+              <!-- Description -->
+              <div class="mb-3">
+                <label for="description" class="form-label required-field">Description</label>
+                <textarea name="description" id="description" class="form-control" rows="4" required><%= product.description %></textarea>
+                <div class="invalid-feedback">Description is required.</div>
+              </div>
+              
+              <div class="row">
+                <!-- Product Offer -->
+                <div class="col-md-6 mb-3">
+                  <label for="productOffer" class="form-label required-field">Product Offer in %</label>
+                  <input type="number" name="productOffer" class="form-control" id="productOffer" value="<%= product.productOffer %>" required>
+                  <div class="invalid-feedback">Product offer is required.</div>
+                </div>
+                
+                <!-- Category -->
+                <div class="col-md-6 mb-3">
+                  <label class="form-label required-field">Category</label>
+                  <select class="form-select" name="category" required>
+                    <% category.forEach(cat => { %>
+                      <option value="<%= cat.name %>" <%= product.category === cat.name ? 'selected' : '' %>><%= cat.name %></option>
+                    <% }) %>
+                  </select>
+                  <div class="invalid-feedback">Category is required.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Variants Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Product Variants</h2>
+            </div>
+            <div class="form-section">
+              <div id="variants-container">
+                <% product.variants.forEach((variant, index) => { %>
+                  <div class="variant-section" id="variant<%= index %>">
+                    <div class="variant-header">
+                      <h5 class="fw-bold m-0">Variant <%= index + 1 %></h5>
+                      <% if (index === 0) { %>
+                        <span class="badge bg-primary">Default</span>
+                      <% } else { %>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeVariant(<%= index %>)">
+                          Remove
+                        </button>
+                      <% } %>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label required-field">Color</label>
+                        <input type="text" name="variants[<%= index %>][color]" class="form-control variant-input" value="<%= variant.color %>" required>
+                        <div class="invalid-feedback">Color is required for this variant.</div>
+                      </div>
+                      
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label required-field">Size</label>
+                        <input type="text" name="variants[<%= index %>][size]" class="form-control variant-input" value="<%= variant.size %>" required>
+                        <div class="invalid-feedback">Size is required for this variant.</div>
+                      </div>
+                    </div>
+                    
+                    <div class="row">
+                      <div class="col-md-4 mb-3">
+                        <label class="form-label required-field">Price</label>
+                        <input type="number" name="variants[<%= index %>][price]" class="form-control variant-input" value="<%= variant.price %>" required>
+                        <div class="invalid-feedback">Price is required for this variant.</div>
+                      </div>
+                      
+                      <div class="col-md-4 mb-3">
+                        <label class="form-label required-field">Sale Price</label>
+                        <input type="number" name="variants[<%= index %>][salePrice]" class="form-control variant-input" value="<%= variant.salePrice %>" required>
+                        <div class="invalid-feedback">Sale Price is required for this variant.</div>
+                      </div>
+                      
+                      <div class="col-md-4 mb-3">
+                        <label class="form-label required-field">Quantity</label>
+                        <input type="number" name="variants[<%= index %>][quantity]" class="form-control variant-input" value="<%= variant.quantity %>" required>
+                        <div class="invalid-feedback">Quantity is required for this variant.</div>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+              
+              <!-- Button to Add More Variants -->
+              <button type="button" class="btn btn-outline-primary add-variant-btn" onclick="addVariant()">
+                Add More Variants
+              </button>
+            </div>
+          </div>
+          
+          <!-- Image Upload Card -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="section-title">Product Images</h2>
+            </div>
+            <div class="form-section">
+              <div id="imageUploads">
+                <% for (let i = 1; i <= 3; i++) { %>
+                  <div class="image-upload-container mb-4">
+                    <label class="form-label">Image <%= i %></label>
+                    <% if (product.productImage[i - 1]) { %>
+                      <div class="current-image">
+                        <img src="/uploads/products/<%= product.productImage[i - 1] %>" alt="Current image" class="img-fluid" style="max-width: 200px;">
+                      </div>
+                    <% } %>
+                    <input class="form-control" type="file" name="images" id="input<%= i %>" accept="image/png, image/jpeg, image/webp" onchange="initializeCropper(<%= i %>)">
+                    <div class="invalid-feedback">Please upload an image.</div>
+                    <div class="image-crop-container mt-2" id="crop-container<%= i %>">
+                      <img id="crop-image<%= i %>" class="img-fluid">
+                      <button type="button" class="btn btn-primary mt-2" onclick="saveCrop(<%= i %>)">Save</button>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Submit Button -->
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success submit-btn">
+              Update Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
 
-        <!-- Submit -->
-        <button type="submit" class="btn btn-success mt-4">Update Product</button>
-    </form>
-</section>
-
+<!-- Required Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
 <script src="/js/editproduct.js"></script>
 <script src="/js/productValidation.js"></script>
 
 <script>
-(function () {
-    'use strict';
+// Add variant function
+function addVariant() {
+  const variantCount = document.querySelectorAll('.variant-section').length;
+  const newVariant = document.createElement('div');
+  newVariant.classList.add('variant-section');
+  newVariant.id = `variant${variantCount}`;
+  
+  // Create the content with remove button
+  newVariant.innerHTML = `
+    <div class="variant-header">
+      <h5 class="fw-bold m-0">Variant ${variantCount + 1}</h5>
+      <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeVariant(${variantCount})">
+        Remove
+      </button>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label required-field">Color</label>
+        <input type="text" name="variants[${variantCount}][color]" class="form-control variant-input" placeholder="Color" required>
+        <div class="invalid-feedback">Color is required for this variant.</div>
+      </div>
+      
+      <div class="col-md-6 mb-3">
+        <label class="form-label required-field">Size</label>
+        <input type="text" name="variants[${variantCount}][size]" class="form-control variant-input" placeholder="Size" required>
+        <div class="invalid-feedback">Size is required for this variant.</div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label required-field">Price</label>
+        <input type="number" name="variants[${variantCount}][price]" class="form-control variant-input" placeholder="Price" required>
+        <div class="invalid-feedback">Price is required for this variant.</div>
+      </div>
+      
+      <div class="col-md-4 mb-3">
+        <label class="form-label required-field">Sale Price</label>
+        <input type="number" name="variants[${variantCount}][salePrice]" class="form-control variant-input" placeholder="Sale Price" required>
+        <div class="invalid-feedback">Sale Price is required for this variant.</div>
+      </div>
+      
+      <div class="col-md-4 mb-3">
+        <label class="form-label required-field">Quantity</label>
+        <input type="number" name="variants[${variantCount}][quantity]" class="form-control variant-input" placeholder="Quantity" required>
+        <div class="invalid-feedback">Quantity is required for this variant.</div>
+      </div>
+    </div>
+  `;
+  
+  document.getElementById('variants-container').appendChild(newVariant);
+}
 
-    const forms = document.querySelectorAll('.validated-form');
+// Function to remove a variant
+function removeVariant(index) {
+  const variantToRemove = document.getElementById(`variant${index}`);
+  if (variantToRemove) {
+    variantToRemove.remove();
+    updateVariantIndices();
+  }
+}
 
-    Array.from(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            let isValid = true;
-
-            // Get all variant sections
-            const variantSections = form.querySelectorAll('.variant-section');
-
-            variantSections.forEach((variant, index) => {
-                const priceInput = variant.querySelector(`[name^="variants["][name$="][price]"]`);
-                const salePriceInput = variant.querySelector(`[name^="variants["][name$="][salePrice]"]`);
-                const priceFeedback = priceInput.nextElementSibling;
-                const salePriceFeedback = salePriceInput.nextElementSibling;
-
-                const priceValue = parseFloat(priceInput.value);
-                const salePriceValue = parseFloat(salePriceInput.value);
-
-                if (!isNaN(priceValue) && !isNaN(salePriceValue) && salePriceValue >= priceValue) {
-                    isValid = false;
-                    salePriceInput.setCustomValidity('Sale price must be lower than the original price.');
-                    salePriceFeedback.textContent = 'Sale price must be lower than the original price.';
-                } else {
-                    salePriceInput.setCustomValidity('');
-                    salePriceFeedback.textContent = '';
-                }
-            });
-
-            // Validate Image (type and size)
-            const imageInput = form.querySelector('#image');
-            const imageFeedback = imageInput ? imageInput.nextElementSibling : null;
-
-            if (imageInput && imageInput.files && imageInput.files[0]) {
-                const file = imageInput.files[0];
-                const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
-                const maxSize = 5 * 1024 * 1024;
-
-                if (!validImageTypes.includes(file.type)) {
-                    isValid = false;
-                    imageInput.setCustomValidity('Please upload only JPG, PNG, or WebP images.');
-                    if (imageFeedback) imageFeedback.textContent = 'Please upload only JPG, PNG, or WebP images.';
-                } else if (file.size > maxSize) {
-                    isValid = false;
-                    imageInput.setCustomValidity('Image size should be less than 5MB.');
-                    if (imageFeedback) imageFeedback.textContent = 'Image size should be less than 5MB.';
-                } else {
-                    imageInput.setCustomValidity('');
-                    if (imageFeedback) imageFeedback.textContent = '';
-                }
-            }
-
-            // If any field is invalid, prevent form submission
-            if (!form.checkValidity() || !isValid) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-
-            form.classList.add('was-validated');
-        });
+// Function to update all variant indices after removing
+function updateVariantIndices() {
+  const variants = document.querySelectorAll('.variant-section');
+  
+  variants.forEach((variant, index) => {
+    // Update ID
+    variant.id = `variant${index}`;
+    
+    // Update heading
+    const heading = variant.querySelector('h5');
+    if (heading) {
+      heading.textContent = `Variant ${index + 1}`;
+    }
+    
+    // Update all input names
+    const inputs = variant.querySelectorAll('input');
+    inputs.forEach(input => {
+      const nameMatch = input.name.match(/variants\[\d+\]\[(\w+)\]/);
+      if (nameMatch && nameMatch[1]) {
+        const fieldName = nameMatch[1];
+        input.name = `variants[${index}][${fieldName}]`;
+      }
     });
-})();
+    
+    // Update the remove button
+    const removeButton = variant.querySelector('button');
+    if (removeButton && index > 0) { // Don't allow removing the first variant
+      removeButton.setAttribute('onclick', `removeVariant(${index})`);
+    }
+  });
+}
 
+// Form validation
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("productForm");
+
+  form.addEventListener("submit", function (event) {
+    let isValid = true;
+
+    // Helper functions for validation
+    function showError(input, message) {
+      isValid = false;
+      input.classList.add("is-invalid");
+      input.nextElementSibling.textContent = message;
+    }
+
+    function clearError(input) {
+      input.classList.remove("is-invalid");
+      input.nextElementSibling.textContent = "";
+    }
+
+    // Validate Product Name
+    const productName = document.getElementById("product_name");
+    if (productName.value.trim() === "") {
+      showError(productName, "Product name cannot be empty.");
+    } else if (productName.value.trim().length < 3) {
+      showError(productName, "Product name must be at least 3 characters.");
+    } else {
+      clearError(productName);
+    }
+
+    // Validate Product Offer
+    const productOffer = document.getElementById("productOffer");
+    if (productOffer.value.trim() === "") {
+      showError(productOffer, "Please enter a product offer.");
+    } else if (isNaN(productOffer.value) || productOffer.value < 0) {
+      showError(productOffer, "Offer must be a valid positive number.");
+    } else {
+      clearError(productOffer);
+    }
+
+    // Validate Variants
+    const variantInputs = document.querySelectorAll(".variant-input");
+    variantInputs.forEach((input) => {
+      if (input.value.trim() === "") {
+        const fieldName = input.getAttribute("placeholder") || "This field";
+        showError(input, `${fieldName} cannot be empty.`);
+      } else {
+        clearError(input);
+      }
+    });
+
+    // Additional validation for sale price
+    const variantSections = document.querySelectorAll('.variant-section');
+    variantSections.forEach((variant) => {
+      const priceInput = variant.querySelector('input[name$="[price]"]');
+      const salePriceInput = variant.querySelector('input[name$="[salePrice]"]');
+      
+      if (priceInput && salePriceInput) {
+        const price = parseFloat(priceInput.value);
+        const salePrice = parseFloat(salePriceInput.value);
+        
+        if (!isNaN(price) && !isNaN(salePrice) && salePrice >= price) {
+          showError(salePriceInput, "Sale price must be lower than the original price.");
+        }
+      }
+    });
+
+    if (!isValid) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    form.classList.add("was-validated");
+  });
+});
 </script>

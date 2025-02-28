@@ -256,57 +256,67 @@ const updateCartItem = async (req, res) => {
         const { id } = req.session.user; // Get user ID from session
         const { quantity } = req.body; // Extract quantity from the body
 
-        // Validate quantity
         if (!quantity || quantity < 1) {
-            req.flash("error", "Invalid quantity");
-            return res.redirect("/profile/cart");
+            return res.status(400).json({ 
+                success: false, 
+                message: "Invalid quantity",
+            });
         }
 
-        // Find the user's cart
         const cart = await Cart.findOne({ userId: id });
         if (!cart) {
-            req.flash("error", "Cart not found");
-            return res.redirect("/logout");
+            return res.status(404).json({ 
+                success: false, 
+                message: "Cart not found" 
+            });
         }
 
-        // Find the specific item in the cart
+
         const cartItem = cart.items.find(item => item._id.toString() === itemId);
         if (!cartItem) {
-            req.flash("error", "Item not found");
-            return res.redirect("/profile/cart");
+            return res.status(404).json({ 
+                success: false, 
+                message: "Item not found" 
+            });
         }
 
-        // Find the associated product and variant
         const product = await Product.findById(cartItem.productId);
         if (!product) {
-            req.flash("error", "Product not found");
-            return res.redirect("/profile/cart");
+            return res.status(404).json({ 
+                success: false, 
+                message: "Product not found" 
+            });
         }
 
         const variant = product.variants.id(cartItem.variantId);
         if (!variant) {
-            req.flash("error", "Product variant not found");
-            return res.redirect("/profile/cart");
+            return res.status(404).json({ 
+                success: false, 
+                message: "Product variant not found" 
+            });
         }
 
-        // Check if the requested quantity is less than or equal to the available stock
         if (parseInt(quantity) > variant.quantity) {
-            req.flash("error", "Requested quantity exceeds available stock");
-            return res.redirect("/profile/cart");
+            return res.status(400).json({ 
+                success: false, 
+                itemPrice: cartItem.totalPrice, 
+                totalAmount: cart.totalAmount,
+                message: "Limited stock available. Please reduce the quantity."
+            });
         }
 
-        // Update the item's quantity and total price
         cartItem.quantity = parseInt(quantity);
         cartItem.totalPrice = cartItem.quantity * variant.salePrice;
-
-        // Recalculate the total amount of the cart
         cart.totalAmount = cart.items.reduce((total, item) => total + item.totalPrice, 0);
-
-        // Save the updated cart
         await cart.save();
 
-        req.flash("success", "Cart updated successfully");
-        res.redirect("/profile/cart");
+        res.json({ 
+            success: true, 
+            itemPrice:cartItem.totalPrice,
+            totalAmount:cart.totalAmount,
+            message: "Quantity updated successfully" 
+        });
+
     } catch (error) {
         console.log("Error while updating the cart:", error.message);
         req.flash("error", "An error occurred while updating the cart");

@@ -66,37 +66,50 @@ function updateVariantDetails() {
 
 function changeQuantity(amount) {
     const quantityEl = document.getElementById('selected-quantity');
-    const availableQuantity = parseInt(document.getElementById('quantity').textContent, 10);
+    const availableQuantityText = document.getElementById('quantity').textContent;
+    const availableQuantity = parseInt(availableQuantityText, 10) || 0; // Handle "Out of Stock" or NaN
     const errorEl = document.getElementById('quantity-error');
-    const currentQuantity = parseInt(quantityEl.textContent, 10);
+    const decreaseBtn = document.querySelector('.quantity-control button:first-child'); // `-` button
+    const increaseBtn = document.querySelector('.quantity-control button:last-child'); // `+` button
+    let currentQuantity = parseInt(quantityEl.textContent, 10);
+
+    // Define the maximum allowed quantity (whichever is smaller: 10 or available stock)
+    const maxAllowedQuantity = Math.min(10, availableQuantity);
 
     // Calculate the new quantity
     const newQuantity = currentQuantity + amount;
 
-    // Check if the new quantity is valid
-    if (newQuantity > 0 && newQuantity <= availableQuantity) {
-        // Update the quantity display
+    // Check if the new quantity is within valid limits
+    if (newQuantity >= 1 && newQuantity <= maxAllowedQuantity) {
         quantityEl.textContent = newQuantity;
-
-        // Hide the error message if it's currently displayed
         errorEl.style.display = 'none';
-    } else if (newQuantity > availableQuantity) {
-        // Show the error message if the quantity exceeds the limit
-        errorEl.textContent = 'Exceeds available quantity.';
+        currentQuantity = newQuantity;
+    } else if (newQuantity > maxAllowedQuantity) {
+        errorEl.textContent = availableQuantity < 10
+            ? `Only ${availableQuantity} items available in stock.` 
+            : 'Maximum quantity per order is 10.';
         errorEl.style.display = 'block';
-    } else if (newQuantity <= 0) {
-        // Show an error if the quantity drops below 1
+    } else if (newQuantity < 1) {
         errorEl.textContent = 'Minimum quantity is 1.';
         errorEl.style.display = 'block';
     }
+
+    // Update button states
+    decreaseBtn.disabled = currentQuantity <= 1;
+    increaseBtn.disabled = currentQuantity >= maxAllowedQuantity;
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Ensure the DOM is fully loaded before calling changeQuantity
+    changeQuantity(0);
+});
 
 async function addToCart() {
     try {
         const variantSelect = document.getElementById('variant');
         const variantId = variantSelect.value;
         const productId = variantSelect.getAttribute('data-product-id');
-        const quantity = parseInt(document.getElementById('selected-quantity').textContent, 10); // Get the selected quantity
+        const quantity = 1
         const productImage = document.getElementById('main-image').src.split('/').pop(); // Get the main image filename
 
         // Prepare data to send in the POST request
@@ -106,7 +119,7 @@ async function addToCart() {
             quantity: quantity,
             productImage: productImage // Only the image filename
         };
-        console.log(data);
+        
 
         // Send the data to the backend via POST request
         const response = await fetch('/addToCart', {

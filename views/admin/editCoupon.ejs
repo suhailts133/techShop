@@ -1,69 +1,104 @@
 <% layout("../layouts/adminboilerplate") %>
 <title><%= title %></title>
 
-<div class="container mt-5">
-  <h1 class="text-center">Edit Coupon</h1>
-  <form action="/admin/coupon/edit?id=<%= coupon._id%>" method="POST" class="mt-4">
-    
-    <div class="mb-3">
-      <label for="name" class="form-label">name of the coupon</label>
-      <input type="text" id="name" name="couponEdit[name]" class="form-control" required value="<%= coupon.name %>" >
-      <div class="invalid-feedback">
 
+<style>
+  .form-control, .form-select {
+ padding: 10px 15px;
+ border-radius: 5px;
+ border-color: var(--border-color);
+ color: var(--text-light);
+}
+
+.form-control:focus, .form-select:focus {
+ box-shadow: 0 0 0 0.2rem rgba(44, 49, 57, 0.25);
+ border-color: var(--accent-color);
+}
+
+.form-label {
+ color: var(--text-light);
+ font-weight: 500;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--text-light);
+  border-color: var(--text-light);
+}
+.text-center a{
+  color: var(--text-muted);
+}
+</style>
+
+<main class="main-content">
+  <div class="container mt-5">
+    <h1 class="text-center">Edit Coupon</h1>
+    <form action="/admin/coupon/edit?id=<%= coupon._id%>" method="POST" class="mt-4">
+      
+      <div class="mb-3">
+        <label for="name" class="form-label">name of the coupon</label>
+        <input type="text" id="name" name="couponEdit[name]" class="form-control" required value="<%= coupon.name %>" >
+        <div class="invalid-feedback">
+  
+        </div>
+        <div class="valid-feedback">
+          Looks good!
+        </div>
       </div>
-      <div class="valid-feedback">
-        Looks good!
+      <!-- Discount Value -->
+      <div class="mb-3">
+        <label for="discountValue" class="form-label">Discount Value (₹)</label>
+        <input type="number" id="discountValue" name="couponEdit[discountValue]" class="form-control" required min="0" value="<%= coupon.discountValue%>">
+        <div class="invalid-feedback">
+  
+        </div>
+        <div class="valid-feedback">
+          Looks good!
+        </div>
       </div>
-    </div>
-    <!-- Discount Value -->
-    <div class="mb-3">
-      <label for="discountValue" class="form-label">Discount Value (₹)</label>
-      <input type="number" id="discountValue" name="couponEdit[discountValue]" class="form-control" required min="0" value="<%= coupon.discountValue%>">
-      <div class="invalid-feedback">
-
+  
+      <!-- Minimum Purchase -->
+      <div class="mb-3">
+        <label for="minPurchase" class="form-label">Minimum Purchase (₹)</label>
+        <input type="number" id="minPurchase" name="couponEdit[minPurchase]" class="form-control" min="0" value="<%= coupon.minPurchase%>">
+        <div class="invalid-feedback">
+  
+        </div>
+        <div class="valid-feedback">
+          Looks good!
+        </div>
       </div>
-      <div class="valid-feedback">
-        Looks good!
+  
+  
+      <div class="mb-3">
+        <label for="validityDuration" class="form-label">Validity Duration (Days)</label>
+        <input type="number" id="validityDuration" name="couponEdit[validityDuration]" class="form-control" required min="1" value="<%= coupon.validityDuration%>">
+        <div class="invalid-feedback">
+  
+        </div>
+        <div class="valid-feedback">
+          Looks good!
+        </div>
       </div>
-    </div>
-
-    <!-- Minimum Purchase -->
-    <div class="mb-3">
-      <label for="minPurchase" class="form-label">Minimum Purchase (₹)</label>
-      <input type="number" id="minPurchase" name="couponEdit[minPurchase]" class="form-control" min="0" value="<%= coupon.minPurchase%>">
-      <div class="invalid-feedback">
-
+  
+      <!-- Status -->
+      <div class="mb-3">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="couponEdit[status]" class="form-select">
+          <option value="active" <%= coupon.status === "Active" ? "selected": "" %> >Active</option>
+          <option value="inactive"  <%= coupon.status === "inactive"? "selected":"" %> >Inactive</option>
+        </select>
       </div>
-      <div class="valid-feedback">
-        Looks good!
+  
+      <!-- Submit Button -->
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary">Edit Coupon</button>
       </div>
-    </div>
-
-
-    <div class="mb-3">
-      <label for="validityDuration" class="form-label">Validity Duration (Days)</label>
-      <input type="number" id="validityDuration" name="couponEdit[validityDuration]" class="form-control" required min="1" value="<%= coupon.validityDuration%>">
-      <div class="invalid-feedback">
-
-      </div>
-      <div class="valid-feedback">
-        Looks good!
-      </div>
-    </div>
-
-    <!-- Status -->
-    <div class="mb-3">
-      <label for="status" class="form-label">Status</label>
-      <select id="status" name="couponEdit[status]" class="form-select">
-        <option value="active" <%= coupon.status === "Active" ? "selected": "" %> >Active</option>
-        <option value="inactive"  <%= coupon.status === "inactive"? "selected":"" %> >Inactive</option>
-      </select>
-    </div>
-
-    <!-- Submit Button -->
-    <div class="text-center">
-      <button type="submit" class="btn btn-primary">Edit Coupon</button>
-    </div>
-  </form>
-</div>
+    </form>
+  </div>
+</main>
 <script src="/js/addCoupon.js"></script>

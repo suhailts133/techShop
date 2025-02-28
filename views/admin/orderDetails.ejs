@@ -1,32 +1,230 @@
 <%- layout("../layouts/adminboilerplate") %>
-<title>
-    <%= title %>
-</title>
+<title><%= title %></title>
 
-<div class="container mt-5">
-  <h2>Order Details - <%= order.orderId %></h2>
-<p><strong>User:</strong> <%= order.userId.name %></p>
-  <p><strong>Shipping Address:</strong> <%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></p>
-  <p><strong>Status:</strong> <%= order.orderStatus %></p>
+<main class="main-content">
+  <div class="container mt-5">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white border-bottom border-light d-flex justify-content-between align-items-center py-3">
+        <h4 class="mb-0 text-dark">Order Details</h4>
+        <span class="badge status-badge"><%= order.orderStatus %></span>
+      </div>
+      
+      <div class="card-body">
+        <!-- Order Summary -->
+        <div class="row mb-4">
+          <div class="col-md-8">
+            <div class="order-summary mb-4">
+              <h5 class="order-id mb-3">Order #<%= order.orderId %></h5>
+              
+              <div class="order-details-grid">
+                <div class="info-group">
+                  <p class="text-label mb-1">Customer</p>
+                  <p class="text-value mb-0"><%= order.userId.name %></p>
+                </div>
+                
+                <div class="info-group">
+                  <p class="text-label mb-1">Shipping Address</p>
+                  <p class="text-value mb-0"><%= order.shippingAddress.houseAddress %>, <%= order.shippingAddress.pincode %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Return Reason Section (if applicable) -->
+        <% if(order.orderStatus === "Return Requested") { %>
+          <div class="mb-4">
+            <div class="alert p-3 border-0 rounded-3 reason-alert">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-circle me-3 reason-icon"></i>
+                <div>
+                  <h6 class="fw-bold mb-1 reason-title">Return Reason</h6>
+                  <p class="mb-0 reason-text"><%= order.returnReason %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+        
+        <!-- Order Items -->
+        <div class="order-items mb-4">
+          <h5 class="section-title mb-3">Items</h5>
+          
+          <div class="card border-0">
+            <div class="list-group list-group-flush">
+              <% order.items.forEach(item => { %>
+                <a href="/admin/orders/itemDetails?orderId=<%= order._id %>&itemId=<%= item._id %>" class="list-group-item list-group-item-action p-0">
+                  <div class="d-flex align-items-center p-3">
+                    <div class="flex-grow-1">
+                      <div class="d-flex justify-content-between align-items-start mb-1">
+                        <h6 class="mb-0 product-name"><%= item.productId.productName %></h6>
+                        <span class="badge item-status-badge"><%= item.orderStatus %></span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="quantity-text">Qty: <%= item.quantity %></span>
+                        <span class="price-text">₹<%= item.price.toFixed(2) %></span>
+                      </div>
+                    </div>
+                    <i class="fas fa-chevron-right ms-3 text-muted"></i>
+                  </div>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Order Summary Card -->
+        <div class="row">
+          <div class="col-md-4 ms-auto">
+            <div class="card border-0 bg-light order-summary-card">
+              <div class="card-body p-3">
+                <h6 class="summary-title mb-3">Order Summary</h6>
+                
+                <% 
+                  let subtotal = 0;
+                  order.items.forEach(item => {
+                    subtotal += item.price * item.quantity;
+                  });
+                  
+                  const shipping = 40; // Example shipping cost
+                  const total = subtotal + shipping;
+                %>
+                
+                <div class="summary-item d-flex justify-content-between mb-2">
+                  <span class="summary-label">Subtotal</span>
+                  <span class="summary-value">₹<%= subtotal.toFixed(2) %></span>
+                </div>
+                
+                <div class="summary-item d-flex justify-content-between mb-2">
+                  <span class="summary-label">Shipping</span>
+                  <span class="summary-value">₹<%= shipping.toFixed(2) %></span>
+                </div>
+                
+                <hr class="my-2">
+                
+                <div class="summary-item d-flex justify-content-between">
+                  <span class="summary-label fw-bold">Total</span>
+                  <span class="summary-value fw-bold">₹<%= total.toFixed(2) %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
 
-  <h4>Items:</h4>
-  <ul class="list-group">
-    <% order.items.forEach(item => { %>
-      <li class="list-group-item">
-        <a href="/admin/orders/itemDetails?orderId=<%= order._id %>&itemId=<%= item._id %>" class="text-decoration-none">
-          <strong><%= item.productId.productName %></strong> - <%= item.orderStatus%>
-        </a>   - Qty: <%= item.quantity %> - ₹<%= item.price.toFixed(2) %>
-      </li> 
-    <% }) %>
-  </ul>
+<style>
 
-  <% if(order.orderStatus === "Return Requested") {%>
-    <h2>Return Reason</h2>
-    <p><strong>Resaon</strong> <%= order.returnReason%></p>
-    <%}%>
-
-  <h4 class="mt-4">Order Status - <%= order.orderStatus %></h4>
- 
-</div>
-
-
+  .card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  
+  .badge {
+    border-radius: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .status-badge {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 0.5rem 1rem;
+  }
+  
+  .item-status-badge {
+    background-color: var(--primary-light);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+  
+  .order-id {
+    color: var(--text-light);
+    font-weight: 600;
+  }
+  
+  .order-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .text-label {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  .text-value {
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  
+  .section-title {
+    color: var(--text-light);
+    font-weight: 600;
+  }
+  
+  .reason-alert {
+    background-color: var(--primary-light);
+  }
+  
+  .reason-icon {
+    color: var(--error-color);
+    font-size: 1.25rem;
+  }
+  
+  .reason-title {
+    color: var(--text-light);
+  }
+  
+  .reason-text {
+    color: var(--text-muted);
+  }
+  
+  .list-group-item {
+    border-color: var(--border-color);
+    transition: background-color 0.15s ease-in-out;
+  }
+  
+  .list-group-item:hover {
+    background-color: var(--primary-light);
+  }
+  
+  .product-name {
+    color: var(--text-light);
+    font-weight: 600;
+  }
+  
+  .quantity-text {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  
+  .price-text {
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  
+  .order-summary-card {
+    background-color: var(--primary-light);
+  }
+  
+  .summary-title {
+    color: var(--text-light);
+    font-weight: 600;
+  }
+  
+  .summary-label {
+    color: var(--text-muted);
+  }
+  
+  .summary-value {
+    color: var(--text-light);
+  }
+  
+  hr {
+    border-color: var(--border-color);
+    opacity: 0.5;
+  }
+</style>

@@ -131,7 +131,10 @@
             </li>
         </ol>
     </nav>
-
+    <div class="mt-3 text-muted small">
+        <i class="bi bi-info-circle" style="color: var(--text-muted);"></i> 
+        <span style="color: var(--text-light);">You can order a maximum of 10 per order.</span>
+    </div>
     <!-- Main Product Section -->
     <div class="row bg-white shadow-sm p-4 rounded">
         <!-- Product Images -->
@@ -198,15 +201,9 @@
                 </select>
             </div>
 
-            <!-- Quantity Selector -->
+            
             <div class="quantity-control d-flex align-items-center mb-4">
-                <button class="btn btn-info me-2" onclick="changeQuantity(-1)"
-                    <%= product.variants[0].quantity === 0 ? 'disabled' : '' %>>-</button>
-                <span id="selected-quantity" class="fs-5 fw-semibold">
-                    <%= product.variants[0].quantity === 0 ? 0 : 1 %>
-                </span>
-                <button class="btn btn-info ms-2" onclick="changeQuantity(1)"
-                    <%= product.variants[0].quantity === 0 ? 'disabled' : '' %>>+</button>
+               
                 <div class="ms-3">
                     <p class="text-muted mb-0">
                         Available Quantity:
@@ -214,7 +211,7 @@
                             <%= product.variants[0].quantity === 0 ? 'Out of Stock' : product.variants[0].quantity %>
                         </span>
                     </p>
-                    <p id="quantity-error" class="text-danger fw-bold small mt-1" style="display: none;">Exceeds available quantity.</p>
+                
                 </div>
             </div>
 

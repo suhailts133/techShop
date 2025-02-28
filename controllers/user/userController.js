@@ -119,6 +119,8 @@ const signup = async (req, res) => {
         }
         // set otp in the session after sending the otp use this for otp verification
         req.session.userOtp = otp;
+
+       
         // set userdata in the session so that it can be use adding to db after otp verification
         req.session.userData = { name, phone, email, password, Referalcode };
 
@@ -143,9 +145,7 @@ const loadOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
-        console.log("t otp", otp);
-        console.log("g otp", req.body.otp);
-
+        
         // Check the OTP from the OTP page with the OTP in the session
         if (otp === req.session.userOtp) {
             const user = req.session.userData; // User data from the session
