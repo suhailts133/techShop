@@ -1,7 +1,7 @@
 (function () {
     'use strict';
   
-    const forms = document.querySelectorAll("#addAddressForm");
+    const forms = document.querySelectorAll("#addressForm");
   
     Array.from(forms).forEach(function (form) {
       form.addEventListener('submit', function (event) {

@@ -38,7 +38,7 @@ function generateHeader(doc) {
   doc
     .fillColor("#444444")
     .fontSize(20)
-    .text("Tech Shop", 110, 57, {align:"center"})
+    .text("Techlux", 110, 57, {align:"center"})
     .fontSize(10)
     .moveDown();
 }

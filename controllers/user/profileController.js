@@ -55,26 +55,40 @@ const loadChangePasswordCheck = async (req, res) => {
         console.log("error while loading change password checker", error.message)
     }
 }
-
 const changePasswordCheck = async (req, res) => {
     try {
         const { password } = req.body;
         const { id } = req.session.user;
         const findUser = await User.findById(id);
-        if(!findUser.password){
-            req.flash("error", "check if your account is loggined with googele")
+        
+        if (!findUser.password) {
+            return res.status(400).json({ // 400 Bad Request
+                success: false,
+                message: "Account is linked with Google. Cannot change password here."
+            });
         }
+
         const passwordMatch = await bcrypt.compare(password, findUser.password);
         if (!passwordMatch) {
-            req.flash("error", "wrong password click forget password if you dont remember the password");
-            return res.redirect("/profile/loadChangePasswordCheck")
+            return res.status(401).json({ // 401 Unauthorized
+                success: false,
+                message: "Incorrect password. Use 'Forgot Password' if needed."
+            });
         }
-        res.redirect("/profile/changePassword")
+
+        res.json({ 
+            success: true, 
+            redirectTo: "/profile/changePassword",
+            message: "Redirecting to password change page..." 
+        });
     } catch (error) {
-        console.log("error while checking change password", error.message)
+        console.error("Error in changePasswordCheck:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
 }
-
 const loadChangePasswordForm = async (req, res) => {
     try {
         res.render("changePasswordForm", { title: "change password" })
