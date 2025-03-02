@@ -49,29 +49,53 @@ const categoryInfo = async (req, res) => {
     }
 };
 
-
-// block a  category
-const categoryUnlist = async (req, res) => {
+// brand islist toggleing
+const categoryToggle = async (req, res) => {
     try {
-        let { id } = req.query;  // id of the category from the query
-        await Category.updateOne({ _id: id }, { $set: { isListed: false } }); // unlist it by setting it false
-        res.redirect(`/admin/categories/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
-    } catch (error) {
-        console.log("Error while unlising category", error.message);
-    }
-};
-
-
-// lisitng the category
-const categoryList = async (req, res) => {
-    try {
-        let { id } = req.query;  // id of the category from the query
-        await Category.updateOne({ _id: id }, { $set: { isListed: true } });  // unlist it by setting it true
+        let { id } = req.query; // id of the brand
+        const categoryStatus = await Category.findById(id);
+        let flag = true;  // by default the item is already listed
+        if(categoryStatus.isListed){ //if the item is listed 
+            categoryStatus.isListed=false; // make the item unlist
+            flag=false  // then set the flag as false
+            await categoryStatus.save()
+        }else{ //  if the item is already unlisted make it listed
+            categoryStatus.isListed=true; //  make islistd as true 
+            flag=true; // set the flag as true since the item is listed
+            await categoryStatus.save();
+        }
+        res.json({ success: true, isListed: flag });  // return the json response with flag 
+        
         res.redirect(`/admin/categories/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
     } catch (error) {
         console.log("Error while listing category", error.message);
     }
 };
+
+
+
+// // block a  category
+// const categoryUnlist = async (req, res) => {
+//     try {
+//         let { id } = req.query;  // id of the category from the query
+//         await Category.updateOne({ _id: id }, { $set: { isListed: false } }); // unlist it by setting it false
+//         res.redirect(`/admin/categories/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
+//     } catch (error) {
+//         console.log("Error while unlising category", error.message);
+//     }
+// };
+
+
+// // lisitng the category
+// const categoryList = async (req, res) => {
+//     try {
+//         let { id } = req.query;  // id of the category from the query
+//         await Category.updateOne({ _id: id }, { $set: { isListed: true } });  // unlist it by setting it true
+//         res.redirect(`/admin/categories/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
+//     } catch (error) {
+//         console.log("Error while listing category", error.message);
+//     }
+// };
 
 
 // load the new category page
@@ -191,8 +215,7 @@ const editCategory = async (req, res) => {
 
 module.exports = {
     categoryInfo,
-    categoryList,
-    categoryUnlist,
+    categoryToggle,
     loadAddCategory,
     addCategory,
     loadEditCategory,

@@ -186,14 +186,15 @@
                                         <% } %>
                                     </td>
                                     <td>
-                                        <!-- List/Unlist Button -->
-                                        <% if (categoryData[i].isListed) { %>
-                                            <a href="/admin/categories/unlist?id=<%= categoryData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                class="btn btn-danger btn-sm">Unlist</a>
-                                        <% } else { %>
-                                            <a href="/admin/categories/list?id=<%= categoryData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                class="btn btn-success btn-sm">List</a>
-                                        <% } %>
+                                     
+                                         <!-- List/Unlist Button -->
+                                         <button data-category-id="<%= categoryData[i]._id%>"
+                                            data-search="<%= search || '' %>" data-page="<%= page || '' %>"
+                                            onclick="toggleCategoryStatus(this)"
+                                            class="btn <%= categoryData[i].isListed ? 'btn-danger' : 'btn-success' %> btn-sm">
+                                            <%= categoryData[i].isListed ? 'Unlist' : 'List' %>
+                                        </button>
+
 
                                         <!-- Edit Button -->
                                         <a href="/admin/categories/edit?id=<%= categoryData[i]._id %>"
@@ -239,3 +240,58 @@
         </div>
     </div>
 </main>
+
+
+<script>
+    async function toggleCategoryStatus(button) {
+const brandId = button.getAttribute('data-category-id');
+const search = button.getAttribute('data-search');
+const page = button.getAttribute('data-page');
+
+try {
+    const response = await fetch(`/admin/categories/toggle?id=${brandId}&search=${search}&page=${page}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+   
+        // Toggle the button text and class
+        if (data.isListed) {
+            button.textContent = 'Unlist';
+            button.classList.remove('btn-success');
+            button.classList.add('btn-danger');
+        } else {
+            button.textContent = 'List';
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-success');
+        }
+
+       
+        const row = button.closest('tr');
+        const statusBadge = row.querySelector('.badge');
+        
+        if (statusBadge) {
+            if (data.isListed) {
+                statusBadge.textContent = 'Listed';
+                statusBadge.classList.remove('bg-danger');
+                statusBadge.classList.add('bg-success');
+            } else {
+                statusBadge.textContent = 'Unlisted';
+                statusBadge.classList.remove('bg-success');
+                statusBadge.classList.add('bg-danger');
+            }
+        }
+    } else {
+        alert('Failed to toggle brand status');
+    }
+} catch (error) {
+    console.error('Error:', error);
+    alert('An error occurred while toggling brand status');
+}
+}
+</script>

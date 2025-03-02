@@ -41,8 +41,7 @@ router.get("/users/unBlockCustomer",adminCheckAuth, customerController.customerU
 router.get("/categories",  adminCheckAuth, categoryController.categoryInfo) // displaying category data
 router.get("/categories/add", adminCheckAuth, categoryController.loadAddCategory) // loadin the add category
 router.post("/categories/add", adminCheckAuth, categoryController.addCategory) // addin the category
-router.get("/categories/unlist", adminCheckAuth, categoryController.categoryUnlist)  // unlist a category
-router.get("/categories/list", adminCheckAuth, categoryController.categoryList)  // list a category
+router.get("/categories/toggle", adminCheckAuth, categoryController.categoryToggle);  
 router.get("/categories/edit", adminCheckAuth, categoryController.loadEditCategory);  
 router.post("/categories/edit", adminCheckAuth, categoryController.editCategory);
 
