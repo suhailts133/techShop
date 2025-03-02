@@ -49,31 +49,31 @@ const customerInfo = async (req, res) => {
 };
 
 
-// block a  customer
-const customerBlocked = async (req, res) => {
+// brand islist toggleing
+const custemorToggle = async (req, res) => {
     try {
-        let { id } = req.query;  // id of the user from the query
-        await User.updateOne({ _id: id }, { $set: { isBlocked: true } });  // update the specific document set isblocked as true
-        res.redirect(`/admin/users/?search=${req.query.search || ''}&page=${req.query.page || 1}`);  
+        let { id } = req.query; // id of the brand
+        const customerStatus = await User.findById(id);
+        let flag = false;  // by default the item is already listed
+        if(customerStatus.isBlocked){ //if the item is listed 
+            customerStatus.isBlocked=false; // make the item unlist
+            flag=false  // then set the flag as false
+            await customerStatus.save()
+        }else{ //  if the item is already unlisted make it listed
+            customerStatus.isBlocked=true; //  make islistd as true 
+            flag=true; // set the flag as true since the item is listed
+            await customerStatus.save();
+        }
+        res.json({ success: true, isBlocked: flag });  // return the json response with flag 
+        
+       
     } catch (error) {
-        console.log("Error while blocking user", error.message);
+        console.log("Error while listing category", error.message);
     }
 };
 
-
-// unblocking a customer
-const customerUnblock = async (req, res) => {
-    try {
-        let { id } = req.query;  // id of the user from the query
-        await User.updateOne({ _id: id }, { $set: { isBlocked: false } });   // update the specific document set isblocked as false
-        res.redirect(`/admin/users/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
-    } catch (error) {
-        console.log("Error while unblocking user", error.message);
-    }
-};
 
 module.exports = {
     customerInfo,
-    customerBlocked,
-    customerUnblock
+    custemorToggle
 }

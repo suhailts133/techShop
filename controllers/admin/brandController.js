@@ -78,7 +78,7 @@ const brandToggle = async (req, res) => {
         }
         res.json({ success: true, isListed: flag });  // return the json response with flag 
         
-        res.redirect(`/admin/brands/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
+        
     } catch (error) {
         console.log("Error while listing category", error.message);
     }

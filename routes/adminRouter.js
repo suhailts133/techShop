@@ -33,8 +33,7 @@ router.get("/ledger-book",adminCheckAuth, extrasContoller.ledgerBook)
 
 // customer routes
 router.get("/users", adminCheckAuth, customerController.customerInfo)
-router.get("/users/blockCustomer",adminCheckAuth, customerController.customerBlocked)
-router.get("/users/unBlockCustomer",adminCheckAuth, customerController.customerUnblock)
+router.get("/users/toggle",adminCheckAuth, customerController.custemorToggle)
 
 // category routes
 

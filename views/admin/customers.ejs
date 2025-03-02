@@ -168,13 +168,13 @@
                                         <% } %>
                                     </td>
                                     <td>
-                                        <% if (userData[i].isBlocked === false) { %>
-                                            <a href="/admin/users/blockCustomer?id=<%= userData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                class="btn btn-danger btn-sm">Block</a>
-                                        <% } else { %>
-                                            <a href="/admin/users/unBlockCustomer?id=<%= userData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                class="btn btn-success btn-sm">Unblock</a>
-                                        <% } %>
+                                        <button data-user-id="<%= userData[i]._id %>"
+                                                data-search="<%= search || '' %>"
+                                                data-page="<%= page || '' %>"
+                                                onclick="toggleUserStatus(this)"
+                                                class="btn <%= userData[i].isBlocked ? 'btn-danger' : 'btn-success' %> btn-sm">
+                                            <%= userData[i].isBlocked ? 'Unblock' : 'Block' %>
+                                        </button>
                                     </td>
                                 </tr>
                             <% } %>
@@ -216,3 +216,58 @@
         </div>
     </div>
 </main>
+
+
+
+
+<script>
+   async function toggleUserStatus(button) {
+    const userId = button.getAttribute('data-user-id');
+    const search = button.getAttribute('data-search');
+    const page = button.getAttribute('data-page');
+
+    try {
+        const response = await fetch(`/admin/users/toggle?id=${userId}&search=${search}&page=${page}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Toggle the button text and class
+            if (data.isBlocked) {
+                button.textContent = 'Unblock';
+                button.classList.remove('btn-success');
+                button.classList.add('btn-danger');
+            } else {
+                button.textContent = 'Block';
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-success');
+            }
+
+            // Update the status badge
+            const row = button.closest('tr');
+            const statusBadge = row.querySelector('.badge');
+            if (statusBadge) {
+                if (data.isBlocked) {
+                    statusBadge.textContent = 'Blocked';
+                    statusBadge.classList.remove('bg-success');
+                    statusBadge.classList.add('bg-danger');
+                } else {
+                    statusBadge.textContent = 'Active';
+                    statusBadge.classList.remove('bg-danger');
+                    statusBadge.classList.add('bg-success');
+                }
+            }
+        } else {
+            alert('Failed to toggle user status');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while toggling user status');
+    }
+}
+</script>
