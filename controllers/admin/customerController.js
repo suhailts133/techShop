@@ -1,3 +1,10 @@
+/*
+ displaying all user data
+ searching for particular user using name or email
+ listing, unlisting, 
+ */
+
+// schema
 const User = require("../../models/userSchema");
 
 
@@ -46,19 +53,19 @@ const customerInfo = async (req, res) => {
 const customerBlocked = async (req, res) => {
     try {
         let { id } = req.query;  // id of the user from the query
-        await User.updateOne({ _id: id }, { $set: { isBlocked: true } });  // update the specific document
+        await User.updateOne({ _id: id }, { $set: { isBlocked: true } });  // update the specific document set isblocked as true
         res.redirect(`/admin/users/?search=${req.query.search || ''}&page=${req.query.page || 1}`);  
     } catch (error) {
         console.log("Error while blocking user", error.message);
     }
 };
 
+
+// unblocking a customer
 const customerUnblock = async (req, res) => {
     try {
-        let { id } = req.query;
-        await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
-
-
+        let { id } = req.query;  // id of the user from the query
+        await User.updateOne({ _id: id }, { $set: { isBlocked: false } });   // update the specific document set isblocked as false
         res.redirect(`/admin/users/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
     } catch (error) {
         console.log("Error while unblocking user", error.message);

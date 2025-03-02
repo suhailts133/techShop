@@ -1,20 +1,32 @@
+/*
+ displaying all coupons data
+ adding new coupons
+ searching for particular coupons
+editing , listing, unlisting, deleting
+ */
+
+// schema
 const Coupon = require("../../models/couponsSchema.js");
+// modules
 const { v4: uuidv4 } = require("uuid");
 
 const allCoupons = async (req, res) => {
     try {
-        let search = "";
-        let status = "";
-        if (req.query.search) {
+        // for searching 
+        let search = "";  // name iof the coupon
+        let status = ""; // state of the coupon
+        if (req.query.search) { // reassign the name of the coupon
             search = req.query.search;
         }
 
-        if (req.query.status) {
+        if (req.query.status) { // reassign the coupon status for searching
             status = req.query.status;
         }
+        // pagination
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
         const skip = (page - 1) * limit;
+        // setting the query 
         let query = {
             $or: [
                 { name: { $regex: ".*" + search + ".*", $options: "i" } }
@@ -23,12 +35,14 @@ const allCoupons = async (req, res) => {
         if (status) {
             query.status = status;
         }
+        // fetch the coupons
         const couponData = await Coupon.find(query)
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
-        const totalCount = await Coupon.countDocuments(query);
-        const totalPages = Math.ceil(totalCount / limit);
+            
+        const totalCount = await Coupon.countDocuments(query); // for counting the document
+        const totalPages = Math.ceil(totalCount / limit); // for checking for the number of the page needed
         res.render("coupons", {
             admin: req.session.admin,
             title: "Coupons",
@@ -43,6 +57,8 @@ const allCoupons = async (req, res) => {
     }
 };
 
+
+//load  add coupon page
 const loadAddCoupon = async (req, res) => {
     try {
         res.render("addCoupon", { title: "Add new Coupon" })
@@ -51,8 +67,11 @@ const loadAddCoupon = async (req, res) => {
     }
 }
 
+
+// add new coupon
 const addCoupon = async (req, res) => {
     try {
+        // coupon validation
         const { discountValue, minPurchase, validityDuration, status, name } = req.body;
         if (!discountValue) {
             req.flash("error", "discount value needed");
@@ -84,8 +103,8 @@ const addCoupon = async (req, res) => {
             return res.redirect("/admin/coupon/add")
         }
       
-        const couponCode = uuidv4().split('-')[0].toUpperCase();
-        const newCoupon = new Coupon({
+        const couponCode = uuidv4().split('-')[0].toUpperCase(); // create coupon code
+        const newCoupon = new Coupon({  // add new coupon
             name,
             code: couponCode,
             discountValue,
@@ -102,6 +121,8 @@ const addCoupon = async (req, res) => {
     }
 };
 
+
+// edit coupon page loading
 const loadEditCoupon = async (req, res) => {
     try {
         const {id} = req.query;
@@ -112,12 +133,14 @@ const loadEditCoupon = async (req, res) => {
     }
 }
 
+
+// edit coupon
 const editCoupon = async (req, res) => {
     try {
+
         const {id} = req.query;
-        
+        // coupon validation
         const {couponEdit} = req.body;
-      
         if (!couponEdit.discountValue) {
             req.flash("error", "discount value needed");
             return res.redirect(`/admin/coupon/edit?id=${id}`)
@@ -148,7 +171,7 @@ const editCoupon = async (req, res) => {
             req.flash("error", "insufficent validity days needed");
             return res.redirect(`/admin/coupon/edit?id=${id}`)
         }
-
+// if all good edit the coupon
         await Coupon.findByIdAndUpdate(id, couponEdit);
         req.flash("success", "Coupon edited successufully");
         res.redirect("/admin/coupon")
@@ -158,19 +181,20 @@ const editCoupon = async (req, res) => {
     }
 }
 
+
+// activating and deactivatin the coupon
 const toggleCouponStatus = async (req, res) => {
-    const { id } = req.query;
-  
+    const { id } = req.query  // coupon id
     try {
-      const coupon = await Coupon.findById(id);
+      const coupon = await Coupon.findById(id); // check if the coupon exists
       if (!coupon) {
         req.flash("error", "coupon not found");
         return res.redirect(`/admin/coupon/?search=${req.query.search || ''}status=${coupon.status || ''}&page=${req.query.page || 1}`);
       }
-  
-      coupon.status = coupon.status === 'active' ? 'inactive' : 'active';
+
+      coupon.status = coupon.status === 'active' ? 'inactive' : 'active'; // change the status 
+      // if the coupon staus is active make inactive vise versa
       await coupon.save();
-  
       req.flash("success", "coupon status changed");
      res.redirect(`/admin/coupon/?search=${req.query.search || ''}&status=${coupon.status || ''}&page=${req.query.page || 1}`);
     } catch (err) {
@@ -178,6 +202,9 @@ const toggleCouponStatus = async (req, res) => {
     }
   };
 
+
+
+  // deleting the coupon
 const deleteCoupon = async (req, res) => {
     try {
         const {id} = req.query;

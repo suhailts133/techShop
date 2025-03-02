@@ -1,248 +1,313 @@
 <% layout("../layouts/adminboilerplate") %>
-<title><%= title %></title>
-<style>
-    .container {
-        background: var(--primary-light);
-        padding: 2rem;
-        border-radius: 12px;
-        margin-top: 20px;
-    }
+    <title>
+        <%= title %>
+    </title>
+    <style>
+        .container {
+            background: var(--primary-light);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
 
-    h2 {
-        color: var(--text-light);
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-    }
+        h2 {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
 
-    .form-control {
-        background: var(--primary-color);
-        border: 1px solid var(--border-color);
-        color: var(--text-light);
-    }
+        .form-control {
+            background: var(--primary-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+        }
 
-    .form-control::placeholder {
-        color: var(--text-muted);
-    }
+        .form-control::placeholder {
+            color: var(--text-muted);
+        }
 
-    .btn-primary {
-        background: var(--success-color);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
+        .btn-primary {
+            background: var(--success-color);
+            border: none;
+            color: var(--primary-color);
+            transition: filter 0.3s ease;
+        }
 
-    .btn-primary:hover {
-        filter: brightness(90%);
-    }
+        .btn-primary:hover {
+            filter: brightness(90%);
+        }
 
-    .btn-success {
-        background: var(--success-color);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+            color: var(--primary-color);
+            transition: filter 0.3s ease;
+        }
 
-    .btn-success:hover {
-        filter: brightness(90%);
-    }
+        .btn-success:hover {
+            filter: brightness(90%);
+        }
 
-    .btn-danger {
-        background: var(--error-color);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
+        .btn-danger {
+            background: var(--error-color);
+            border: none;
+            color: var(--primary-color);
+            transition: filter 0.3s ease;
+        }
 
-    .btn-danger:hover {
-        filter: brightness(90%);
-    }
+        .btn-danger:hover {
+            filter: brightness(90%);
+        }
 
-    .btn-warning {
-        background: var(--accent-color);
-        border: none;
-        color: var(--primary-color);
-        transition: filter 0.3s ease;
-    }
+        .btn-warning {
+            background: var(--accent-color);
+            border: none;
+            color: var(--primary-color);
+            transition: filter 0.3s ease;
+        }
 
-    .btn-warning:hover {
-        filter: brightness(90%);
-    }
+        .btn-warning:hover {
+            filter: brightness(90%);
+        }
 
-    .table {
-        background: var(--primary-color);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        overflow: hidden;
-    }
+        .table {
+            background: var(--primary-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
 
-    .table th {
-        background: var(--primary-light);
-        color: var(--text-light);
-        font-weight: 600;
-    }
+        .table th {
+            background: var(--primary-light);
+            color: var(--text-light);
+            font-weight: 600;
+        }
 
-    .table td {
-        color: var(--text-light);
-    }
+        .table td {
+            color: var(--text-light);
+        }
 
-    .table-hover tbody tr:hover {
-        background: var(--primary-light);
-    }
+        .table-hover tbody tr:hover {
+            background: var(--primary-light);
+        }
 
-    .badge {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-    }
+        .badge {
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
 
-    .badge.bg-danger {
-        background: var(--error-color) !important;
-        color: var(--primary-color) !important;
-    }
+        .badge.bg-danger {
+            background: var(--error-color) !important;
+            color: var(--primary-color) !important;
+        }
 
-    .badge.bg-success {
-        background: var(--success-color) !important;
-        color: var(--primary-color) !important;
-    }
+        .badge.bg-success {
+            background: var(--success-color) !important;
+            color: var(--primary-color) !important;
+        }
 
-    .pagination .page-link {
-        background: var(--primary-color);
-        border: 1px solid var(--border-color);
-        color: var(--text-light);
-    }
+        .pagination .page-link {
+            background: var(--primary-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+        }
 
-    .pagination .page-item.active .page-link {
-        background: var(--success-color);
-        border-color: var(--success-color);
-        color: var(--primary-color);
-    }
+        .pagination .page-item.active .page-link {
+            background: var(--success-color);
+            border-color: var(--success-color);
+            color: var(--primary-color);
+        }
 
-    .pagination .page-link:hover {
-        background: var(--primary-light);
-    }
+        .pagination .page-link:hover {
+            background: var(--primary-light);
+        }
 
-    .img-thumbnail {
-        max-width: 50px;
-        border-radius: 6px;
-        border: 1px solid var(--border-color);
-    }
-</style>
+        .img-thumbnail {
+            max-width: 50px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+    </style>
 
-<main class="main-content">
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
-                <h2 class="text-center">Brands</h2>
+    <main class="main-content">
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center">Brands</h2>
+                </div>
             </div>
-        </div>
 
-        <!-- Add New Button -->
-        <div class="row mt-3">
-            <div class="col-12 d-flex justify-content-end">
-                <a href="/admin/brands/add" class="btn btn-success">Add New</a>
+            <!-- Add New Button -->
+            <div class="row mt-3">
+                <div class="col-12 d-flex justify-content-end">
+                    <a href="/admin/brands/add" class="btn btn-success">Add New</a>
+                </div>
             </div>
-        </div>
 
-        <!-- Search Bar -->
-        <div class="row mt-3">
-            <div class="col-12">
-                <form action="/admin/brands/" method="get">
-                    <div class="input-group position-relative">
-                        <input type="text" name="search" class="form-control" placeholder="Search brands..."
-                            value="<%= search || '' %>" id="searchInput" />
-                        <a href="/admin/brands/" class="text-decoration-none" style="cursor: pointer; color: var(--text-muted);">
-                            <span class="reset-icon">&#10005;</span>
-                        </a>
-                        <button type="submit" class="btn btn-primary ms-2">Search</button>
-                    </div>
-                </form>
+            <!-- Search Bar -->
+            <div class="row mt-3">
+                <div class="col-12">
+                    <form action="/admin/brands/" method="get">
+                        <div class="input-group position-relative">
+                            <input type="text" name="search" class="form-control" placeholder="Search brands..."
+                                value="<%= search || '' %>" id="searchInput" />
+                            <a href="/admin/brands/" class="text-decoration-none"
+                                style="cursor: pointer; color: var(--text-muted);">
+                                <span class="reset-icon">&#10005;</span>
+                            </a>
+                            <button type="submit" class="btn btn-primary ms-2">Search</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Brands Table -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Logo</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% if (brandData.length === 0) { %>
+            <!-- Brands Table -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <table class="table table-bordered table-hover">
+                        <thead>
                             <tr>
-                                <td colspan="4" class="text-center">No brands found</td>
+                                <th>Name</th>
+                                <th>Logo</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
-                        <% } else { %>
-                            <% for (let i = 0; i < brandData.length; i++) { %>
+                        </thead>
+                        <tbody>
+                            <% if (brandData.length===0) { %>
                                 <tr>
-                                    <td><%= brandData[i].brandName %></td>
-                                    <td>
-                                        <img src="/uploads/brands/<%= brandData[i].logo %>" 
-                                             alt="<%= brandData[i].brandName %> Logo" 
-                                             class="img-thumbnail">
-                                    </td>
-                                    <td>
-                                        <% if (brandData[i].isListed) { %>
-                                            <span class="badge bg-success">Listed</span>
-                                        <% } else { %>
-                                            <span class="badge bg-danger">Unlisted</span>
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <!-- List/Unlist Button -->
-                                        <% if (brandData[i].isListed) { %>
-                                            <a href="/admin/brands/unlist?id=<%= brandData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                class="btn btn-danger btn-sm">Unlist</a>
-                                        <% } else { %>
-                                            <a href="/admin/brands/list?id=<%= brandData[i]._id %>&search=<%= search || '' %>&page=<%= page %>"
-                                                class="btn btn-success btn-sm">List</a>
-                                        <% } %>
-
-                                        <!-- Edit Button -->
-                                        <a href="/admin/brands/edit?id=<%= brandData[i]._id %>"
-                                            class="btn btn-warning btn-sm ms-2">Edit</a>
-                                    </td>
+                                    <td colspan="4" class="text-center">No brands found</td>
                                 </tr>
-                            <% } %>
-                        <% } %>
-                    </tbody>
-                </table>
+                                <% } else { %>
+                                    <% for (let i=0; i < brandData.length; i++) { %>
+                                        <tr>
+                                            <td>
+                                                <%= brandData[i].brandName %>
+                                            </td>
+                                            <td>
+                                                <img src="/uploads/brands/<%= brandData[i].logo %>"
+                                                    alt="<%= brandData[i].brandName %> Logo" class="img-thumbnail">
+                                            </td>
+                                            <td>
+                                                <% if (brandData[i].isListed) { %>
+                                                    <span class="badge bg-success">Listed</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-danger">Unlisted</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <!-- List/Unlist Button -->
+                                                <button data-brand-id="<%= brandData[i]._id%>"
+                                                    data-search="<%= search || '' %>" data-page="<%= page || '' %>"
+                                                    onclick="toggleBrandStatus(this)"
+                                                    class="btn <%= brandData[i].isListed ? 'btn-danger' : 'btn-success' %> btn-sm">
+                                                    <%= brandData[i].isListed ? 'Unlist' : 'List' %>
+                                                </button>
+
+                                                <!-- Edit Button -->
+                                                <a href="/admin/brands/edit?id=<%= brandData[i]._id %>"
+                                                    class="btn btn-warning btn-sm ms-2">Edit</a>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="row mt-3">
+                <div class="col-12 d-flex justify-content-center">
+                    <nav>
+                        <ul class="pagination">
+                            <% if (page> 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="/admin/brands/?search=<%= search || '' %>&page=<%= page - 1 %>"
+                                        aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <% } %>
+
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <li class="page-item <%= page === i ? 'active' : '' %>">
+                                            <a class="page-link"
+                                                href="/admin/brands/?search=<%= search || '' %>&page=<%= i %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+
+                                            <% if (page < totalPages) { %>
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                        href="/admin/brands/?search=<%= search || '' %>&page=<%= page + 1 %>"
+                                                        aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                                <% } %>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
+    </main>
 
-        <!-- Pagination -->
-        <div class="row mt-3">
-            <div class="col-12 d-flex justify-content-center">
-                <nav>
-                    <ul class="pagination">
-                        <% if (page > 1) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="/admin/brands/?search=<%= search || '' %>&page=<%= page - 1 %>" aria-label="Previous">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                        <% } %>
+    <script>
+        async function toggleBrandStatus(button) {
+    const brandId = button.getAttribute('data-brand-id');
+    const search = button.getAttribute('data-search');
+    const page = button.getAttribute('data-page');
+    
+    try {
+        const response = await fetch(`/admin/brands/toggle?id=${brandId}&search=${search}&page=${page}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                            <li class="page-item <%= page === i ? 'active' : '' %>">
-                                <a class="page-link" href="/admin/brands/?search=<%= search || '' %>&page=<%= i %>"><%= i %></a>
-                            </li>
-                        <% } %>
+        const data = await response.json();
 
-                        <% if (page < totalPages) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="/admin/brands/?search=<%= search || '' %>&page=<%= page + 1 %>" aria-label="Next">
-                                    <span aria-hidden="true">&raquo;</span>
-                                </a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </div>
-</main>
+        if (data.success) {
+            // No need to re-query the button - we already have it as a parameter
+            
+            // Toggle the button text and class
+            if (data.isListed) {
+                button.textContent = 'Unlist';
+                button.classList.remove('btn-success');
+                button.classList.add('btn-danger');
+            } else {
+                button.textContent = 'List';
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-success');
+            }
+
+           
+            const row = button.closest('tr');
+            const statusBadge = row.querySelector('.badge');
+            
+            if (statusBadge) {
+                if (data.isListed) {
+                    statusBadge.textContent = 'Listed';
+                    statusBadge.classList.remove('bg-danger');
+                    statusBadge.classList.add('bg-success');
+                } else {
+                    statusBadge.textContent = 'Unlisted';
+                    statusBadge.classList.remove('bg-success');
+                    statusBadge.classList.add('bg-danger');
+                }
+            }
+        } else {
+            alert('Failed to toggle brand status');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while toggling brand status');
+    }
+}
+    </script>

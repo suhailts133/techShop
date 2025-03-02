@@ -6,8 +6,7 @@ const mongoose = require("mongoose")
 const addToWishlist = async (req, res) => {
     try {
         const { productId, variantId } = req.body;
-        console.log("productid", productId);
-      console.log("variantid", variantId);
+ 
        
         if (!req.session.user) {
           return res.status(401).json({ error: 'Please log in to update your wishlist.' });

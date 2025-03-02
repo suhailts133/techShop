@@ -1,11 +1,20 @@
+/*
+ displaying category data
+ adding new category
+ searching for particular category
+editing , listing, unlisting
+ */
+
+// external files
 const Category = require("../../models/categorySchema.js");
 
 
-// displaying customer details
+// displaying categroy details
 const categoryInfo = async (req, res) => {
     try {
+        // for searching for particular data
         let search = "";
-        if (req.query.search) {  // to search for a custemor if admin have searched for anything it will be in the search field 
+        if (req.query.search) {  // if there is a search query reassign the data to search  
             search = req.query.search;
         }
         // pagination
@@ -14,8 +23,9 @@ const categoryInfo = async (req, res) => {
         const skip = (page - 1) * limit;  // how much to skip since 5 is the limit in the first page 0 , then 5, 10, 15
 
         const categoryData = await Category.find({
-            $or: [   // search for a user 
-                { name: { $regex: ".*" + search + ".*", $options: "i" } }, // 
+            $or: [   // find all category if the search is empty 
+            // else only the searched category
+                { name: { $regex: ".*" + search + ".*", $options: "i" } }, 
             ]
         })
             .skip(skip)
@@ -39,29 +49,32 @@ const categoryInfo = async (req, res) => {
     }
 };
 
-// block a  customer
+
+// block a  category
 const categoryUnlist = async (req, res) => {
     try {
-        let { id } = req.query;  // id of the user from the query
-        await Category.updateOne({ _id: id }, { $set: { isListed: false } });
+        let { id } = req.query;  // id of the category from the query
+        await Category.updateOne({ _id: id }, { $set: { isListed: false } }); // unlist it by setting it false
         res.redirect(`/admin/categories/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
     } catch (error) {
         console.log("Error while unlising category", error.message);
     }
 };
 
+
+// lisitng the category
 const categoryList = async (req, res) => {
     try {
-        let { id } = req.query;
-        await Category.updateOne({ _id: id }, { $set: { isListed: true } });
-
-
+        let { id } = req.query;  // id of the category from the query
+        await Category.updateOne({ _id: id }, { $set: { isListed: true } });  // unlist it by setting it true
         res.redirect(`/admin/categories/?search=${req.query.search || ''}&page=${req.query.page || 1}`);
     } catch (error) {
         console.log("Error while listing category", error.message);
     }
 };
 
+
+// load the new category page
 const loadAddCategory = async (req, res) => {
     try {
         res.render("addCategory",
@@ -73,8 +86,11 @@ const loadAddCategory = async (req, res) => {
     }
 }
 
+
+// add new category page
 const addCategory = async (req, res) => {
     try {
+        // reformat the data by trimming and maeking it into lower case and other validation 
         const { name, description,categoryOffer } = req.body;
         const trimmedName = name?.trim() || "";
         const trimmedDescription = description?.trim() || "";
@@ -94,13 +110,13 @@ const addCategory = async (req, res) => {
         }
 
         const loweredName = trimmedName.toLowerCase();
-
-        const existingCategory = await Category.findOne({ name: loweredName });
+// check if the category already exists
+        const existingCategory = await Category.findOne({ name: loweredName }); 
         if (existingCategory) {
             req.flash("error", "Category already exists");
             return res.redirect("/admin/categories/add");
         }
-
+// add the new category
         const newCategory = new Category({
             name: loweredName,
             description: trimmedDescription,
@@ -117,9 +133,11 @@ const addCategory = async (req, res) => {
     }
 };
 
+
+// load the edit category page
 const loadEditCategory = async (req, res) => {
-    const {id} = req.query;
-    const categoryData = await Category.findById(id);
+    const {id} = req.query;   // id of the category 
+    const categoryData = await Category.findById(id); // data fetching
     if(!categoryData){
         req.flash("error", "category did not find");
         res.redirect("/admin/categories")
@@ -127,28 +145,35 @@ const loadEditCategory = async (req, res) => {
     res.render("editCategory", {title:"edit category", categoryData})
 }
 
+
+// edit catefory
 const editCategory = async (req, res) => {
     try {
+        // reformating the data
         const { id } = req.query;
         const { name, description, categoryOffer  } = req.body;
         if (!name.trim() || !description.trim()) {
             req.flash("error", "name or description is empty")
             return res.redirect(`/admin/categories/edit?id=${id}`);
         }
+        // check if the category already exists
         const existingCategory = await Category.findOne({
-            name: name.trim(),
+            name: name.trim().toLowerCase(),
             _id: { $ne: id },
         });
+        // if the category already exists show error
         if (existingCategory) {
             req.flash("error", "category already exists")
             return res.redirect(`/admin/categories/edit?id=${id}` );
         }
+        // check the category offer is less than zero
         if(categoryOffer < 0){
             req.flash("error", "category offer must be either zero or a positive number")
             return res.redirect(`/admin/categories/edit?id=${id}` );
         }
+        // add the updated category
         await Category.findByIdAndUpdate(id, {
-            name: name.trim(),
+            name: name.trim().toLowerCase(),
             description: description.trim(),
             categoryOffer: categoryOffer
         });

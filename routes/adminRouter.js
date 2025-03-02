@@ -50,8 +50,8 @@ router.post("/categories/edit", adminCheckAuth, categoryController.editCategory)
 router.get("/brands",  adminCheckAuth,brandController.brandInfo);
 router.get("/brands/add", adminCheckAuth, brandController.loadAddBrandPage)
 router.post("/brands/add", adminCheckAuth,uploadBrand.single("image"), brandController.addBrand)
-router.get("/brands/list",adminCheckAuth, brandController.brandList)
-router.get("/brands/unlist",adminCheckAuth, brandController.brandUnlist)
+
+router.get("/brands/toggle",adminCheckAuth, brandController.brandToggle)
 router.get("/brands/edit", adminCheckAuth, brandController.loadEditBrand);
 router.post("/brands/edit",adminCheckAuth,  uploadBrand.single("image"),brandController.editBrand);
 // products
