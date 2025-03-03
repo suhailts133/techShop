@@ -54,14 +54,14 @@ const custemorToggle = async (req, res) => {
     try {
         let { id } = req.query; // id of the brand
         const customerStatus = await User.findById(id);
-        let flag = false;  // by default the item is already listed
-        if(customerStatus.isBlocked){ //if the item is listed 
-            customerStatus.isBlocked=false; // make the item unlist
+        let flag = false;  // by default the user is already unblocked so flag as false
+        if(customerStatus.isBlocked){ //if the user is blocked
+            customerStatus.isBlocked=false; // make the user unblock
             flag=false  // then set the flag as false
             await customerStatus.save()
-        }else{ //  if the item is already unlisted make it listed
-            customerStatus.isBlocked=true; //  make islistd as true 
-            flag=true; // set the flag as true since the item is listed
+        }else{ //  if the user is alrady blocked
+            customerStatus.isBlocked=true; //  make the user as blocked by setting isblockd as true 
+            flag=true; // set the flag as true because user is blocked
             await customerStatus.save();
         }
         res.json({ success: true, isBlocked: flag });  // return the json response with flag 
