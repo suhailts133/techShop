@@ -1,3 +1,14 @@
+/*
+1. all the orders
+displayed in a tabular form 
+2. individual order detail with all the order items
+3. individual item in a single order
+4. updation of the items status
+5. refund of the money if the item is returned and refund of the money if the item is cancelled only for wallet and razorpay
+6. wallet creation
+7. transaction creation
+8. updation of the order status according to the item status
+ */
 
 // schemas
 const Order = require("../../models/orderSchema.js")
@@ -7,7 +18,7 @@ const Wallet = require("../../models/walletSchema.js");
 
 const orderManagment = async (req, res) => {
   try {
-
+// pagination with size of 10 doc per page
     const page = parseInt(req.query.page) || 1;
     const pageSize = 10;
 
@@ -15,7 +26,7 @@ const orderManagment = async (req, res) => {
 
     const totalPages = Math.ceil(totalOrders / pageSize);
 
-
+    //  find all the order 
     const orders = await Order.find()
       .populate("userId")
       .populate("items.productId")
@@ -38,14 +49,17 @@ const orderManagment = async (req, res) => {
   }
 }
 
+
+// order detail controller
 const orderDetails = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.query; // id of the particular order
     const order = await Order.findById(id).populate("userId").populate("items.productId").populate("shippingAddress");
-    if (!order) {
+    if (!order) {  // if order not found
       req.flash("error", "order not found");
       res.redirect("/admin/orders")
     }
+    // display the order detauk
     res.render("orderDetails", { title: "order details", order })
   } catch (error) {
     console.log("error while loading order managment", error.message)
@@ -53,27 +67,26 @@ const orderDetails = async (req, res) => {
 }
 
 
+// item detail  individual order item
 const itemDetails = async (req, res) => {
   try {
-    const { orderId, itemId } = req.query;
+    const { orderId, itemId } = req.query; // take the item id and order id form the query
 
-
+// find the order
     const order = await Order.findById(orderId).populate("items.productId").populate("shippingAddress");
-
+// check if the order exists
     if (!order) {
       req.flash("error", "Order not found");
       return res.redirect("/admin/orders");
     }
+    // const item = order.items.find((i) => i._id.toString() === itemId.toString());
+    const item = order.items.id(itemId) // find te item
 
-
-    const item = order.items.find((i) => i._id.toString() === itemId.toString());
-
-    if (!item) {
+    if (!item) { // check if the item exists
       req.flash("error", "Item not found in the order");
       return res.redirect(`/admin/orders/view?id=${orderId}`);
     }
-
-
+    // display the item details
     res.render("adminItemDetails", { title: "Item Details", order, item });
   } catch (error) {
     console.error("Error while loading item details:", error.message);
@@ -82,13 +95,14 @@ const itemDetails = async (req, res) => {
 };
 
 
-
+// for updateing individual items status with refund if needed
 const updateItemStatus = async (req, res) => {
   try {
-    const { orderId, itemId } = req.query;
-    const { status } = req.body;
+    const { orderId, itemId } = req.query; // orderID and itemID from the query
+    const { status } = req.body;  // status for the item
 
-
+// find the particular order and also populate the coupon 
+// because if the order is cancelled then we have to remove the coupon too
     const order = await Order.findById(orderId)
       .populate("userId")
       .populate("couponRefrence");
@@ -97,18 +111,26 @@ const updateItemStatus = async (req, res) => {
       req.flash("error", "Order not found");
       return res.redirect("/admin/orders");
     }
-    const item = order.items.find((i) => i._id.toString() === itemId);
-    if (!item) {
+    // const item = order.items.find((i) => i._id.toString() === itemId);
+    const item = order.items.id(itemId) // find te item
+
+    if (!item) {  // check if the item exists
       req.flash("error", "Item not found");
       return res.redirect(`/admin/orders/view?id=${orderId}`);
-    }
-    item.orderStatus = status;
+    } 
+    item.orderStatus = status; // update the new item status
     await order.save();
-    const user = await User.findById(order.userId);
-    if (user) {
-      if (status === "Returned") {
-
+    const user = await User.findById(order.userId);  // find the user of the particular order
+    /*
+    from down here is the code for refund returning the item
+    cancelling the item and adding the money to the wallet 
+    and coupon deletion for the cancelled item
+     */
+    if (user) {  
+      if (status === "Returned") { // check if the status is returned
+// if the status is returned add the price of the item to the user wallet
         user.wallet += item.price;
+        // create a new wallet to track all the wallet transaction occured
         const returnWallet = new Wallet({
           userId: user._id,
           amount: item.price,
@@ -120,6 +142,7 @@ const updateItemStatus = async (req, res) => {
         await returnWallet.save();
         user.WalletHistory.push(returnWallet._id);
         await user.save();
+        // create a transcation record for the ledger book
         const returnTransaction = new Transaction({
           orderId: order._id,
           userId: user._id,
@@ -129,8 +152,13 @@ const updateItemStatus = async (req, res) => {
           action: "Debited"
         })
         await returnTransaction.save()
+        /* 
+        only need to return the money for the item if the payment method of the purchse is wallet
+        or razor pay 
+        so chek if the item status is called ans also if the order payment method is wallet or razorpay
+        */
       } else if (status === "Cancelled" && (order.paymentMethod === "Wallet" || order.paymentMethod === "Razorpay")) {
-
+// then add the amount to the wallet
         user.wallet += item.price;
         const cancelWallet = new Wallet({
           userId: user._id,
@@ -143,7 +171,7 @@ const updateItemStatus = async (req, res) => {
         await cancelWallet.save();
         user.WalletHistory.push(cancelWallet._id);
         await user.save();
-
+// transaction record for the ledger book
         const cancelledTransaction = new Transaction({
           orderId: order._id,
           userId: user._id,
@@ -154,14 +182,15 @@ const updateItemStatus = async (req, res) => {
         })
         await cancelledTransaction.save()
       }
+      // if the order has used a coupon while cancelling
       if (order.couponRefrence) {
-        const couponCountBefore = user.coupons.length;
-        user.coupons = user.coupons.filter(
+        const couponCountBefore = user.coupons.length; // current total length of the coupon before  filtering
+        user.coupons = user.coupons.filter( // filter out the coupons 
           (coupon) =>
             !coupon.orderRefrence || coupon.orderRefrence.toString() !== order._id.toString()
         );
 
-        if (user.coupons.length < couponCountBefore) {
+        if (user.coupons.length < couponCountBefore) { // checking if the filtering worked by 
           await user.save();
           order.couponRefrence = undefined;
           await order.save();
@@ -169,7 +198,12 @@ const updateItemStatus = async (req, res) => {
       }
     }
 
- 
+ /*
+ here this is the code for updating the item status of the entire order
+ map all the item status of the particular order then use every method to check 
+ if all the item status is the same then update the order status to one of these
+ deliverd, returned, cancelled, shipped
+ */
 const statuses = order.items.map(item => item.orderStatus);
 let newOrderStatus = null;
 if (statuses.every(status => status === "Delivered")) {
@@ -181,7 +215,7 @@ if (statuses.every(status => status === "Delivered")) {
 } else if (statuses.every(status => status === "Shipped")) {
   newOrderStatus = "Shipped";
 } else {
-  
+  // if not all the status is not same 
   if (statuses.includes("Returned")) {
     newOrderStatus = "Partially Returned";
   } else if (statuses.includes("Delivered")) {
@@ -192,10 +226,11 @@ if (statuses.every(status => status === "Delivered")) {
     newOrderStatus = "Partially Shipped";
   }
 }
-
+// update the order statys
 if (newOrderStatus) {
   order.orderStatus = newOrderStatus;
   if (newOrderStatus === "Delivered") {
+    // for the ledger book 
     await Transaction.findOneAndUpdate(
       { orderId: orderId },
       {

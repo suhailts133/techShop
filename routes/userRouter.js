@@ -18,11 +18,6 @@ const { checkAuth,checkAuthUserLogin, checkAuthUserSignUp, checkAuthCart } = req
 // home route
 router.get("/", userController.loadHomePage);
 router.post("/", userController.searchRecomendation)
-
-// router.get("/", fuzzyController.loadpage);
-// router.post("/", fuzzyController.textingFuzzy)
-// router.get("/productDetails", fuzzyController.product);
-
 // shop page
 router.get("/shop", shoppingPageController.loadShoppingPage)
 

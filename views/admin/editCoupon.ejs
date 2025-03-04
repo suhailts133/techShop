@@ -35,6 +35,8 @@
 </style>
 
 <main class="main-content">
+  <%- include("../partials/flash.ejs") %>
+
   <div class="container mt-5">
     <h1 class="text-center">Edit Coupon</h1>
     <form action="/admin/coupon/edit?id=<%= coupon._id%>" method="POST" class="mt-4">

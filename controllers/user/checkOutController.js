@@ -1,3 +1,16 @@
+/*
+1. check out page loading
+2. checkout "MAIN"
+order creation
+wallet creation 
+updation of the item
+sending main with invoice
+coupon validaion
+3. coupon valdaion before checout 
+*/
+
+
+// schemas
 const User = require("../../models/userSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const Order = require("../../models/orderSchema.js")
@@ -14,27 +27,29 @@ const { v4: uuidv4 } = require("uuid");
 
 
 
-
+// load the checkout page
+/*
+ load the checkout page with address if have any
+ and cart 
+ payment method desided in the front end
+*/
 const loadCheckOutPage = async (req, res) => {
     try {
-        const { id } = req.session.user;
+        const { id } = req.session.user; // id of  the current user form the session
 
-        const findUser = await User.findById(id).populate("address");
+        const findUser = await User.findById(id).populate("address"); // find the user and populate with address
         
-        const cart = await Cart.findOne({ userId: id }).populate("items.productId");
-        console.log("cart form load checkout page",cart)
-        if (!cart || cart.items.length === 0) {
+        const cart = await Cart.findOne({ userId: id }).populate("items.productId"); // find the cart of the user and populate the items
+     
+        if (!cart || cart.items.length === 0) { // check if the cart exists of if the cart is empty
+            // then redirect them to the cart page with an error
             req.flash("error", "Your cart is empty");
             return res.redirect("/profile/cart");
         }
-       
+       // cart quantity for the navbar
         let cartQuantity = 0;
-            if(req.session.user){
-             
             const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
             cartQuantity = cartItems?.items?.length || 0
-            }
-
 
         res.render("checkout", {
             cart,
@@ -49,33 +64,37 @@ const loadCheckOutPage = async (req, res) => {
     }
 };
 
+
+// check out logic  "MAIN"
+
 const checkOut = async (req, res) => {
     try {
-        const { id } = req.session.user;
-        const { shippingAddress, paymentMethod, couponCode,razorpay_payment_id } = req.body;
+        const { id } = req.session.user; // user id from the session
+        const { shippingAddress, paymentMethod, couponCode,razorpay_payment_id } = req.body; 
      
         if (!shippingAddress || !paymentMethod) {
             req.flash("error", "All fields are required");
             return res.redirect("/checkout");
         }
 
-        if (paymentMethod === 'Razorpay' && !razorpay_payment_id) {
+        if (paymentMethod === 'Razorpay' && !razorpay_payment_id) { // if the payment is razorpay and there is not razorpayid
+            // show error that payment is not verified
             req.flash("error", "Payment not verified");
             return res.redirect("/checkout");
           }
-
+// additional validtion on address if the address is not found
         const user = await User.findById(id).populate("address");
         if (!user?.address?.length) {
             req.flash("error", "No addresses found");
             return res.redirect("/profile/address");
         }
-
+// check if user mentioned address is listed
         const address = user.address.find(a => a._id.toString() === shippingAddress);
         if (!address) {
             req.flash("error", "Invalid shipping address");
             return res.redirect("/checkout");
         }
-
+// find the cart
         const cart = await Cart.findOne({ userId: id }).populate("items.productId");
         if (!cart?.items?.length) {
             req.flash("error", "Cart is empty");
@@ -85,13 +104,16 @@ const checkOut = async (req, res) => {
         //     req.flash("error", "COD is only available for orders under ₹50000");
         //     return res.redirect("/checkout")
         // }
-        let totalAmount = cart.totalAmount;
-        let usedCoupon = null;
-        let allowedDiscount = 0
+        // variables needed for the order
+        let totalAmount = cart.totalAmount;  // cart total amound
+        let usedCoupon = null; //
+        let allowedDiscount = 0  // total discount
+        /*
+        length of the cart is used for the splitting the coupon amount order the order item
+        */
         const lengthOfCart = cart.items.length;
-      
+      // check if the coupon is provided by the user
         if (couponCode) {
-        
             const coupon = await Coupon.findOne({ code: couponCode }); // find the coupons user entered form the coupon collection
             if (!coupon) { // if coupon is invalid
                 req.flash("error", "Invalid coupon code");
@@ -102,16 +124,17 @@ const checkOut = async (req, res) => {
                 !c.isUsed &&   // check if the coupon is already used
                 new Date() < c.expiresAt // check if the coupon is expired
             );
-
+// if the coupon is invalid or expired
             if (!userCoupon) {
                 req.flash("error", "Coupon not available or expired");
                 return res.redirect("/checkout");
             }
-            // allowedDiscount is used to give discount to the item in the cart according to the length of the cart 
-            // accroding to length split the discount value 
-            // example lengthOfCart = 2 discount = 1000 then 500 per item
+            /*allowedDiscount is used to give discount to the item in the cart according to the length of the cart 
+             accroding to length split the discount value 
+            example lengthOfCart = 2 discount = 1000 then 500 per item
+            */
             allowedDiscount = coupon.discountValue / lengthOfCart
-            totalAmount = cart.totalAmount - coupon.discountValue;
+            totalAmount = cart.totalAmount - coupon.discountValue; // reduct the coupon amount form the cart total amount
 
             user.coupons.pull(userCoupon._id); // pull only one coupon with the id only one because user can have multiple coupon with same id
             usedCoupon = coupon;
@@ -124,7 +147,6 @@ const checkOut = async (req, res) => {
             user.wallet -= totalAmount // reduce the amount
         }
         await user.save();
-
         const items = cart.items.map(item => { // map the items in the cart for the order.items
             const variant = item.productId.variants.id(item.variantId);
             
@@ -145,7 +167,7 @@ const checkOut = async (req, res) => {
                 orderStatus: "Pending"
             };
         });
-        
+        // create a new order and add the mapped items to the items 
         const order = new Order({
             orderId: uuidv4(),
             userId: id,
@@ -153,7 +175,7 @@ const checkOut = async (req, res) => {
             totalAmount: totalAmount, 
             shippingAddress: address._id,
             paymentMethod,
-            paymentId: paymentMethod === 'Wallet' ? 'wallet' : razorpay_payment_id || null,
+            paymentId: paymentMethod === 'Wallet' ? 'wallet' : razorpay_payment_id || null, 
             couponRefrence: usedCoupon?._id  || null,
             couponUsed: usedCoupon ? true : false,
             discount: usedCoupon?.discountValue || 0
@@ -226,6 +248,13 @@ const checkOut = async (req, res) => {
             if (variant) {
                 variant.quantity -= item.quantity; // update the stock according to how many item quantity
             }
+            /* update the purchase count for checking for best selling items
+            same logic for the category brand and the product
+            brand and category id can be found in the product
+            so first check if the product and the particular variant exist
+            update the purchasecount according to the quantity of the item
+
+            */
             product.purchaseCount = (product.purchaseCount || 0) + item.quantity;
             await product.save()
             const category = await Category.findById(product.category);
@@ -294,18 +323,19 @@ const orderConfirmed = async (req, res) => {
     }
 }
 
-
+// coupon validation
+// while entering the coupon code
 const validateCoupon = async (req, res) => {
     const { couponCode, cartTotal } = req.body;
   
     try {
-      const coupon = await Coupon.findOne({ code: couponCode, status: 'active' });
+      const coupon = await Coupon.findOne({ code: couponCode, status: 'active' }); // find the coupon and check if it is active
   
-      if (!coupon) {
+      if (!coupon) { // if coupon not found send a error message
         return res.status(400).json({ success: false, message: 'Invalid or inactive coupon' });
       }
   
-      if (cartTotal < coupon.minPurchase) {
+      if (cartTotal < coupon.minPurchase) { // if the coupon min amount not reached send err msg
         return res.status(400).json({ 
           success: false, 
           message: `Minimum purchase of ₹${coupon.minPurchase} required` 
@@ -313,10 +343,10 @@ const validateCoupon = async (req, res) => {
       }
   
       const now = new Date();
-      if (now > coupon.expiresAt) {
+      if (now > coupon.expiresAt) { // check if the coupon has expired by checking the current date
         return res.status(400).json({ success: false, message: 'Coupon has expired' });
       }
-  
+   // if all good display coupon is applied
       res.status(200).json({ 
         success: true, 
         discountAmount: coupon.discountValue,
