@@ -58,8 +58,7 @@ router.get("/products/add" , adminCheckAuth, productController.loadAddProductPag
 router.post("/products/add", adminCheckAuth,  uploadProduct.array("images",3), productController.addProduct)
 router.get("/products/edit" , adminCheckAuth, productController.editProductPage);
 router.post("/products/edit",  adminCheckAuth, uploadProduct.array("images",3), productController.editProduct)
-router.get("/products/unblock", adminCheckAuth, productController.unblockProduct)
-router.get("/products/block", adminCheckAuth, productController.blockProduct)
+router.get("/products/toggle", adminCheckAuth, productController.productToggle)
 
 // order Mangemnet;
 router.get("/orders",adminCheckAuth, orderController.orderManagment);  

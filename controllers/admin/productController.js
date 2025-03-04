@@ -244,32 +244,26 @@ const editProduct = async (req, res) => {
 };
 
 
-const unblockProduct = async (req, res) => {
+// brand islist toggleing
+const productToggle = async (req, res) => {
     try {
-        const id = req.query.id;
-
-
-        await Product.updateOne({ _id: id }, { isBlocked: false });
-
-        res.redirect("/admin/products");
+        let { id } = req.query; // id of the brand
+        const productStatus = await Product.findById(id);
+        let flag = false;  // by default the user is already unblocked so flag as false
+        if(productStatus.isBlocked){ //if the user is blocked
+            productStatus.isBlocked=false; // make the user unblock
+            flag=false  // then set the flag as false
+            await productStatus.save()
+        }else{ //  if the user is alrady blocked
+            productStatus.isBlocked=true; //  make the user as blocked by setting isblockd as true 
+            flag=true; // set the flag as true because user is blocked
+            await productStatus.save();
+        }
+        res.json({ success: true, isBlocked: flag });  // return the json response with flag 
+        
+       
     } catch (error) {
-        console.error("Error while unlisting category:", error);
-        res.status(500).send("Server Error");
-    }
-};
-
-
-const blockProduct = async (req, res) => {
-    try {
-        const id = req.query.id;
-
-
-        await Product.updateOne({ _id: id }, { isBlocked: true });
-
-        res.redirect("/admin/products");
-    } catch (error) {
-        console.error("Error while listing category:", error);
-        res.status(500).send("Server Error");
+        console.log("Error while listing category", error.message);
     }
 };
 
@@ -279,6 +273,5 @@ module.exports = {
     addProduct,
     editProductPage,
     editProduct,
-    blockProduct,
-    unblockProduct
+    productToggle
 }
