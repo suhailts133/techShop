@@ -39,6 +39,8 @@ function initializeCropper(index) {
 
             croppers[index] = new Cropper(image, {
                 aspectRatio: NaN,
+                viewMode: 1,
+                autoCropArea: 1
         
             });
         };
