@@ -68,12 +68,21 @@
         filter: brightness(90%);
     }
 
+    /* Table Improvements */
+    .table-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        overflow-x: auto;
+    }
+
     .table {
         background: var(--primary-color);
         border: 1px solid var(--border-color);
         border-radius: 8px;
-        overflow: hidden;
         width: 100%;
+        margin: 0 auto;
+        overflow: hidden;
     }
 
     .table th {
@@ -81,12 +90,24 @@
         color: var(--text-light);
         font-weight: 600;
         padding: 1rem;
+        text-align: center;
+        vertical-align: middle;
     }
 
     .table td {
         color: var(--text-light);
         padding: 0.75rem;
         vertical-align: middle;
+        text-align: left;
+    }
+
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        min-width: 150px;
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .table-hover tbody tr:hover {
@@ -149,16 +170,34 @@
     .variant-details {
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 0.5rem;
     }
 
     .variant-details div {
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
+        width: 100%;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .table {
+            font-size: 0.9rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .reset-icon {
+            right: 30px;
+        }
     }
 </style>
-
 <main class="main-content">
     <%- include("../partials/flash.ejs") %>
     
