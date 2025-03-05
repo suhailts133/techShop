@@ -345,7 +345,8 @@
              }
  
              // Update the status badge
-             const statusBadge = document.getElementsByClassName('b1')
+             const row = button.closest('tr');
+            const statusBadge = row.querySelector('.b1');
              if (statusBadge) {
                  if (data.isBlocked) {
                      statusBadge.textContent = 'Blocked';
