@@ -203,7 +203,7 @@
                   <label class="form-label required-field">Category</label>
                   <select class="form-select" name="category" required>
                     <% category.forEach(cat => { %>
-                      <option value="<%= cat.name %>" <%= product.category === cat.name ? 'selected' : '' %>><%= cat.name %></option>
+                      <option value="<%= cat.name %>" <%= product.category.toString() === cat._id.toString() ? 'selected' : '' %>><%= cat.name %></option>
                     <% }) %>
                   </select>
                   <div class="invalid-feedback">Category is required.</div>
