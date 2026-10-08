@@ -5,7 +5,7 @@ const Coupon = require("../models/couponsSchema.js")
 const env = require("dotenv").config();
 
 const callbackURL = process.env.NODE_ENV === "production" ?
- "https://www.techlux.shop/auth/google/callback": "http://localhost:3000/auth/google/callback"
+process.env.PROD_CALLBACK_URI: process.env.DEV_CALLBACK_URI
 passport.use(
   new GoogleStrategy(
     {
