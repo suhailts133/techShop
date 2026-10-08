@@ -17,11 +17,16 @@ const extrasContoller = require("../controllers/admin/extrasContoller.js")
 const {adminCheckAuth, adminCheckAuthLogin} = require("../middlewares/auth.js")
 // multer 
 const multer = require("multer");
-const storage = require("../helpers/multer.js")
-const uploadBrand = multer({storage:storage.storageForBrands});
-const uploadProduct = multer({storage:storage.storageForProducts})
-
-
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 2MB
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith("image/")) {
+            return cb(new Error("Only image files are allowed"));
+        }
+        cb(null, true);
+    },
+})
 // login loading
 router.get("/", adminCheckAuthLogin, adminController.adminLoadLogin);
 router.post("/",adminCheckAuthLogin, adminController.adminLogin);
@@ -47,17 +52,16 @@ router.post("/categories/edit", adminCheckAuth, categoryController.editCategory)
 // brands
 router.get("/brands",  adminCheckAuth,brandController.brandInfo);
 router.get("/brands/add", adminCheckAuth, brandController.loadAddBrandPage)
-router.post("/brands/add", adminCheckAuth,uploadBrand.single("image"), brandController.addBrand)
-
+router.post("/brands/add", adminCheckAuth, upload.single("image"), brandController.addBrand)
 router.get("/brands/toggle",adminCheckAuth, brandController.brandToggle)
 router.get("/brands/edit", adminCheckAuth, brandController.loadEditBrand);
-router.post("/brands/edit",adminCheckAuth,  uploadBrand.single("image"),brandController.editBrand);
+router.post("/brands/edit",adminCheckAuth,  upload.single("image"),brandController.editBrand);
 // products
 router.get("/products", adminCheckAuth, productController.productInfo);
 router.get("/products/add" , adminCheckAuth, productController.loadAddProductPage);
-router.post("/products/add", adminCheckAuth,  uploadProduct.array("images",3), productController.addProduct)
+router.post("/products/add", adminCheckAuth, upload.array("images", 3), productController.addProduct);
+router.post("/products/edit", adminCheckAuth, upload.array("images", 3), productController.editProduct);
 router.get("/products/edit" , adminCheckAuth, productController.editProductPage);
-router.post("/products/edit",  adminCheckAuth, uploadProduct.array("images",3), productController.editProduct)
 router.get("/products/toggle", adminCheckAuth, productController.productToggle)
 
 // order Mangemnet;

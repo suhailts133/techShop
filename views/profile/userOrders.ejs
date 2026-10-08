@@ -140,7 +140,7 @@
                                     <!-- Product Image -->
                                     <div class="col-3 col-md-2">
                                         <a href="/profile/orders/orderDetails?orderId=<%= order.orderId %>&itemId=<%= item._id %>">
-                                            <img src="/uploads/products/<%= item.productId.productImage[0] %>" 
+                                            <img src="<%= item.productId.productImage[0].path %>" 
                                                  class="img-fluid rounded-start" 
                                                  alt="<%= item.productId.productName %>" 
                                                  style="max-width: 100%; height: auto;">

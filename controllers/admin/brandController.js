@@ -11,6 +11,7 @@ const fs = require("fs");
 const path = require("path")
 // schema
 const Brand = require("../../models/brandSchema.js");
+const cloudinaryService = require("../../services/cloudinaryService.js");
 
 
 // displaying brand details
@@ -87,19 +88,24 @@ const brandToggle = async (req, res) => {
 
 // add new brand
 const addBrand = async (req, res) => {
+    let uploaded = null
     try {
-        const brandName = req.body.brandName.trim().toLowerCase(); // brand name for the body trim it and make it into lowecase
-        const findBrand = await Brand.findOne({ brandName }); // check if the brand already exists
-        if (findBrand) { // if the brand exists display a error message
+        const brandName = req.body.brandName.trim().toLowerCase();
+        if(!req.file){
+            req.flash("error", "Brand logo is required");
+            return res.redirect("/admin/brands/add");  
+        }
+        const findBrand = await Brand.findOne({ brandName }); 
+        if (findBrand) { 
             req.flash("error", "brand already exists");
             return res.redirect("/admin/brands/add");
         }
-        const image = req.file.filename; // brand image
-        const newBrand = new Brand({ // add the new brand if there is no error
+        uploaded = await cloudinaryService.upload(req.file, "techshop/brands")
+        const newBrand = new Brand({ 
             brandName: brandName,
-            logo: image
+            logo: {path:uploaded.path, filename:uploaded.filename}
         });
-        await newBrand.save(); // save the brand
+        await newBrand.save(); 
         req.flash("success", "New Brand Added")
         res.redirect("/admin/brands");
     } catch (error) {
@@ -109,73 +115,67 @@ const addBrand = async (req, res) => {
 };
 
 
-// load the edit brand page 
+
 const loadEditBrand = async (req, res) => {
-    const { id } = req.query; // get the brand id
-    const brandData = await Brand.findById(id); // fetch the data of the particular id
-    if (!brandData) { // if the id doesnt exist show error
+    const { id } = req.query;
+    const brandData = await Brand.findById(id);
+    if (!brandData) { 
         req.flash("error", "brand did not find");
         return res.redirect("/admin/brands")
     }
-    // display the edit brand page with pre filled form
+
     res.render("editbrand", { title: "edit brand", brandData })
 }
 
 
-// edit brand
 const editBrand = async (req, res) => {
+    let uploaded = null;
     try {
+        const { id } = req.query;
+        const brandName = req.body.brandName?.trim().toLowerCase();
+        const newLogo = req.file;
 
-        const { id } = req.query; // id of the brand
-        const brandName = req.body.brandName?.trim().toLowerCase(); // name of the brand
-        const newLogo = req.file; // file
-        // check there is a brand with the id
         const existingBrand = await Brand.findById(id);
         if (!existingBrand) {
             req.flash("error", "Brand not found");
             return res.redirect("/admin/brands");
         }
-        // check if the new name is already in use
-        const brandNameExists = await Brand.findOne({
-            brandName,
-            _id: { $ne: id },
-        });
-        // if the brandname is already in use by another brand
-        if (brandNameExists) {
-            req.flash("error", "Brand name already exists");
-            return res.redirect(`/admin/brands/edit?id=${id}`);
-        }
-        // remove the old logo if there is a new one
-        if (newLogo) {
-            const oldLogoPath = path.join(
-                __dirname,
-                "..",
-                "uploads",
-                "brands",
-                path.basename(existingBrand.logo || "")
-            );
-            if (fs.existsSync(oldLogoPath)) {
-                fs.unlinkSync(oldLogoPath);
+
+        if (brandName) {
+            const brandNameExists = await Brand.findOne({
+                brandName,
+                _id: { $ne: id },
+            });
+            if (brandNameExists) {
+                req.flash("error", "Brand name already exists");
+                return res.redirect(`/admin/brands/edit?id=${id}`);
             }
         }
-        // new data
+
         const updatedData = {};
         if (brandName) updatedData.brandName = brandName;
-        if (newLogo) updatedData.logo = newLogo.filename;
 
-        // Update the brand in the database
-        const updatedBrand = await Brand.findByIdAndUpdate(id, updatedData, {
-            new: true,
-        });
+        if (newLogo) {
+            uploaded = await cloudinaryService.upload(newLogo, "techshop/brands");
+            updatedData.logo = { path: uploaded.path, filename: uploaded.filename };
+        }
+
+        await Brand.findByIdAndUpdate(id, updatedData, { new: true });
+
+        if (newLogo && existingBrand.logo?.filename) {
+            await cloudinaryService.delete(existingBrand.logo.filename).catch(() => {});
+        }
+
         req.flash("success", "Brand edited successfully");
         res.redirect("/admin/brands");
     } catch (error) {
         console.error("Error while editing the brand:", error.message);
+    
+        if (uploaded) await cloudinaryService.delete(uploaded.filename).catch(() => {});
         req.flash("error", "An error occurred while editing the brand");
         res.redirect("/admin/brands");
     }
 };
-
 module.exports = {
     brandInfo,
     loadAddBrandPage,

@@ -28,7 +28,7 @@
         imageInput.setCustomValidity('Please upload a brand logo.');
         imageInput.nextElementSibling.textContent = 'Please upload a brand logo.';
       } else {
-        const allowedExtensions = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg'];
+        const allowedExtensions = ['image/jpeg', 'image/png', 'image/gif', 'image/jpg', 'image/webp'];
         const file = imageInput.files[0];
   
         if (!allowedExtensions.includes(file.type)) {

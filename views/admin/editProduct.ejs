@@ -286,9 +286,9 @@
                 <% for (let i = 1; i <= 3; i++) { %>
                   <div class="image-upload-container mb-4">
                     <label class="form-label">Image <%= i %></label>
-                    <% if (product.productImage[i - 1]) { %>
+                    <% if (product.productImage[i - 1].path) { %>
                       <div class="current-image">
-                        <img src="/uploads/products/<%= product.productImage[i - 1] %>" alt="Current image" class="img-fluid" style="max-width: 200px;">
+                        <img src="<%= product.productImage[i - 1].path %>" alt="Current image" class="img-fluid" style="max-width: 200px;">
                       </div>
                     <% } %>
                     <input class="form-control" type="file" name="images" id="input<%= i %>" accept="image/png, image/jpeg, image/webp" onchange="initializeCropper(<%= i %>)">

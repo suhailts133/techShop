@@ -4,6 +4,7 @@ const Brand = require("../../models/brandSchema.js");
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
+const cloudinaryService = require("../../services/cloudinaryService.js");
 
 
 const productInfo = async (req, res) => {
@@ -55,77 +56,54 @@ const loadAddProductPage = async (req, res) => {
 }
 
 const addProduct = async (req, res) => {
+    let  uploaded = []
     try {
         const products = req.body;
 
-        const productExists = await Product.findOne({ // check if the product already exsist
-            productName: products.productName,
-        });
+        const productExists = await Product.findOne({  productName: products.productName});
 
         if (productExists) {
             req.flash("error", "Product already exists");
             return res.redirect("/admin/products/add");
         }
-
-        const images = [];
-        if (req.files && req.files.length > 0) {
-            for (let i = 0; i < req.files.length; i++) {
-                const originalImagePath = req.files[i].path;
-                const uniqueFilename = `resized-${Date.now()}-${i}-${req.files[i].filename}`; // give a unique file name
-                const resizedImagePath = path.join( // store it in the public/uploads/products
-                    "public",
-                    "uploads",
-                    "products",
-                    uniqueFilename
-                );
-                try {
-                    await sharp(originalImagePath)
-                        .resize({ width: 600, height: 600, fit: "cover" })
-                        .toFile(resizedImagePath);
-
-                    images.push(uniqueFilename);
-
-                    fs.unlinkSync(originalImagePath);
-                } catch (err) {
-                    console.error("Error resizing or deleting image:", err);
-                    return res.status(500).json({ message: "Failed to process image" });
-                }
-            }
+          if (!req.files || req.files.length === 0) {
+            req.flash("error", "At least one image is required");
+            return res.redirect("/admin/products/add");
         }
-
-        const category = await Category.findOne({ name: products.category });
+         const category = await Category.findOne({ name: products.category });
         if (!category) {
             req.flash("error", "Category not found");
             return res.redirect("/admin/products/add");
         }
-
-        const variants = products.variants || [];  // take out the variants for the product
-        const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price)); // check if any of the variant pricea has any iregualaries
-        // saleprice greater than og price
+        
+        const variants = products.variants || [];
+        const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
         if (priceCheck) {
             req.flash("error", "Sale price cannot be higher than original price");
             return res.redirect("/admin/products/add");
         }
 
-// if there is no probelm add the new product to the db
+        uploaded = await cloudinaryService.uploadMany(req.files, "techShop/products", {
+            transformation: [{ width: 600, height: 600, crop: "fill" }],
+        });
+
+
         const newProduct = new Product({
             productName: products.productName,
-            productOffer: products.productOffer,
             description: products.description,
             brand: products.brand,
             category: category._id,
-            productImage: images,
-            variants: variants,
+            productImage: uploaded,
+            variants,
             productOffer: products.productOffer || 0,
             status: "Available",
         });
-
         await newProduct.save();
         req.flash("success", "New Product Added")
         return res.redirect("/admin/products");
     } catch (error) {
-        console.error("Error while saving product:", error);
-
+  console.error("Error while saving product:", error);
+        await Promise.all(uploaded.map((i) => cloudinaryService.delete(i.filename).catch(() => {})));
         return res.redirect("/admin/pageerror");
     }
 };
@@ -152,107 +130,82 @@ const editProductPage = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
-
 const editProduct = async (req, res) => {
+    let uploaded = []; // new images, for cleanup if the save fails
     try {
-      const productId = req.query.id;
-      const updatedData = req.body;
-      const variants = updatedData.variants || [];
-  
-      const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
-      if (priceCheck) {
-        req.flash("error", "Sale price cannot be higher than original price");
-        return res.redirect(`/admin/products/edit?id=${productId}`);
-      }
-  
-      const product = await Product.findById(productId);
-      if (!product) {
-        req.flash("error", "Product not found");
-        return res.redirect("/admin/products");
-      }
-  
- 
-      const productExists = await Product.findOne({ 
-        productName: updatedData.productName, 
-        _id: { $ne: productId } 
-      });
-      if (productExists) {
-        req.flash("error", "Product already exists");
-        return res.redirect(`/admin/products/edit?id=${productId}`);
-      }
-  
-      let images = [...product.productImage]; 
-      
-      if (req.files && req.files.length > 0) {
-        for (let i = 0; i < req.files.length; i++) {
-          const file = req.files[i];
-          
-          
-          const match = file.filename.match(/cropped-image-(\d+)\./);
-          if (match) {
-            const imageIndex = parseInt(match[1]) - 1; 
-  
-          
-            if (imageIndex >= 0 && imageIndex < 3) {
-             
-              if (images[imageIndex]) {
-                try {
-                  fs.unlinkSync(path.join("public", "uploads", "products", images[imageIndex]));
-                } catch (unlinkError) {
-                  console.warn(`Could not delete old image: ${images[imageIndex]}`, unlinkError);
-                }
-              }
-  
-              const originalImagePath = file.path;
-              const uniqueFilename = `resized-${Date.now()}-${imageIndex}-${file.filename}`;
-              const resizedImagePath = path.join("public", "uploads", "products", uniqueFilename);
-  
-              try {
-                await sharp(originalImagePath)
-                  .resize({ width: 600, height: 600, fit: "cover" })
-                  .toFile(resizedImagePath);
-  
-                
-                images[imageIndex] = uniqueFilename;
-  
-                
-                fs.unlinkSync(originalImagePath);
-              } catch (err) {
-                console.error(`Error processing image at index ${imageIndex}:`, err);
-                return res.status(500).json({ message: "Failed to process image" });
-              }
-            }
-          }
-        }
-      }
-  
-      const category = await Category.findOne({ name: updatedData.category });
-      if (!category) {
-        req.flash("error", "Category not found");
-        return res.redirect(`/admin/products/edit?id=${productId}`);
-      }
-  
+        const productId = req.query.id;
+        const updatedData = req.body;
+        const variants = updatedData.variants || [];
 
-      product.productName = updatedData.productName;
-      product.description = updatedData.description;
-      product.productOffer = updatedData.productOffer;
-      product.brand = updatedData.brand;
-      product.category = category._id;
-      product.productImage = images;
-      product.variants = variants;
-      product.productOffer = updatedData.productOffer || 0;
-      product.status = updatedData.status || "Available";
-  
-      
-      await product.save();
-  
-      req.flash("success", "Product Edited Successfully");
-      return res.redirect("/admin/products");
+        const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
+        if (priceCheck) {
+            req.flash("error", "Sale price cannot be higher than original price");
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            req.flash("error", "Product not found");
+            return res.redirect("/admin/products");
+        }
+
+        const productExists = await Product.findOne({
+            productName: updatedData.productName,
+            _id: { $ne: productId },
+        });
+        if (productExists) {
+            req.flash("error", "Product already exists");
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        const category = await Category.findOne({ name: updatedData.category });
+        if (!category) {
+            req.flash("error", "Category not found");
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+
+        const images = product.productImage.map(i => ({ path: i.path, filename: i.filename }));
+        const replaced = []; 
+        
+        for (const file of req.files || []) {
+            const match = file.originalname.match(/cropped-image-(\d+)\./);
+            if (!match) continue;
+
+            const imageIndex = parseInt(match[1]) - 1;
+            if (imageIndex < 0 || imageIndex > 2) continue;
+
+            const result = await cloudinaryService.upload(file, "techShop/products", {
+                transformation: [{ width: 600, height: 600, crop: "fill" }],
+            });
+            uploaded.push(result);
+
+            if (images[imageIndex]) replaced.push(images[imageIndex].filename);
+            images[imageIndex] = result;
+        }
+
+        product.productName = updatedData.productName;
+        product.description = updatedData.description;
+        product.brand = updatedData.brand;
+        product.category = category._id;
+        product.productImage = images.filter(Boolean); // no holes if a slot was skipped
+        product.variants = variants;
+        product.productOffer = updatedData.productOffer || 0;
+        product.status = updatedData.status || "Available";
+
+        await product.save();
+
+        // delete the old images only after the save succeeded
+        await Promise.all(replaced.map(id => cloudinaryService.delete(id).catch(() => {})));
+
+        req.flash("success", "Product Edited Successfully");
+        return res.redirect("/admin/products");
     } catch (error) {
-      console.error("Error while updating the product:", error);
-      return res.redirect("/admin/pageerror");
+        console.error("Error while updating the product:", error);
+        await Promise.all(uploaded.map(i => cloudinaryService.delete(i.filename).catch(() => {})));
+        return res.redirect("/admin/pageerror");
     }
-  };
+};
 
 // brand islist toggleing
 const productToggle = async (req, res) => {

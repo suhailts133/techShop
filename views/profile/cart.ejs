@@ -263,7 +263,7 @@
                                 <!-- Product Image -->
                                 <div class="product-img">
                                     <a href="/productDetails?id=<%= item.productId._id %>">
-                                        <img src="/uploads/products/<%= item.productId.productImage[0] %>"
+                                        <img src="<%= item.productId.productImage[0].path %>"
                                             alt="<%= item.productId.productName %>">
                                     </a>
                                 </div>

@@ -140,7 +140,7 @@
         <!-- Product Images -->
         <div class="col-md-6">
             <div class="main-image-container mb-3">
-                <img id="main-image" src="/uploads/products/<%= product.productImage[0] %>"
+                <img id="main-image" src="<%= product.productImage[0].path %>"
                     class="drift-trigger img-fluid rounded" alt="Main Product Image" data-zoom="<%= product.productImage[0] %>">
                 <div id="wishlist-icon" style="position: absolute; top: 10px; right: 10px; cursor: pointer;"
                     data-product-id="<%= product._id %>">
@@ -151,7 +151,7 @@
             <div id="test"></div>
             <div class="thumbnail-gallery d-flex">
                 <% product.productImage.forEach(image=> { %>
-                    <img src="/uploads/products/<%= image %>" alt="Thumbnail" class="img-thumbnail me-2 rounded"
+                    <img src="<%= image.path %>" alt="Thumbnail" class="img-thumbnail me-2 rounded"
                         style="width: 70px; height: 70px; cursor: pointer;"
                         onclick="updateMainImage('/uploads/products/<%= image %>')">
                 <% }); %>
