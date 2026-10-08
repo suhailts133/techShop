@@ -1,7 +1,6 @@
 const Product = require("../../models/productSchema.js")
 const Category = require("../../models/categorySchema.js")
 const Brand = require("../../models/brandSchema.js");
-const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
 const cloudinaryService = require("../../services/cloudinaryService.js");

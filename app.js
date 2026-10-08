@@ -11,7 +11,7 @@ const passport = require("./config/passport.js")
 const morgan = require("morgan")
 
 const app = express();
-
+app.set("trust proxy", 1);
 // other files
 const db = require("./config/db.js")
 
@@ -41,11 +41,12 @@ app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: {
-        secure:false,
-        httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000,
-    }
+ cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 72 * 60 * 60 * 1000,
+}
 }))
 
 app.use(flash());
@@ -84,11 +85,9 @@ app.use("/", userRouter);
 app.use("/admin", adminRouter)
 app.use("/profile", profileRouter)
 
-app.all(/(.*)/, (req, res, next) => {
-    res.render("page-404")
-    next()
-})
-
-
-app.listen(process.env.PORT, () => console.log("server is running"));
+app.all(/(.*)/, (req, res) => {
+    res.status(404).render("page-404");
+});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
 module.exports = app;

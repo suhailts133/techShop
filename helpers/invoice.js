@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
@@ -139,65 +139,70 @@ function formatDate(date) {
   const year = date.getFullYear();
   return `${year}/${month}/${day}`;
 }
-
 async function sendInvoiceEmail(email, orderDetails) {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: process.env.NODEMAILER_EMAIL,
-        pass: process.env.NODEMAILER_PASSWORD
-      }
-    });
+    try {
+        const { items, totalAmount, orderId, shippingAddress } = orderDetails;
+        console.log("data from sending mail", orderDetails);
 
-    const { items, totalAmount, orderId ,shippingAddress} = orderDetails;
-    console.log("data from sending mail",orderDetails);
-    
-    const pdfBuffer = await createInvoice(orderDetails);
+        // Generate the PDF buffer
+        const pdfBuffer = await createInvoice(orderDetails);
+        
+        // Convert Buffer to base64 string for Brevo
+        const base64Pdf = pdfBuffer.toString("base64");
 
-    const itemsList = items.map(
-      item => `<li>${item.productName} (Qty: ${item.quantity}) - ₹${item.price.toFixed(2)}</li>`
-    ).join("");
+        const itemsList = items.map(
+            item => `<li>${item.productName} (Qty: ${item.quantity}) - ₹${item.price.toFixed(2)}</li>`
+        ).join("");
 
-    const emailContent = `
-      <h2>Thank you for your purchase!</h2>
-      <p>Your order (#${orderId}) has been processed successfully.</p>
-      
-      <h3>Order Summary:</h3>
-      <ul>${itemsList}</ul>
-      
-      <h3>Total Amount: ₹${totalAmount.toFixed(2)}</h3>
-      
-      <p>Please find your invoice attached to this email.</p>
-      <p>For any queries, contact our support team.</p>
-      
-      <br>
-      <p>Best regards,</p>
-      <p><strong>Tech Shop Team</strong></p>
-    `;
+        const emailContent = `
+            <h2>Thank you for your purchase!</h2>
+            <p>Your order (#${orderId}) has been processed successfully.</p>
+            
+            <h3>Order Summary:</h3>
+            <ul>${itemsList}</ul>
+            
+            <h3>Total Amount: ₹${totalAmount.toFixed(2)}</h3>
+            
+            <p>Please find your invoice attached to this email.</p>
+            <p>For any queries, contact our support team.</p>
+            
+            <br>
+            <p>Best regards,</p>
+            <p><strong>Tech Shop Team</strong></p>
+        `;
 
-    const info = await transporter.sendMail({
-      from: process.env.NODEMAILER_EMAIL,
-      to: email,
-      subject: `Your Order Invoice #${orderId} - Tech Shop`,
-      html: emailContent,
-      attachments: [{
-        filename: `invoice_${orderId}.pdf`,
-        content: pdfBuffer,
-        contentType: "application/pdf"
-      }]
-    });
+        const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+                "api-key": process.env.BREVO_API_KEY,
+                "Content-Type": "application/json",
+                accept: "application/json",
+            },
+            body: JSON.stringify({
+                sender: { name: "Tech Shop", email: process.env.BREVO_SENDER },
+                to: [{ email }],
+                subject: `Your Order Invoice #${orderId} - Tech Shop`,
+                htmlContent: emailContent,
+                attachment: [
+                    {
+                        name: `invoice_${orderId}.pdf`,
+                        content: base64Pdf,
+                    },
+                ],
+            }),
+        });
 
-    return info.accepted.length > 0;
-  } catch (error) {
-    console.error("Error sending invoice email:", error.message);
-    return false;
-  }
+        if (!res.ok) {
+            console.error("Error sending invoice email:", await res.text());
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Error sending invoice email:", error.message || error);
+        return false;
+    }
 }
-
 module.exports = {
   sendInvoiceEmail
 };
