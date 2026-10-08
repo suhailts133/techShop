@@ -36,9 +36,9 @@ router.get("/auth/google/callback",
     req.session.user = { name: req.user.name, email: req.user.email,id:req.user._id };
     
     if(process.env.NODE_ENV === "production"){
-      res.redirect("https://www.techlux.shop/");
+      res.redirect(process.env.PROD_URI);
     }else{
-      res.redirect("http://localhost:3000/");
+      res.redirect(process.env.DEV_URI);
     }
   }
 );
