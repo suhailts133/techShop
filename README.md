@@ -93,7 +93,7 @@ TechShop follows the **MVC (Model-View-Controller)** pattern:
 |---|---|
 | Database design | [Eraser workspace](https://app.eraser.io/workspace/TLscIxNpoY8SJhao7g19) |
 | API / route documentation | [Postman docs](https://documenter.getpostman.com/view/39791338/2sBYHRWNLh) |
-| UI/UX design | [Figma](https://www.figma.com/design/tfLqZf3NEnD5b1GmvrkyOK/techshop?node-id=4-282&t=DI5SGQdduE11qyVy-1) |
+| UI/UX design | [Figma](https://www.figma.com/design/tfLqZf3NEnD5b1GmvrkyOK/techshop?node-id=7-3302&t=7bTxHQv8roXVZuym-1) |
 | Source code | [GitHub](https://github.com/suhailts133/techShop) |
 
 ---
