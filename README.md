@@ -89,3 +89,11 @@ Make sure you have the following installed and set up:
    ```bash
    git clone https://github.com/suhailts133/techShop.git
    cd techShop
+   
+2. **Install dependencies:**
+   ```bash
+   npm install
+   
+3. **Start the app:**
+   ```bash
+   npm start
