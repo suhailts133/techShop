@@ -9,16 +9,16 @@ A full-stack e-commerce web application for selling electronic gadgets. TechShop
 ## 📸 Screenshots
 
 ### Home Page
-<img width="1536" alt="Home page" src="https://github.com/user-attachments/assets/e7f04a9a-7bde-4a11-a62a-99e77b6d386c" />
+<img width="830" alt="Home page" src="https://github.com/user-attachments/assets/e7f04a9a-7bde-4a11-a62a-99e77b6d386c" />
 
 ### Shop Page
-<img width="1536" alt="Shop page" src="https://github.com/user-attachments/assets/dde581bd-2eac-417c-b4d2-56f315345146" />
+<img width="830" alt="Shop page" src="https://github.com/user-attachments/assets/dde581bd-2eac-417c-b4d2-56f315345146" />
 
 ### Admin Dashboard
-<img width="1536" alt="Product page" src="https://github.com/user-attachments/assets/9f449a90-e7a6-4306-8372-4eaee7aa6d74" />
+<img width="830" alt="Product page" src="https://github.com/user-attachments/assets/9f449a90-e7a6-4306-8372-4eaee7aa6d74" />
 
 ### Product Page
-<img width="1535" alt="Admin dashboard" src="https://github.com/user-attachments/assets/e6f00b52-eed4-4496-96d8-152df254857d" />
+<img width="830" alt="Admin dashboard" src="https://github.com/user-attachments/assets/e6f00b52-eed4-4496-96d8-152df254857d" />
 
 ---
 
