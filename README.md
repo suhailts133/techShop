@@ -6,16 +6,25 @@ A full-stack e-commerce web application for selling electronic gadgets. TechShop
 
 > Hosted on Render's free tier, so the first request after inactivity may take ~50 seconds to wake up.
 
-<!-- Add real screenshots, then uncomment:
-![Home page](docs/screenshots/home.png)
-![Product page](docs/screenshots/product.png)
-![Admin dashboard](docs/screenshots/admin-dashboard.png)
--->
+## 📸 Screenshots
+
+### Home Page
+<img width="1536" alt="Home page" src="https://github.com/user-attachments/assets/e7f04a9a-7bde-4a11-a62a-99e77b6d386c" />
+
+### Shop Page
+<img width="1536" alt="Shop page" src="https://github.com/user-attachments/assets/dde581bd-2eac-417c-b4d2-56f315345146" />
+
+### Product Page
+<img width="1536" alt="Product page" src="https://github.com/user-attachments/assets/9f449a90-e7a6-4306-8372-4eaee7aa6d74" />
+
+### Admin Dashboard
+<img width="1535" alt="Admin dashboard" src="https://github.com/user-attachments/assets/e6f00b52-eed4-4496-96d8-152df254857d" />
 
 ---
 
 ## 📑 Table of Contents
 
+- [Screenshots](#-screenshots)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
@@ -27,7 +36,7 @@ A full-stack e-commerce web application for selling electronic gadgets. TechShop
 - [Testing Payments](#-testing-payments)
 - [Project Structure](#-project-structure)
 - [Deployment](#-deployment)
-- [Roadmap](#-roadmap)
+- [Future Improvements](#-future-improvements)
 - [Author](#-author)
 
 ---
@@ -207,13 +216,13 @@ PROD_CALLBACK_URI=https://techshop-mec5.onrender.com/auth/google/callback
 To access the admin panel locally:
 
 1. Sign in once with Google so your user is created in the database.
-2. In MongoDB, set that user's role to admin, for example:
+2. In MongoDB, set that user's `isAdmin` field to `true`, for example:
    ```js
-   db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
+   db.users.updateOne({ email: "you@example.com" }, { $set: { isAdmin: true } })
    ```
 3. Open the admin dashboard at `/admin`.
 
-> Adjust the collection name, field name, and route above to match your code.
+> Confirm the collection name (`users`) and the admin route (`/admin`) match your code.
 
 ---
 
@@ -223,6 +232,15 @@ Use Razorpay **test mode** keys. Do not use real cards.
 
 | Method | Details |
 |---|---|
+| RuPay test card | `6527 6589 0000 1005` |
+| Expiry | Any future date (e.g. `12/30`) |
+| CVV | Any 3 digits (e.g. `123`) |
+| OTP (if asked) | Any value, then choose **Success** |
+| Test UPI | `success@razorpay` (success) / `failure@razorpay` (failure) |
+
+More options: [Razorpay test card details](https://razorpay.com/docs/payments/payments/test-card-details/)
+
+---|---|
 | Test card | See [Razorpay test cards](https://razorpay.com/docs/payments/payments/test-card-details/) |
 | Test UPI | `success@razorpay` (success) / `failure@razorpay` (failure) |
 
@@ -277,13 +295,6 @@ TechShop is deployed on [Render](https://render.com/).
 
 ---
 
-## 🗺️ Roadmap
-
-- [ ] Product reviews and ratings
-- [ ] Product search with filters and sorting
-- [ ] Add your own ideas here
-
----
 
 ## 👤 Author
 
@@ -294,4 +305,4 @@ GitHub: [@suhailts133](https://github.com/suhailts133)
 
 ## 📄 License
 
-This project is licensed under the MIT License. Add a `LICENSE` file to the repo if you keep this.
+This project is licensed under the [MIT License](LICENSE).
