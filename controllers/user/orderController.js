@@ -2,6 +2,11 @@ const Order = require("../../models/orderSchema.js");
 const Product = require("../../models/productSchema.js")
 const Review = require('../../models/reviewSchema.js')
 
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
 const getUserOrders = async (req, res) => {
     try {
         const userId = req.session.user.id;
@@ -37,7 +42,7 @@ const getUserOrders = async (req, res) => {
         });
     } catch (error) {
         console.error("Error loading user orders:", error.message);
-        req.flash("error", "Unable to fetch orders.");
+        req.flash("error", ERROR_MESSAGES.ORDERS_FETCH);
         res.redirect("/profile");
     }
 };
@@ -50,7 +55,7 @@ const getItemDetails = async (req, res) => {
         const item = order.items.id(itemId);
     
         if (!item) {-
-            req.flash("error", "Item not found in the order.");
+            req.flash("error", ERROR_MESSAGES.ORDER_ITEM);
             return res.redirect("/profile/orders");
         }
         item.paymentOption = order.paymentMethod; 
@@ -80,20 +85,20 @@ const requestReturn = async (req, res) => {
         const { reason } = req.body;
 
         if (!orderId || !itemId) {
-            req.flash("error", "Invalid order or item details.");
+            req.flash("error", ERROR_MESSAGES.ORDER_DETAILS);
             return res.redirect("/profile/orders");
         }
 
         const order = await Order.findById(orderId);
         const item = order.items.find((i) => i._id.toString() === itemId);
         if (!item) {
-            req.flash("error", "Item not found in the order.");
+            req.flash("error", ERROR_MESSAGES.ORDER_ITEM);
             return res.redirect("/profile/orders");
         }
 
 
         if (item.orderStatus !== "Delivered") {
-            req.flash("error", "Return request can only be made for delivered items.");
+            req.flash("error", ERROR_MESSAGES.RETURN_STATUS);
             return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
         }
 
@@ -105,11 +110,11 @@ const requestReturn = async (req, res) => {
         await order.save();
 
 
-        req.flash("success", "Return request submitted successfully.");
+        req.flash("success", SUCCESS_MESSAGES.RETURN_SUBMITTED);
         return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
     } catch (error) {
         console.error("Error while processing return request:", error.message);
-        req.flash("error", "An error occurred while processing your return request.");
+        req.flash("error", ERROR_MESSAGES.RETURN_ERROR);
         res.redirect("/profile/orders");
     }
 };
@@ -120,36 +125,36 @@ const requestCancel = async (req, res) => {
 
  
         if (!orderId || !itemId) {
-            req.flash("error", "Invalid order or item details.");
+            req.flash("error", ERROR_MESSAGES.ORDER_DETAILS);
             return res.redirect("/profile/orders");
         }
 
  
         const order = await Order.findById(orderId);
         if (!order) {
-            req.flash("error", "Order not found.");
+            req.flash("error", ERROR_MESSAGES.ORDER_NOT_FOUND);
             return res.redirect("/profile/orders");
         }
 
         const item = order.items.find((i) => i._id.toString() === itemId);
         if (!item) {
-            req.flash("error", "Item not found in the order.");
+            req.flash("error", ERROR_MESSAGES.ORDER_ITEM);
             return res.redirect("/profile/orders");
         }
 
       
         if (item.orderStatus !== "Pending" && item.orderStatus !== "Shipped") {
-            req.flash("error", "Cancellation is only allowed for items in 'Pending' or 'Shipped' status.");
+            req.flash("error", ERROR_MESSAGES.CANCEL_STATUS);
             return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
         }
         item.orderStatus = "Cancellation Requested";
         item.cancelReason = reason;
         await order.save();
-        req.flash("success", "Cancellation request submitted successfully.");
+        req.flash("success", SUCCESS_MESSAGES.CANCEL_SUBMITTED);
         return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
     } catch (error) {
         console.error("Error while processing cancellation request:", error.message);
-        req.flash("error", "An error occurred while processing your cancellation request.");
+        req.flash("error", ERROR_MESSAGES.CANCEL_ERROR);
         res.redirect("/profile/orders");
     }
 };
@@ -163,16 +168,16 @@ const createReview = async (req, res) => {
         // Find the order and item
         const order = await Order.findById(orderId);
         if(!order){
-            return res.status(400).send("order not found")
+            return res.status(HTTP_STATUS.BAD_REQUEST).send(ERROR_MESSAGES.ORDER_NOT_FOUND)
         }
         const item = order.items.id(itemId);
         if(!item){
-            return res.status(400).send("item not found")
+            return res.status(BAD_REQUEST).send(ERROR_MESSAGES.ITEM_NOT_FOUND)
         }
         
         // Verify eligibility
         if (item.orderStatus !== "Delivered" || item.review) {
-          return res.status(400).send("Review not allowed");
+          return res.status(BAD_REQUEST).send(ERROR_MESSAGES.REVIEW);
         }
     
         // Create review
@@ -188,7 +193,7 @@ const createReview = async (req, res) => {
         
         const  product = await Product.findById(item.productId);
         if(!product){
-            return res.status(400).send("product not found");
+            return res.status(HTTP_STATUS.BAD_REQUEST).send(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
         }
         product.reviews.push(newReview._id);
         const previousTotal = product.averageRating * product.reviewCount;
@@ -202,11 +207,11 @@ const createReview = async (req, res) => {
         await order.save();
     
         
-        req.flash("review is provided for this item")
+        req.flash("review isERROR_MESSAGES. provided for this item")
         res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
       } catch (err) {
         console.error(err);
-        res.status(500).send("Server error");
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR);
       }
 }
 

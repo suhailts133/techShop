@@ -15,6 +15,9 @@ const Order = require("../../models/orderSchema.js")
 const User = require("../../models/userSchema.js");
 const Transaction = require("../../models/transactionSchema.js")
 const Wallet = require("../../models/walletSchema.js");
+// constants
+const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
 
 const orderManagment = async (req, res) => {
   try {
@@ -56,7 +59,7 @@ const orderDetails = async (req, res) => {
     const { id } = req.query; // id of the particular order
     const order = await Order.findById(id).populate("userId").populate("items.productId").populate("shippingAddress");
     if (!order) {  // if order not found
-      req.flash("error", "order not found");
+      req.flash("error", ERROR_MESSAGES.ORDER_NOT_FOUND);
       res.redirect("/admin/orders")
     }
     // display the order detauk
@@ -76,14 +79,14 @@ const itemDetails = async (req, res) => {
     const order = await Order.findById(orderId).populate("items.productId").populate("shippingAddress");
 // check if the order exists
     if (!order) {
-      req.flash("error", "Order not found");
+      req.flash("error", ERROR_MESSAGES.ORDER_NOT_FOUND);
       return res.redirect("/admin/orders");
     }
     // const item = order.items.find((i) => i._id.toString() === itemId.toString());
     const item = order.items.id(itemId) // find te item
 
     if (!item) { // check if the item exists
-      req.flash("error", "Item not found in the order");
+      req.flash("error", ERROR_MESSAGES.ORDER_ITEM_NOT_FOUND);
       return res.redirect(`/admin/orders/view?id=${orderId}`);
     }
     // display the item details
@@ -108,14 +111,14 @@ const updateItemStatus = async (req, res) => {
       .populate("couponRefrence");
 
     if (!order) {
-      req.flash("error", "Order not found");
+      req.flash("error", ERROR_MESSAGES.ORDER_NOT_FOUND);
       return res.redirect("/admin/orders");
     }
     // const item = order.items.find((i) => i._id.toString() === itemId);
     const item = order.items.id(itemId) // find te item
 
     if (!item) {  // check if the item exists
-      req.flash("error", "Item not found");
+      req.flash("error", ERROR_MESSAGES.ITEM_NOT_FOUND);
       return res.redirect(`/admin/orders/view?id=${orderId}`);
     } 
     item.orderStatus = status; // update the new item status
@@ -247,7 +250,7 @@ if (newOrderStatus) {
 }
 
 
-    req.flash("success", "Item status updated successfully");
+    req.flash("success", SUCCESS_MESSAGES.ITEM_STATUS_UPDATED);
     res.redirect(`/admin/orders/itemDetails?orderId=${orderId}&itemId=${itemId}`);
   } catch (error) {
     console.error("Error while updating item status:", error.message);

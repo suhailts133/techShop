@@ -3,13 +3,18 @@ const Wishlist = require("../../models/wishlishSchema.js");
 const Product = require("../../models/productSchema.js");
 const mongoose = require("mongoose")
 
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
 const addToWishlist = async (req, res) => {
     try {
         const { productId, variantId } = req.body;
  
        
         if (!req.session.user) {
-          return res.status(401).json({ error: 'Please log in to update your wishlist.' });
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({ error: ERROR_MESSAGES.WISHLIST_UPDATE });
         }
         const userId = req.session.user.id;
     
@@ -31,10 +36,10 @@ const addToWishlist = async (req, res) => {
         } else {
           // Retrieve product and variant details
           const product = await Product.findById(productId);
-          if (!product) return res.status(404).json({ error: 'Product not found.' });
+          if (!product) return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.PRODUCT_NOT_FOUND });
     
           const variant = product.variants.id(variantId);
-          if (!variant) return res.status(404).json({ error: 'Variant not found.' });
+          if (!variant) return res.status(HTTP_STATUS.NOT_FOUND).json({ error: ERROR_MESSAGES.VARIANT_NOT_FOUND });
     
           
           wishlist.items.push({  // add the new item into the wishlist
@@ -51,13 +56,13 @@ const addToWishlist = async (req, res) => {
         return res.json({ success: true, added }); // send the flag
       } catch (error) {
         console.error('Error toggling wishlist item:', error);
-        return res.status(500).json({ error: 'An error occurred. Please try again.' });
+        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: ERROR_MESSAGES.TRY_AGAIN });
       }
 }
 const wishlistPage = async (req, res) => {
     try {
         if (!req.session.user) {
-            req.flash("error", "Login to access the wishlist");
+            req.flash("error", ERROR_MESSAGES.WISHLIST_LOGIN);
             return res.redirect("/login");
         }
 
@@ -65,7 +70,7 @@ const wishlistPage = async (req, res) => {
         const findUser = await User.findById(id);
         
         if (!findUser) {
-            req.flash("error", "User not found, sign up first");
+            req.flash("error", ERROR_MESSAGES.SIGNUP);
             return res.redirect("/signup");
         }
 
@@ -80,7 +85,7 @@ const wishlistPage = async (req, res) => {
         res.render("wishlist", { wishlist, title: "Wishlist" });  // send the whislist to the front end
     } catch (error) {
         console.log("Error while loading wishlist page", error);
-        req.flash("error", "Something went wrong");
+        req.flash("error", ERROR_MESSAGES.TRY_AGAIN);
         res.redirect("/profile");
     }
 };
@@ -98,7 +103,7 @@ const deleteWishlistItem  = async (req, res) => {
         res.redirect("/profile/wishlist");
     } catch (error) {
         console.log("Error while deleting item from wishlist", error.message);
-        res.status(500).send("Error removing item from wishlist");
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.WISHLIST_REMOVE);
     }
 }
 
@@ -130,7 +135,7 @@ const wishlistStatusCheck = async (req, res) => {
     res.json({ isInWishlist }); // if item is in the wishlist "true"
   } catch (error) {
     console.error("Error while checking wishlist item status:", error.message);
-    res.status(500).json({ error: "Server error" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: ERROR_MESSAGES.SERVER_ERROR });
   }
 };
 

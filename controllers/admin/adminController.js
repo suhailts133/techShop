@@ -11,6 +11,11 @@ const moment = require('moment');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 const env = require("dotenv").config();
+
+// constants
+const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
 // schemas 
 const User = require("../../models/userSchema");
 const Order = require("../../models/orderSchema.js")
@@ -28,12 +33,12 @@ const adminLogin = async (req, res) => {
         const { email, password } = req.body; // take email and pass form the body
         const findAdmin = await User.findOne({ email, isAdmin: true }); // fetching the admin user
         if (!findAdmin) { // if not admin 
-            req.flash("error", "not admin");
+            req.flash("error", ERROR_MESSAGES.NOT_ADMIN);
             return res.redirect("/admin/")
         }
         const passwordMatch = await bcrypt.compare(password, findAdmin.password); //  password checking
         if (!passwordMatch) { // wrong password
-            req.flash("error", "not admin")
+            req.flash("error", ERROR_MESSAGES.NOT_ADMIN)
             return res.redirect("/admin/")
         }
         req.session.admin = { id: findAdmin._id, name: findAdmin.name }; // adding the admin session
@@ -92,7 +97,7 @@ const getSalesReport = async (req, res) => {
                 dateFormat = "%Y-%m-%d";  // format eg: 2025-3-1, year-month-day
                 break;
             default:
-                return res.status(400).send('Invalid period');
+                return res.status(HTTP_STATUS.BAD_REQUEST).send('Invalid period');
         }
         // chart generation using aggregation group by date and the total amount in that range
         const chartReport = await Order.aggregate([
@@ -270,7 +275,7 @@ const getSalesReport = async (req, res) => {
 
     } catch (error) {
         console.error('Error generating sales report:', error);
-        res.status(500).send('Server Error');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
 
@@ -280,7 +285,7 @@ const logout = (req, res) => {
         req.session.destroy((err) => {
             if (err) {
                 console.error("Error destroying session", err.message);
-                return res.status(500).send("Error logging out");
+                return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send("Error logging out");
             }
             res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
             res.setHeader("Pragma", "no-cache");

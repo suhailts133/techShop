@@ -15,6 +15,9 @@ const Brand = require("../../models/brandSchema.js")
 const Category = require("../../models/categorySchema.js")
 const Product = require("../../models/productSchema.js")
 const Transaction = require("../../models/transactionSchema.js")
+// constants
+const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
 
 const bestSelling = async (req, res) => {
     try {
@@ -102,7 +105,7 @@ const ledgerBook = async (req, res) => {
         });
     } catch (error) {
         console.log("error while loading ledger book", error.message);
-        res.status(500).send("Error loading ledger book");
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.LEDGER_LOAD_ERROR);
     }
 }
 module.exports = {

@@ -4,6 +4,10 @@ const Brand = require("../../models/brandSchema.js");
 const fs = require("fs");
 const path = require("path");
 const cloudinaryService = require("../../services/cloudinaryService.js");
+// constants
+const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
 
 
 const productInfo = async (req, res) => {
@@ -62,23 +66,23 @@ const addProduct = async (req, res) => {
         const productExists = await Product.findOne({  productName: products.productName});
 
         if (productExists) {
-            req.flash("error", "Product already exists");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_ALREADY_EXISTS);
             return res.redirect("/admin/products/add");
         }
           if (!req.files || req.files.length === 0) {
-            req.flash("error", "At least one image is required");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_IMAGE_REQUIRED);
             return res.redirect("/admin/products/add");
         }
          const category = await Category.findOne({ name: products.category });
         if (!category) {
-            req.flash("error", "Category not found");
+            req.flash("error", ERROR_MESSAGES.CATEGORY_NOT_FOUND);
             return res.redirect("/admin/products/add");
         }
         
         const variants = products.variants || [];
         const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
         if (priceCheck) {
-            req.flash("error", "Sale price cannot be higher than original price");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_SALE_PRICE_INVALID);
             return res.redirect("/admin/products/add");
         }
 
@@ -98,7 +102,7 @@ const addProduct = async (req, res) => {
             status: "Available",
         });
         await newProduct.save();
-        req.flash("success", "New Product Added")
+        req.flash("success", SUCCESS_MESSAGES.PRODUCT_CREATED)
         return res.redirect("/admin/products");
     } catch (error) {
   console.error("Error while saving product:", error);
@@ -115,7 +119,7 @@ const editProductPage = async (req, res) => {
         const categories = await Category.find({ isListed: true })
 
         if (!product) {
-            return res.status(404).send('Product not found');
+            return res.status(HTTP_STATUS.NOT_FOUND).send(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
         }
 
         res.render('editProduct', {
@@ -126,7 +130,7 @@ const editProductPage = async (req, res) => {
         });
     } catch (error) {
         console.error("error while loadin edit product page", error.message);
-        res.status(500).send('Server error');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.INTERNAL_SERVER_ERROR);
     }
 };
 const editProduct = async (req, res) => {
@@ -138,13 +142,13 @@ const editProduct = async (req, res) => {
 
         const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
         if (priceCheck) {
-            req.flash("error", "Sale price cannot be higher than original price");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_SALE_PRICE_INVALID);
             return res.redirect(`/admin/products/edit?id=${productId}`);
         }
 
         const product = await Product.findById(productId);
         if (!product) {
-            req.flash("error", "Product not found");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_NOT_FOUND);
             return res.redirect("/admin/products");
         }
 
@@ -153,13 +157,13 @@ const editProduct = async (req, res) => {
             _id: { $ne: productId },
         });
         if (productExists) {
-            req.flash("error", "Product already exists");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_ALREADY_EXISTS);
             return res.redirect(`/admin/products/edit?id=${productId}`);
         }
 
         const category = await Category.findOne({ name: updatedData.category });
         if (!category) {
-            req.flash("error", "Category not found");
+            req.flash("error", ERROR_MESSAGES.CATEGORY_NOT_FOUND);
             return res.redirect(`/admin/products/edit?id=${productId}`);
         }
 
@@ -197,7 +201,7 @@ const editProduct = async (req, res) => {
         // delete the old images only after the save succeeded
         await Promise.all(replaced.map(id => cloudinaryService.delete(id).catch(() => {})));
 
-        req.flash("success", "Product Edited Successfully");
+        req.flash("success", SUCCESS_MESSAGES.PRODUCT_UPDATED);
         return res.redirect("/admin/products");
     } catch (error) {
         console.error("Error while updating the product:", error);

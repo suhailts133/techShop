@@ -6,10 +6,16 @@ const bcrypt = require("bcrypt");
 const { securePassword } = require("../../helpers/userAuthendication.js"); // authentication helper
 const Wallet = require("../../models/walletSchema.js");
 
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
+
 const loadProfilePage = async (req, res) => {
     try {
         if(!req.session.user){
-            req.flash("error", "login first")
+            req.flash("error", ERROR_MESSAGES.LOGIN)
             return res.redirect("/")
         }
         const {id} = req.session.user;
@@ -62,17 +68,17 @@ const changePasswordCheck = async (req, res) => {
         const findUser = await User.findById(id);
         
         if (!findUser.password) {
-            return res.status(400).json({ // 400 Bad Request
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ // 400 Bad Request
                 success: false,
-                message: "Account is linked with Google. Cannot change password here."
+                message: ERROR_MESSAGES.GOOGLE_PASSWORD
             });
         }
 
         const passwordMatch = await bcrypt.compare(password, findUser.password);
         if (!passwordMatch) {
-            return res.status(401).json({ // 401 Unauthorized
+            return res.status(HTTP_STATUS.UNAUTHORIZED).json({ // 401 Unauthorized
                 success: false,
-                message: "Incorrect password. Use 'Forgot Password' if needed."
+                message: ERROR_MESSAGES.INCORRECT_PASSWORD
             });
         }
 
@@ -83,9 +89,9 @@ const changePasswordCheck = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in changePasswordCheck:", error.message);
-        res.status(500).json({
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: "Internal server error"
+            message: ERROR_MESSAGES.SERVER_ERROR
         });
     }
 }
@@ -102,7 +108,7 @@ const changePassword = async (req, res) => {
         const { id } = req.session.user;
         const { password, confirmPassword } = req.body;
         if (password !== confirmPassword) {
-            req.flash("error", "password must match");
+            req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH);
             return res.redirect("/profile/changePassword");
         }
         const passwordHash = await securePassword(password);  // hash the password using secure fn
@@ -141,7 +147,7 @@ const addAddress = async (req, res) => {
         const { id } = req.session.user;
         const findUser = await User.findById(id);
         if (findUser.address.length >= 6) {
-            req.flash("error", "You already have too many addresses");
+            req.flash("error", ERROR_MESSAGES.ADDRESS_LIMIT);
             return res.redirect("/profile/address")
         }
         const newAddress = new Address(req.body.address);
@@ -174,12 +180,12 @@ const loadAddressEditPage = async (req, res) => {
         const { addressId } = req.query;
         const findUser = await User.findById(id);
         if (!findUser) {
-            req.flash("error", "user not found");
+            req.flash("error", ERROR_MESSAGES.USER_NOT_FOUND);
             return res.redirect("/profile/address")
         }
         const address = await Address.findById(addressId);
         if (!address) {
-            req.flash("error", "address not found");
+            req.flash("error", ERROR_MESSAGES.ADDRESS_NOT_FOUND);
             return res.redirect("/profile/address")
         }
 
@@ -198,13 +204,13 @@ const editAddress = async (req, res) => {
         const { addressId } = req.query;
         const findUser = await User.findById(id);
         if (!findUser) {
-            req.flash("error", "user not found");
+            req.flash("error", ERROR_MESSAGES.USER_NOT_FOUND);
             return res.redirect("/profile/address")
         }
 
         const updateAddress = await Address.findByIdAndUpdate(addressId, req.body.address, { new: true });
         if (!updateAddress) {
-            req.flash("error", "updation failed");
+            req.flash("error", ERROR_MESSAGES.UPDATE_FAILED);
             return res.redirect("/profile/address");
         }
 
@@ -218,13 +224,13 @@ const editAddress = async (req, res) => {
 const cartPage = async (req, res) => {
     try {
         if (!req.session.user) {
-            req.flash("error", "login to access cart");
+            req.flash("error", ERROR_MESSAGES.CART_LOGIN);
             return res.redirect("/login")
         }
         const { id } = req.session.user;
         const findUser = await User.findById(id);
         if (!findUser) {
-            req.flash("error", "user not found please sign up");
+            req.flash("error", ERROR_MESSAGES.SIGNUP);
             return res.redirect("/signup")
         }
         const findCart = await Cart.findOne({ userId: id }).populate({
@@ -232,7 +238,7 @@ const cartPage = async (req, res) => {
         });
         // console.log(findCart)
         if (!findCart) {
-            req.flash("error", "cart is empty ");
+            req.flash("error", ERROR_MESSAGES.CART_EMPTY);
             return res.redirect("/")
         }
 
@@ -260,7 +266,7 @@ const deleteCartItem = async (req, res) => {
         res.redirect("/profile/cart");
     } catch (error) {
         console.log("Error while deleting item from cart", error.message);
-        res.status(500).send("Error removing item from cart");
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.CART_REMOVE);
     }
 }
 
@@ -271,51 +277,51 @@ const updateCartItem = async (req, res) => {
         const { quantity } = req.body; // Extract quantity from the body
 
         if (!quantity || quantity < 1) {
-            return res.status(400).json({ 
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
-                message: "Invalid quantity",
+                message: ERROR_MESSAGES.QUANTITY,
             });
         }
 
         const cart = await Cart.findOne({ userId: id });
         if (!cart) {
-            return res.status(404).json({ 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
                 success: false, 
-                message: "Cart not found" 
+                message: ERROR_MESSAGES.CART_NOT_FOUND
             });
         }
 
 
         const cartItem = cart.items.find(item => item._id.toString() === itemId);
         if (!cartItem) {
-            return res.status(404).json({ 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
                 success: false, 
-                message: "Item not found" 
+                message: ERROR_MESSAGES.ITEM_NOT_FOUND
             });
         }
 
         const product = await Product.findById(cartItem.productId);
         if (!product) {
-            return res.status(404).json({ 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
                 success: false, 
-                message: "Product not found" 
+                message: ERROR_MESSAGES.PRODUCT_NOT_FOUND
             });
         }
 
         const variant = product.variants.id(cartItem.variantId);
         if (!variant) {
-            return res.status(404).json({ 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
                 success: false, 
-                message: "Product variant not found" 
+                message: ERROR_MESSAGES.VARIANT_NOT_FOUND
             });
         }
 
         if (parseInt(quantity) > variant.quantity) {
-            return res.status(400).json({ 
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
                 success: false, 
                 itemPrice: cartItem.totalPrice, 
                 totalAmount: cart.totalAmount,
-                message: "Limited stock available. Please reduce the quantity."
+                message: ERROR_MESSAGES.LIMITED_STOCK
             });
         }
 
@@ -328,12 +334,12 @@ const updateCartItem = async (req, res) => {
             success: true, 
             itemPrice:cartItem.totalPrice,
             totalAmount:cart.totalAmount,
-            message: "Quantity updated successfully" 
+            message: SUCCESS_MESSAGES.CART_QUANTITY
         });
 
     } catch (error) {
         console.log("Error while updating the cart:", error.message);
-        req.flash("error", "An error occurred while updating the cart");
+        req.flash("error", ERROR_MESSAGES.CART_UPDATE);
         res.redirect("/profile/cart");
     }
 };
@@ -341,7 +347,7 @@ const updateCartItem = async (req, res) => {
 const displayWallet = async (req, res) => {
     try {
         if (!req.session.user) {
-            req.flash("error", "Login first");
+            req.flash("error", ERROR_MESSAGES.LOGIN);
             return res.redirect("/");
         }
 
@@ -366,7 +372,7 @@ const displayWallet = async (req, res) => {
         });
     } catch (error) {
         console.log("Error while displaying wallet", error.message);
-        req.flash("error", "Error loading wallet details");
+        req.flash("error", ERROR_MESSAGES.WALLET_ERROR);
         res.redirect("/profile");
     }
 };
