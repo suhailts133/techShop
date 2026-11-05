@@ -1,7 +1,6 @@
 const User = require("../../models/userSchema.js")
 const Wallet = require("../../models/walletSchema.js");
 
-
 const walletTransation = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;

@@ -8,6 +8,11 @@ editing , listing, unlisting
 // external files
 const Category = require("../../models/categorySchema.js");
 
+// constants
+const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
 
 // displaying categroy details
 const categoryInfo = async (req, res) => {
@@ -119,16 +124,16 @@ const addCategory = async (req, res) => {
         const trimmedDescription = description?.trim() || "";
 
         if (!trimmedName || !trimmedDescription) {
-            req.flash("error", "Name or description cannot be empty");
+            req.flash("error", ERROR_MESSAGES.CATEGORY_NAME_DESC_REQUIRED);
             return res.redirect("/admin/categories/add");
         }
        
         if (trimmedName.length < 3 || trimmedDescription.length < 3) {
-            req.flash("error", "Name and description must be at least 3 characters long");
+            req.flash("error", ERROR_MESSAGES.CATEGORY_NAME_DESC_MIN_LENGTH);
             return res.redirect("/admin/categories/add");
         }
         if(categoryOffer < 0){
-            req.flash("error", "category offer must be either zero or a positive number")
+            req.flash("error", ERROR_MESSAGES.CATEGORY_OFFER_INVALID)
             return res.redirect("/admin/categories/add");
         }
 
@@ -136,7 +141,7 @@ const addCategory = async (req, res) => {
 // check if the category already exists
         const existingCategory = await Category.findOne({ name: loweredName }); 
         if (existingCategory) {
-            req.flash("error", "Category already exists");
+            req.flash("error", ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS);
             return res.redirect("/admin/categories/add");
         }
 // add the new category
@@ -147,11 +152,11 @@ const addCategory = async (req, res) => {
         });
         await newCategory.save();
 
-        req.flash("success", "New category added successfully");
+        req.flash("success", SUCCESS_MESSAGES.CATEGORY_CREATED);
         res.redirect("/admin/categories");
     } catch (error) {
         console.error("Error while adding a new category:", error.message);
-        req.flash("error", "An unexpected error occurred. Please try again.");
+        req.flash("error", ERROR_MESSAGES.UNEXPECTED_ERROR);
         res.redirect("/admin/categories/add");
     }
 };
@@ -162,7 +167,7 @@ const loadEditCategory = async (req, res) => {
     const {id} = req.query;   // id of the category 
     const categoryData = await Category.findById(id); // data fetching
     if(!categoryData){
-        req.flash("error", "category did not find");
+        req.flash("error", ERROR_MESSAGES.CATEGORY_NOT_FOUND);
         res.redirect("/admin/categories")
     }
     res.render("editCategory", {title:"edit category", categoryData})
@@ -176,7 +181,7 @@ const editCategory = async (req, res) => {
         const { id } = req.query;
         const { name, description, categoryOffer  } = req.body;
         if (!name.trim() || !description.trim()) {
-            req.flash("error", "name or description is empty")
+            req.flash("error", ERROR_MESSAGES.CATEGORY_NAME_DESC_REQUIRED)
             return res.redirect(`/admin/categories/edit?id=${id}`);
         }
         // check if the category already exists
@@ -186,12 +191,12 @@ const editCategory = async (req, res) => {
         });
         // if the category already exists show error
         if (existingCategory) {
-            req.flash("error", "category already exists")
+            req.flash("error", ERROR_MESSAGES.CATEGORY_ALREADY_EXISTS)
             return res.redirect(`/admin/categories/edit?id=${id}` );
         }
         // check the category offer is less than zero
         if(categoryOffer < 0){
-            req.flash("error", "category offer must be either zero or a positive number")
+            req.flash("error", ERROR_MESSAGES.CATEGORY_OFFER_INVALID)
             return res.redirect(`/admin/categories/edit?id=${id}` );
         }
         // add the updated category
@@ -200,11 +205,11 @@ const editCategory = async (req, res) => {
             description: description.trim(),
             categoryOffer: categoryOffer
         });
-        req.flash("success", "added new category")
+        req.flash("success", SUCCESS_MESSAGES.CATEGORY_CREATED)
         res.redirect('/admin/categories');
     } catch (error) {
         console.error("Error editing category:", error);
-        res.status(500).send("An error occurred while editing the category.");
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.CATEGORY_EDIT_ERROR);
     }
 };
 

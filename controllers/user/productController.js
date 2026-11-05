@@ -2,6 +2,12 @@ const Product = require("../../models/productSchema.js")
 const Cart = require("../../models/cartSchema.js")
 const User = require("../../models/userSchema.js")
 const Wishlist = require("../../models/wishlishSchema.js")
+
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
 const getProductDetails = async (req, res) => {
     try {
         const productId = req.query.id;
@@ -19,7 +25,7 @@ const getProductDetails = async (req, res) => {
            
             
         if (!product) {
-            req.flash("error", "Product not found");
+            req.flash("error", ERROR_MESSAGES.PRODUCT_NOT_FOUND);
             return res.redirect("/");
         }
 
@@ -79,7 +85,7 @@ const getProductDetails = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server Error');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR);
     }
 };
 
@@ -93,10 +99,10 @@ const updateVariantDetails = async (req, res) => {
         const product = await Product.findById(productId)
             .populate('category');
 
-        if (!product) return res.status(404).send('Product not found');
+        if (!product) return res.status(HTTP_STATUS.NOT_FOUND).send(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
 
         const variant = product.variants.id(variantId);
-        if (!variant) return res.status(404).send('Variant not found');
+        if (!variant) return res.status(HTTP_STATUS.NOT_FOUND).send(ERROR_MESSAGES.VARIANT_NOT_FOUND);
 
         const applicableOffer = product.productOffer > 0
             ? product.productOffer
@@ -115,7 +121,7 @@ const updateVariantDetails = async (req, res) => {
         });
     } catch (error) {
         console.error("Error in updateVariantDetails:", error.message);
-        res.status(500).send('Server Error');
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR);
     }
 };
 
@@ -123,9 +129,9 @@ const addToCart = async (req, res) => {
     try {
         const { productId, variantId, quantity, productImage } = req.body;
         if (!req.session.user) {
-            return res.status(401).json({
+            return res.status(HTTP_STATUS.UNAUTHORIZED).json({
                 success: false,
-                message: 'Please login first. Redirecting you in 2 sec',
+                message: ERROR_MESSAGES.REDIRECT,
                 redirectTo: '/login'
             });
         }
@@ -134,18 +140,18 @@ const addToCart = async (req, res) => {
 
         // Validate required fields
         if (!productId || !variantId || !quantity || !productImage) {
-            return res.status(400).json({
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
                 success: false,
-                message: 'All fields are required.'
+                message: ERROR_MESSAGES.FIELDS_REQUIRED
             });
         }
 
         // Find the user
         const user = await User.findById(id);
         if (!user) {
-            return res.status(401).json({
+            return res.status(HTTP_STATUS.UNAUTHORIZED).json({
                 success: false,
-                message: 'Please login first. Redirecting you in 2 sec',
+                message: ERROR_MESSAGES.REDIRECT,
                 redirectTo: '/login'
             });
         }
@@ -153,26 +159,26 @@ const addToCart = async (req, res) => {
         // Find the product and populate the category
         const product = await Product.findById(productId).populate('category');
         if (!product) {
-            return res.status(404).json({
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
                 success: false,
-                message: 'Product not found.'
+                message: ERROR_MESSAGES.PRODUCT_NOT_FOUND
             });
         }
 
         // Find the variant
         const variant = product.variants.id(variantId);
         if (!variant) {
-            return res.status(404).json({
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
                 success: false,
-                message: 'Variant not found.'
+                message: ERROR_MESSAGES.VARIANT_NOT_FOUND
             });
         }
 
         // Check if the variant is in stock
         if (variant.quantity <= 0) {
-            return res.status(404).json({
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
                 success: false,
-                message: 'Out of Stock'
+                message: ERROR_MESSAGES.OUT_OF_STOCK
             });
         }
 
@@ -206,9 +212,9 @@ const addToCart = async (req, res) => {
         );
 
         if (existingItemIndex > -1) {
-            return res.status(404).json({
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
                 success: true,
-                message: 'Itme already in the cart',
+                message: SUCCESS_MESSAGES.ITEM_EXISTS,
                 redirectTo: '/profile/cart'
 
             });
@@ -234,17 +240,17 @@ const addToCart = async (req, res) => {
 
 
         // Respond with success message and the updated cart
-        return res.status(200).json({
+        return res.status(HTTP_STATUS.OK).json({
             success: true,
-            message: 'Product added to cart successfully! Redirecting you to cart in 2 sec',
+            message: SUCCESS_MESSAGES.CART_ADD,
             redirectTo: '/profile/cart'
         });
 
     } catch (error) {
         console.error('Error in /addToCart:', error.message);
-        return res.status(500).json({
+        return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: 'An error occurred while adding the product to the cart. Please try again later.',
+            message: ERROR_MESSAGES.CART_ADD,
         });
     }
 };

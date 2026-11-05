@@ -25,7 +25,10 @@ const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
 const {sendInvoiceEmail} = require("../../helpers/invoice.js")
 const { v4: uuidv4 } = require("uuid");
 
-
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
 
 // load the checkout page
 /*
@@ -43,7 +46,7 @@ const loadCheckOutPage = async (req, res) => {
      
         if (!cart || cart.items.length === 0) { // check if the cart exists of if the cart is empty
             // then redirect them to the cart page with an error
-            req.flash("error", "Your cart is empty");
+            req.flash("error", ERROR_MESSAGES.CART_EMPTY);
             return res.redirect("/profile/cart");
         }
        // cart quantity for the navbar
@@ -59,7 +62,7 @@ const loadCheckOutPage = async (req, res) => {
         });
     } catch (error) {
         console.log("Error while loading checkout page", error.message);
-        req.flash("error", "Something went wrong. Please try again later.");
+        req.flash("error", ERROR_MESSAGES.TRY_AGAIN);
         res.redirect("/profile/cart");
     }
 };
@@ -73,35 +76,35 @@ const checkOut = async (req, res) => {
         const { shippingAddress, paymentMethod, couponCode,razorpay_payment_id } = req.body; 
      
         if (!shippingAddress || !paymentMethod) {
-            req.flash("error", "All fields are required");
+            req.flash("error", ERROR_MESSAGES.FIELDS_REQUIRED);
             return res.redirect("/checkout");
         }
 
         if (paymentMethod === 'Razorpay' && !razorpay_payment_id) { // if the payment is razorpay and there is not razorpayid
             // show error that payment is not verified
-            req.flash("error", "Payment not verified");
+            req.flash("error", ERROR_MESSAGES.PAYMENT_NOT_VERIFIED);
             return res.redirect("/checkout");
           }
 // additional validtion on address if the address is not found
         const user = await User.findById(id).populate("address");
         if (!user?.address?.length) {
-            req.flash("error", "No addresses found");
+            req.flash("error", ERROR_MESSAGES.NO_ADDRESSES_FOUND);
             return res.redirect("/profile/address");
         }
 // check if user mentioned address is listed
         const address = user.address.find(a => a._id.toString() === shippingAddress);
         if (!address) {
-            req.flash("error", "Invalid shipping address");
+            req.flash("error", ERROR_MESSAGES.INVALID_SHIPPING);
             return res.redirect("/checkout");
         }
 // find the cart
         const cart = await Cart.findOne({ userId: id }).populate("items.productId");
         if (!cart?.items?.length) {
-            req.flash("error", "Cart is empty");
+            req.flash("error", ERROR_MESSAGES.CART_EMPTY);
             return res.redirect("/profile/cart");
         }
         // if(paymentMethod === "COD" && cart.totalAmount >= 50000){
-        //     req.flash("error", "COD is only available for orders under ₹50000");
+        //     req.flash("error", ERROR_MESSAGES."COD is only available for orders under ₹50000");
         //     return res.redirect("/checkout")
         // }
         // variables needed for the order
@@ -116,7 +119,7 @@ const checkOut = async (req, res) => {
         if (couponCode) {
             const coupon = await Coupon.findOne({ code: couponCode }); // find the coupons user entered form the coupon collection
             if (!coupon) { // if coupon is invalid
-                req.flash("error", "Invalid coupon code");
+                req.flash("error", ERROR_MESSAGES.INVALID_COUPON);
                 return res.redirect("/checkout");
             }
             const userCoupon = user.coupons.find(c =>  
@@ -126,7 +129,7 @@ const checkOut = async (req, res) => {
             );
 // if the coupon is invalid or expired
             if (!userCoupon) {
-                req.flash("error", "Coupon not available or expired");
+                req.flash("error", ERROR_MESSAGES.COUPON_INACTIVE);
                 return res.redirect("/checkout");
             }
             /*allowedDiscount is used to give discount to the item in the cart according to the length of the cart 
@@ -141,7 +144,7 @@ const checkOut = async (req, res) => {
         }
         if(paymentMethod === "Wallet"){ // if the payment is wallet
             if(user.wallet < totalAmount){ // check if wallet have sufficent balance for the transation
-                req.flash("error", "Insufficent amount in wallet");
+                req.flash("error", ERROR_MESSAGES.INSUFFICIENT_FUND);
                 return res.redirect("/checkout");
             }
             user.wallet -= totalAmount // reduce the amount
@@ -151,7 +154,7 @@ const checkOut = async (req, res) => {
             const variant = item.productId.variants.id(item.variantId);
             
             if (!variant) {
-                throw new Error("Variant not found");
+                throw new Error(ERROR_MESSAGES.VARIANT_NOT_FOUND);
             }
             
             return {
@@ -293,14 +296,14 @@ const checkOut = async (req, res) => {
         // Send confirmation email
         const emailSuccess = await sendInvoiceEmail(user.email, orderDetails);
         if (emailSuccess) {
-            req.flash("success", "Order placed successfully and invoice sent to your email!");
+            req.flash("success", SUCCESS_MESSAGES.ORDER_SUCCESS_WITH_INVOICE);
         } else {
-            req.flash("success", "Order placed successfully, but we failed to send the invoice email.");
+            req.flash("success", SUCCESS_MESSAGES.ORDER_SUCCESS_NO_INVOICE);
         }
         res.redirect("/orders");
     } catch (error) {
         console.error("Checkout error:", error);
-        req.flash("error", "Failed to place order");
+        req.flash("error", ERROR_MESSAGES.ORDER_FAILED);
         res.redirect("/checkout");
     }
 };
@@ -332,11 +335,11 @@ const validateCoupon = async (req, res) => {
       const coupon = await Coupon.findOne({ code: couponCode, status: 'active' }); // find the coupon and check if it is active
   
       if (!coupon) { // if coupon not found send a error message
-        return res.status(400).json({ success: false, message: 'Invalid or inactive coupon' });
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON_INVALID });
       }
   
       if (cartTotal < coupon.minPurchase) { // if the coupon min amount not reached send err msg
-        return res.status(400).json({ 
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
           success: false, 
           message: `Minimum purchase of ₹${coupon.minPurchase} required` 
         });
@@ -344,17 +347,17 @@ const validateCoupon = async (req, res) => {
   
       const now = new Date();
       if (now > coupon.expiresAt) { // check if the coupon has expired by checking the current date
-        return res.status(400).json({ success: false, message: 'Coupon has expired' });
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON_EXPIRED });
       }
    // if all good display coupon is applied
-      res.status(200).json({ 
+      res.status(HTTP_STATUS.OK).json({ 
         success: true, 
         discountAmount: coupon.discountValue,
-        message: 'Coupon applied successfully' 
+        message: SUCCESS_MESSAGES.COUPON_APPLIED 
       });
     } catch (error) {
       console.error('Error validating coupon:', error.messge);
-      res.status(500).json({ success: false, message: 'Error validating coupon' });
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.COUPON_VALIDATE });
     }
   };
 

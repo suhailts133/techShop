@@ -1,5 +1,9 @@
 const User = require("../../models/userSchema.js");
 const { generateOtp, securePassword, sendVerificationEmail } = require("../../helpers/userAuthendication.js") // authentication helper
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
 
 const loadForgetPasswordPage = async (req, res) => {
     try {
@@ -19,11 +23,11 @@ const forgetPasswordOtpSend = async (req, res) => {
         const findUser = await User.findOne({ email });
 
         if (!findUser) {
-            req.flash("error", "user does not exist please sign up");
+            req.flash("error", ERROR_MESSAGES.SIGNUP);
             return res.redirect("/signup");
         }
         if(!findUser.password){
-            req.flash("error", "This account is signed up with google");
+            req.flash("error", ERROR_MESSAGES.GOOGLE_ACCOUNT);
             return res.redirect("/login");
         }
         const otp = generateOtp(); // generate the otp
@@ -67,11 +71,11 @@ const verifyForgetPasswordOtp = async (req, res) => {
             req.session.userOtp = null;
             res.json({ success: true, redirectUrl: "/changePassword" });  // if all good use the redirecting url to use for ajax
         } else {
-            res.status(400).json({ success: false, message: "Invalid OTP, please try again" });
+            res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.INVALID_OTP });
         }
     } catch (error) {
         console.error("Error while verifying OTP", error.message);
-        res.status(500).json({ success: false, message: "An error occurred" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER_ERROR });
     }
 };
 
@@ -88,16 +92,16 @@ const changePassword = async (req, res) => {
         const { password, confirmPassword } = req.body;
         const {email, id} = req.session.userData;
         if(password !== confirmPassword ){
-            req.flash("error", "password does not match");
+            req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH);
             return res.redirect("/login");
         }
         if(!email){
-            req.flash("error", "email not found")
+            req.flash("error", ERROR_MESSAGES.EMAIL_NOT_FOUND)
             return res.redirect("/signup")
         }
         const passwordHash = await securePassword(password);
         const findUser = await User.findByIdAndUpdate(id, {password:passwordHash});
-        req.flash("success", "password changed successfully")
+        req.flash("success", SUCCESS_MESSAGES.PASSWORD_CHANGED)
         res.redirect("/login");
     } catch (error) {
         console.log("error while changeing password");

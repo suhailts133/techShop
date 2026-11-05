@@ -7,7 +7,6 @@
 // schema
 const User = require("../../models/userSchema");
 
-
 // displaying customer details
 const customerInfo = async (req, res) => {
     try {

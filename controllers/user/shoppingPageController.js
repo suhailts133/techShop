@@ -4,6 +4,11 @@ const Brand = require("../../models/brandSchema.js");
 const Wishlist = require("../../models/wishlishSchema.js");
 const Cart = require("../../models/cartSchema.js")
 
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+
+
 const loadShoppingPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -95,7 +100,7 @@ const loadShoppingPage = async (req, res) => {
 
     } catch (error) {
         console.log("Error while loading shop", error.message);
-        res.status(500).send("Internal Server Error");
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR);
     }
 };
 

@@ -11,6 +11,10 @@ const User = require("../../models/userSchema.js") // user model
 const { generateOtp, securePassword, sendVerificationEmail } = require("../../helpers/userAuthendication.js") // authentication helper
 const Coupon = require("../../models/couponsSchema.js")
 
+// constants
+const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js")
 
 const loadHomePage = async (req, res) => {
     try {
@@ -78,7 +82,7 @@ const loadSignup = async (req, res) => {
         return res.render('signup', { title: "Sign up" })
     } catch (error) {
         console.log("Sign up page loading error", error.message);
-        res.status(500).send("Server error")
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR)
         res.redirect("/pageNotFound");
     }
 }
@@ -89,7 +93,7 @@ const signup = async (req, res) => {
         const { name, phone, email, password, confirmPassword, Referalcode } = req.body;
 
         if (password !== confirmPassword) { // checking password and confirm password is same
-            req.flash("error", "password does not match")
+            req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH)
             return res.redirect("/signup");
         }
 
@@ -98,14 +102,14 @@ const signup = async (req, res) => {
 
         if (findUser) { // if user already exists redirect to signup page
             console.log("User already exists");
-            req.flash("error", "the email already exists")
+            req.flash("error", ERROR_MESSAGES.EMAIL_EXISTS)
             return res.redirect("/signup");
         }
 
         if (Referalcode) {
             const userReferalCode = await User.findOne({ Referalcode: Referalcode });
             if (!userReferalCode) {
-                req.flash("error", "unknown referal code");
+                req.flash("error", ERROR_MESSAGES.INCORRECT_REFERRAL);
                 return res.redirect("/signup");
             }
         }
@@ -128,7 +132,7 @@ const signup = async (req, res) => {
         console.log("otp sent", otp)
     } catch (error) {
         console.error("Error in signup function:", error.message);
-        res.status(500).send("server error")
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR)
     }
 };
 // load the otp page
@@ -226,11 +230,11 @@ const verifyOtp = async (req, res) => {
 
             res.json({ success: true, redirectUrl: "/" });
         } else {
-            res.status(400).json({ success: false, message: "Invalid OTP, please try again" });
+            res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.INVALID_OTP });
         }
     } catch (error) {
         console.error("Error while verifying OTP", error.message);
-        res.status(500).json({ success: false, message: "An error occurred" });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER_ERROR });
     }
 };
 
@@ -239,7 +243,7 @@ const resendOtp = async (req, res) => {
     try {
         const { email } = req.session.userData; // retriving email from session
         if (!email) {
-            return res.status(400).json({ success: false, message: "Email not found in session" })
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.EMAIL_NOT_IN_SESSION })
         }
         const otp = generateOtp(); // generate the resend otp
         req.session.userOtp = otp; // set the new otp in the session
@@ -247,13 +251,13 @@ const resendOtp = async (req, res) => {
 
         if (emailSent) {  // if email is send 
             console.log("Resend otp", otp);
-            res.status(200).json({ success: true, message: "OTP Resend Successfully" }) // set success msg 
+            res.status(HTTP_STATUS.OK).json({ success: true, message: SUCCESS_MESSAGES.OTP_RESENT }) // set success msg 
         } else {
-            res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" }) // set erro msg
+            res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.OTP_RESEND }) // set erro msg
         }
     } catch (error) {
         console.error("Error resending  OTP", error.message);
-        res.status(500).json({ success: false, message: "server error pleae try again" })
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.SERVER_ERROR })
     }
 }
 // load login page
@@ -271,22 +275,22 @@ const login = async (req, res) => {
         const { email, password } = req.body;
         const findUser = await User.findOne({ email });  // find the user from the db
         if (!findUser) {  // check if the email exists in the db
-            req.flash("error", "incorrect credential if you are using google login/signup use google login");
+            req.flash("error", ERROR_MESSAGES.CREDENTIALS);
             return res.redirect("/login");
         }
         if (findUser.isBlocked) {  // check if the user is blocked by the admin
-            req.flash("error", "you are blocked by the admin");
+            req.flash("error", ERROR_MESSAGES.BLOCKED);
             return res.redirect("/login");
         }
         /* if the user is signed in with google there wont be any password stored in the db for the particular user
         so check wheather the particular user has a password */
         if (!findUser.password) {
-            req.flash("error", "incorrect credential if you are using google login/signup use google login");
+            req.flash("error", ERROR_MESSAGES.CREDENTIALS);
             return res.redirect("/login")
         }
         const passwordMatch = await bcrypt.compare(password, findUser.password);  // compare the password from the body and the db
         if (!passwordMatch) {
-            req.flash("error", "incorrect credential if you are using google login/signup use google login")
+            req.flash("error", ERROR_MESSAGES.CREDENTIALS)
             return res.redirect("/login");
         }
         req.session.user = { id: findUser._id, name: findUser.name, email: findUser.email };  // set the user details in the session name is used for the home page
@@ -294,7 +298,7 @@ const login = async (req, res) => {
         res.redirect("/");
     } catch (error) {
         console.log("error while loggin in the user", error.message)
-        res.status(500).send("server error ")
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR)
     }
 
 }
@@ -304,7 +308,7 @@ const logout = (req, res) => {
         req.session.destroy((err) => {
             if (err) {
                 console.error("Error destroying session", err.message);
-                return res.status(500).send("Error logging out");
+                return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.LOGOUT);
             }
             res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
             res.setHeader("Pragma", "no-cache");

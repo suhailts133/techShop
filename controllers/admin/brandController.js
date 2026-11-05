@@ -13,6 +13,9 @@ const path = require("path")
 const Brand = require("../../models/brandSchema.js");
 const cloudinaryService = require("../../services/cloudinaryService.js");
 
+// constants
+const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
 
 // displaying brand details
 const brandInfo = async (req, res) => {
@@ -92,12 +95,12 @@ const addBrand = async (req, res) => {
     try {
         const brandName = req.body.brandName.trim().toLowerCase();
         if(!req.file){
-            req.flash("error", "Brand logo is required");
+            req.flash("error", ERROR_MESSAGES.BRAND_LOGO_REQUIRED);
             return res.redirect("/admin/brands/add");  
         }
         const findBrand = await Brand.findOne({ brandName }); 
         if (findBrand) { 
-            req.flash("error", "brand already exists");
+            req.flash("error", ERROR_MESSAGES.BRAND_ALREADY_EXISTS);
             return res.redirect("/admin/brands/add");
         }
         uploaded = await cloudinaryService.upload(req.file, "techshop/brands")
@@ -106,7 +109,7 @@ const addBrand = async (req, res) => {
             logo: {path:uploaded.path, filename:uploaded.filename}
         });
         await newBrand.save(); 
-        req.flash("success", "New Brand Added")
+        req.flash("success", SUCCESS_MESSAGES.BRAND_CREATED)
         res.redirect("/admin/brands");
     } catch (error) {
         console.log("Error while adding brand:", error);
@@ -120,7 +123,7 @@ const loadEditBrand = async (req, res) => {
     const { id } = req.query;
     const brandData = await Brand.findById(id);
     if (!brandData) { 
-        req.flash("error", "brand did not find");
+        req.flash("error", ERROR_MESSAGES.BRAND_NOT_FOUND);
         return res.redirect("/admin/brands")
     }
 
@@ -137,7 +140,7 @@ const editBrand = async (req, res) => {
 
         const existingBrand = await Brand.findById(id);
         if (!existingBrand) {
-            req.flash("error", "Brand not found");
+            req.flash("error", ERROR_MESSAGES.BRAND_NOT_FOUND);
             return res.redirect("/admin/brands");
         }
 
@@ -147,7 +150,7 @@ const editBrand = async (req, res) => {
                 _id: { $ne: id },
             });
             if (brandNameExists) {
-                req.flash("error", "Brand name already exists");
+                req.flash("error", ERROR_MESSAGES.BRAND_NAME_ALREADY_EXISTS);
                 return res.redirect(`/admin/brands/edit?id=${id}`);
             }
         }
@@ -166,13 +169,13 @@ const editBrand = async (req, res) => {
             await cloudinaryService.delete(existingBrand.logo.filename).catch(() => {});
         }
 
-        req.flash("success", "Brand edited successfully");
+        req.flash("success", SUCCESS_MESSAGES.BRAND_UPDATED);
         res.redirect("/admin/brands");
     } catch (error) {
         console.error("Error while editing the brand:", error.message);
     
         if (uploaded) await cloudinaryService.delete(uploaded.filename).catch(() => {});
-        req.flash("error", "An error occurred while editing the brand");
+        req.flash("error", ERROR_MESSAGES.BRAND_EDIT_ERROR);
         res.redirect("/admin/brands");
     }
 };
