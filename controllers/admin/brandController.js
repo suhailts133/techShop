@@ -15,7 +15,8 @@ const cloudinaryService = require("../../services/cloudinaryService.js");
 
 // constants
 const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
+const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js");
+const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js");
 
 // displaying brand details
 const brandInfo = async (req, res) => {
@@ -71,18 +72,18 @@ const brandToggle = async (req, res) => {
         let { id } = req.query; // id of the brand
         const brandStatus = await Brand.findById(id);
         let flag = true;  // by default the item is already listed
-        if(brandStatus.isListed){ //if the item is listed 
-            brandStatus.isListed=false; // make the item unlist
-            flag=false  // then set the flag as false
+        if (brandStatus.isListed) { //if the item is listed 
+            brandStatus.isListed = false; // make the item unlist
+            flag = false  // then set the flag as false
             await brandStatus.save()
-        }else{ //  if the item is already unlisted make it listed
-            brandStatus.isListed=true; //  make islistd as true 
-            flag=true; // set the flag as true since the item is listed
+        } else { //  if the item is already unlisted make it listed
+            brandStatus.isListed = true; //  make islistd as true 
+            flag = true; // set the flag as true since the item is listed
             await brandStatus.save();
         }
         res.json({ success: true, isListed: flag });  // return the json response with flag 
-        
-        
+
+
     } catch (error) {
         console.log("Error while listing category", error.message);
     }
@@ -93,22 +94,27 @@ const brandToggle = async (req, res) => {
 const addBrand = async (req, res) => {
     let uploaded = null
     try {
-        const brandName = req.body.brandName.trim().toLowerCase();
-        if(!req.file){
-            req.flash("error", ERROR_MESSAGES.BRAND_LOGO_REQUIRED);
-            return res.redirect("/admin/brands/add");  
+        if (!req.body.brandName || typeof req.body.brandName !== "string" || !req.body.brandName.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.BRAND.NAME_REQUIRED);
+            return res.redirect("/admin/brands/add");
         }
-        const findBrand = await Brand.findOne({ brandName }); 
-        if (findBrand) { 
+
+        const brandName = req.body.brandName.trim().toLowerCase();
+        if (!req.file) {
+            req.flash("error", ERROR_MESSAGES.BRAND_LOGO_REQUIRED);
+            return res.redirect("/admin/brands/add");
+        }
+        const findBrand = await Brand.findOne({ brandName });
+        if (findBrand) {
             req.flash("error", ERROR_MESSAGES.BRAND_ALREADY_EXISTS);
             return res.redirect("/admin/brands/add");
         }
         uploaded = await cloudinaryService.upload(req.file, "techshop/brands")
-        const newBrand = new Brand({ 
+        const newBrand = new Brand({
             brandName: brandName,
-            logo: {path:uploaded.path, filename:uploaded.filename}
+            logo: { path: uploaded.path, filename: uploaded.filename }
         });
-        await newBrand.save(); 
+        await newBrand.save();
         req.flash("success", SUCCESS_MESSAGES.BRAND_CREATED)
         res.redirect("/admin/brands");
     } catch (error) {
@@ -122,7 +128,7 @@ const addBrand = async (req, res) => {
 const loadEditBrand = async (req, res) => {
     const { id } = req.query;
     const brandData = await Brand.findById(id);
-    if (!brandData) { 
+    if (!brandData) {
         req.flash("error", ERROR_MESSAGES.BRAND_NOT_FOUND);
         return res.redirect("/admin/brands")
     }
@@ -135,6 +141,12 @@ const editBrand = async (req, res) => {
     let uploaded = null;
     try {
         const { id } = req.query;
+
+        if (req.body.brandName !== undefined && (typeof req.body.brandName !== "string" || !req.body.brandName.trim())) {
+            req.flash("error", VALIDATION_MESSAGES.BRAND.INVALID);
+            return res.redirect(`/admin/brands/edit?id=${id}`);
+        }
+
         const brandName = req.body.brandName?.trim().toLowerCase();
         const newLogo = req.file;
 
@@ -166,15 +178,15 @@ const editBrand = async (req, res) => {
         await Brand.findByIdAndUpdate(id, updatedData, { new: true });
 
         if (newLogo && existingBrand.logo?.filename) {
-            await cloudinaryService.delete(existingBrand.logo.filename).catch(() => {});
+            await cloudinaryService.delete(existingBrand.logo.filename).catch(() => { });
         }
 
         req.flash("success", SUCCESS_MESSAGES.BRAND_UPDATED);
         res.redirect("/admin/brands");
     } catch (error) {
         console.error("Error while editing the brand:", error.message);
-    
-        if (uploaded) await cloudinaryService.delete(uploaded.filename).catch(() => {});
+
+        if (uploaded) await cloudinaryService.delete(uploaded.filename).catch(() => { });
         req.flash("error", ERROR_MESSAGES.BRAND_EDIT_ERROR);
         res.redirect("/admin/brands");
     }

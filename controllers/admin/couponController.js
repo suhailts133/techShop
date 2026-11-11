@@ -45,7 +45,7 @@ const allCoupons = async (req, res) => {
             .skip(skip)
             .limit(limit)
             .sort({ createdAt: -1 });
-            
+
         const totalCount = await Coupon.countDocuments(query); // for counting the document
         const totalPages = Math.ceil(totalCount / limit); // for checking for the number of the page needed
         res.render("coupons", {
@@ -78,48 +78,55 @@ const addCoupon = async (req, res) => {
     try {
         // coupon validation
         const { discountValue, minPurchase, validityDuration, status, name } = req.body;
-        if (!discountValue) {
-            req.flash("error", ERROR_MESSAGES.COUPON_DISCOUNT_REQUIRED);
-            return res.redirect("/admin/coupon/add")
-        }
-        if (!name) {
+
+        if (typeof name !== "string" || !name.trim()) {
             req.flash("error", ERROR_MESSAGES.COUPON_NAME_REQUIRED);
-            return res.redirect("/admin/coupon/add")
+            return res.redirect("/admin/coupon/add");
         }
-        if (!minPurchase) {
+
+        if (!discountValue || !Number.isFinite(Number(discountValue))) {
+            req.flash("error", ERROR_MESSAGES.COUPON_DISCOUNT_REQUIRED);
+            return res.redirect("/admin/coupon/add");
+        }
+
+        if (minPurchase === undefined || minPurchase === "" || !Number.isFinite(Number(minPurchase)) || Number(minPurchase) < 0) {
             req.flash("error", ERROR_MESSAGES.COUPON_MIN_PURCHASE_REQUIRED);
-            return res.redirect("/admin/coupon/add")
+            return res.redirect("/admin/coupon/add");
         }
-        if (!validityDuration) {
+
+        if (!validityDuration || !Number.isFinite(Number(validityDuration))) {
             req.flash("error", ERROR_MESSAGES.COUPON_VALIDITY_REQUIRED);
-            return res.redirect("/admin/coupon/add")
+            return res.redirect("/admin/coupon/add");
         }
-        if (!status) {
+
+        if (!status || typeof status !== "string") {
             req.flash("error", ERROR_MESSAGES.COUPON_STATUS_REQUIRED);
-            return res.redirect("/admin/coupon/add")
+            return res.redirect("/admin/coupon/add");
         }
 
         if (discountValue <= 0) {
             req.flash("error", ERROR_MESSAGES.COUPON_DISCOUNT_INVALID);
-            return res.redirect("/admin/coupon/add")
+            return res.redirect("/admin/coupon/add");
         }
+
         if (validityDuration <= 0) {
-            // req.flash("error", ERROR_MESSAGES."insufficent validity days needed");
             req.flash("error", ERROR_MESSAGES.COUPON_VALIDITY_DAYS_INSUFFICIENT);
-            return res.redirect("/admin/coupon/add")
+            return res.redirect("/admin/coupon/add");
         }
-      
-        const couponCode = uuidv4().split('-')[0].toUpperCase(); // create coupon code
-        const newCoupon = new Coupon({  // add new coupon
-            name,
+
+        const couponCode = uuidv4().split('-')[0].toUpperCase();
+
+        const newCoupon = new Coupon({
+            name: name.trim(),
             code: couponCode,
             discountValue,
             minPurchase,
             validityDuration,
             status
         });
+
         await newCoupon.save();
-    
+
         res.redirect('/admin/coupon');
     } catch (error) {
         console.log('Error while creating coupon', error.message);
@@ -127,15 +134,14 @@ const addCoupon = async (req, res) => {
     }
 };
 
-
 // edit coupon page loading
 const loadEditCoupon = async (req, res) => {
     try {
-        const {id} = req.query;
+        const { id } = req.query;
         const coupon = await Coupon.findById(id);
-        res.render("editCoupon", {title:"Edit Coupon", coupon})
+        res.render("editCoupon", { title: "Edit Coupon", coupon })
     } catch (error) {
-        console.log("errror while loadin the edit coupon page",error.message)
+        console.log("errror while loadin the edit coupon page", error.message)
     }
 }
 
@@ -144,79 +150,89 @@ const loadEditCoupon = async (req, res) => {
 const editCoupon = async (req, res) => {
     try {
 
-        const {id} = req.query;
+        const { id } = req.query;
         // coupon validation
-        const {couponEdit} = req.body;
-        if (!couponEdit.discountValue) {
-            req.flash("error", ERROR_MESSAGES.COUPON_DISCOUNT_REQUIRED);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
+        const { couponEdit } = req.body;
+
+        if (!couponEdit || typeof couponEdit !== "object" || Array.isArray(couponEdit)) {
+            req.flash("error", "Invalid coupon data");
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
         }
-        if (!couponEdit.name) {
+
+        if (typeof couponEdit.name !== "string" || !couponEdit.name.trim()) {
             req.flash("error", ERROR_MESSAGES.COUPON_NAME_REQUIRED);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
         }
 
-        if (!couponEdit.minPurchase) {
+        if (couponEdit.discountValue === undefined || couponEdit.discountValue === "" || !Number.isFinite(Number(couponEdit.discountValue))) {
+            req.flash("error", ERROR_MESSAGES.COUPON_DISCOUNT_REQUIRED);
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
+        }
+
+        if (couponEdit.minPurchase === undefined || couponEdit.minPurchase === "" || !Number.isFinite(Number(couponEdit.minPurchase)) || Number(couponEdit.minPurchase) < 0) {
             req.flash("error", ERROR_MESSAGES.COUPON_MIN_PURCHASE_REQUIRED);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
-        }
-        if (!couponEdit.validityDuration) {
-            req.flash("error", ERROR_MESSAGES.COUPON_VALIDITY_REQUIRED);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
-        }
-        if (!couponEdit.status) {
-            req.flash("error", ERROR_MESSAGES.COUPON_STATUS_REQUIRED);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
         }
 
-        if (couponEdit.discountValue <= 0) {
+        if (couponEdit.validityDuration === undefined || couponEdit.validityDuration === "" || !Number.isFinite(Number(couponEdit.validityDuration))) {
+            req.flash("error", ERROR_MESSAGES.COUPON_VALIDITY_REQUIRED);
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
+        }
+
+        if (typeof couponEdit.status !== "string" || !couponEdit.status) {
+            req.flash("error", ERROR_MESSAGES.COUPON_STATUS_REQUIRED);
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
+        }
+
+        if (Number(couponEdit.discountValue) <= 0) {
             req.flash("error", ERROR_MESSAGES.COUPON_DISCOUNT_INVALID);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
         }
-        if (couponEdit.validityDuration <= 0) {
+
+        if (Number(couponEdit.validityDuration) <= 0) {
             req.flash("error", ERROR_MESSAGES.COUPON_VALIDITY_DAYS_INSUFFICIENT);
-            return res.redirect(`/admin/coupon/edit?id=${id}`)
+            return res.redirect(`/admin/coupon/edit?id=${id}`);
         }
-// if all good edit the coupon
+
+        // if all good edit the coupon
         await Coupon.findByIdAndUpdate(id, couponEdit);
         req.flash("success", SUCCESS_MESSAGES.COUPON_UPDATED);
         res.redirect("/admin/coupon")
 
     } catch (error) {
-        console.log("error while editing the coupon",error.message)
+        console.log("error while editing the coupon", error.message)
     }
 }
-
 
 // activating and deactivatin the coupon
 const toggleCouponStatus = async (req, res) => {
     const { id } = req.query  // coupon id
     try {
-      const coupon = await Coupon.findById(id); // check if the coupon exists
-      if (!coupon) {
-        req.flash("error", ERROR_MESSAGES.COUPON_NOT_FOUND);
-        return res.redirect(`/admin/coupon/?search=${req.query.search || ''}status=${coupon.status || ''}&page=${req.query.page || 1}`);
-      }
+        const coupon = await Coupon.findById(id); // check if the coupon exists
+        if (!coupon) {
+            req.flash("error", ERROR_MESSAGES.COUPON_NOT_FOUND);
+            return res.redirect(`/admin/coupon/?search=${req.query.search || ''}status=${coupon.status || ''}&page=${req.query.page || 1}`);
+        }
 
-      coupon.status = coupon.status === 'active' ? 'inactive' : 'active'; // change the status 
-      // if the coupon staus is active make inactive vise versa
-      await coupon.save();
-      req.flash("success", SUCCESS_MESSAGES.COUPON_STATUS_UPDATED);
-     res.redirect(`/admin/coupon/?search=${req.query.search || ''}&status=${coupon.status || ''}&page=${req.query.page || 1}`);
+        coupon.status = coupon.status === 'active' ? 'inactive' : 'active'; // change the status 
+        // if the coupon staus is active make inactive vise versa
+        await coupon.save();
+        req.flash("success", SUCCESS_MESSAGES.COUPON_STATUS_UPDATED);
+        res.redirect(`/admin/coupon/?search=${req.query.search || ''}&status=${coupon.status || ''}&page=${req.query.page || 1}`);
     } catch (err) {
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Error toggling coupon status', error: err.message });
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Error toggling coupon status', error: err.message });
     }
-  };
+};
 
 
 
-  // deleting the coupon
+// deleting the coupon
 const deleteCoupon = async (req, res) => {
     try {
-        const {id} = req.query;
+        const { id } = req.query;
         await Coupon.findByIdAndDelete(id);
         req.flash("success", SUCCESS_MESSAGES.COUPON_DELETED);
-     res.redirect(`/admin/coupon`);
+        res.redirect(`/admin/coupon`);
     } catch (error) {
         console.log("error while delteing coupon", error.message)
     }
@@ -230,5 +246,5 @@ module.exports = {
     editCoupon,
     toggleCouponStatus,
     deleteCoupon
-    
+
 }

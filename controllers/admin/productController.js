@@ -7,7 +7,8 @@ const cloudinaryService = require("../../services/cloudinaryService.js");
 // constants
 const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
 const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const HTTP_STATUS = require("../../constants/httpStatusCode.js");
+const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js");
 
 
 const productInfo = async (req, res) => {
@@ -57,29 +58,72 @@ const loadAddProductPage = async (req, res) => {
         console.log("error while loadin add new product page", error.message)
     }
 }
-
 const addProduct = async (req, res) => {
-    let  uploaded = []
+    let uploaded = []
     try {
         const products = req.body;
 
-        const productExists = await Product.findOne({  productName: products.productName});
+        // Basic validation
+        if (!products.productName || typeof products.productName !== "string" || !products.productName.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.NAME_REQ);
+            return res.redirect("/admin/products/add");
+        }
+
+        if (!products.description || typeof products.description !== "string" || !products.description.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.DESC_REQ);
+            return res.redirect("/admin/products/add");
+        }
+
+        if (!products.brand || typeof products.brand !== "string") {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.BRAND_REQ);
+            return res.redirect("/admin/products/add");
+        }
+
+        if (!products.category || typeof products.category !== "string") {
+            req.flash("error", ERROR_MESSAGES.CATEGORY_NOT_FOUND);
+            return res.redirect("/admin/products/add");
+        }
+
+        if (products.variants && !Array.isArray(products.variants)) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.INVALID_VARIENT);
+            return res.redirect("/admin/products/add");
+        }
+
+        const variants = products.variants || [];
+
+        if (variants.length === 0 || variants.some(v =>
+            !v.price || !Number.isFinite(Number(v.price)) ||
+            !v.salePrice || !Number.isFinite(Number(v.salePrice)) ||
+            Number(v.price) <= 0 || Number(v.salePrice) <= 0
+        )) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.INVALID_VARIENT_PRICE);
+            return res.redirect("/admin/products/add");
+        }
+
+        if (products.productOffer !== undefined &&
+            (!Number.isFinite(Number(products.productOffer)) || Number(products.productOffer) < 0)) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.INVALID_PROD_OFFER);
+            return res.redirect("/admin/products/add");
+        }
+
+        const productExists = await Product.findOne({ productName: products.productName });
 
         if (productExists) {
             req.flash("error", ERROR_MESSAGES.PRODUCT_ALREADY_EXISTS);
             return res.redirect("/admin/products/add");
         }
-          if (!req.files || req.files.length === 0) {
+
+        if (!req.files || req.files.length === 0) {
             req.flash("error", ERROR_MESSAGES.PRODUCT_IMAGE_REQUIRED);
             return res.redirect("/admin/products/add");
         }
-         const category = await Category.findOne({ name: products.category });
+
+        const category = await Category.findOne({ name: products.category });
         if (!category) {
             req.flash("error", ERROR_MESSAGES.CATEGORY_NOT_FOUND);
             return res.redirect("/admin/products/add");
         }
-        
-        const variants = products.variants || [];
+
         const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
         if (priceCheck) {
             req.flash("error", ERROR_MESSAGES.PRODUCT_SALE_PRICE_INVALID);
@@ -89,7 +133,6 @@ const addProduct = async (req, res) => {
         uploaded = await cloudinaryService.uploadMany(req.files, "techShop/products", {
             transformation: [{ width: 600, height: 600, crop: "fill" }],
         });
-
 
         const newProduct = new Product({
             productName: products.productName,
@@ -101,12 +144,13 @@ const addProduct = async (req, res) => {
             productOffer: products.productOffer || 0,
             status: "Available",
         });
+
         await newProduct.save();
         req.flash("success", SUCCESS_MESSAGES.PRODUCT_CREATED)
         return res.redirect("/admin/products");
     } catch (error) {
-  console.error("Error while saving product:", error);
-        await Promise.all(uploaded.map((i) => cloudinaryService.delete(i.filename).catch(() => {})));
+        console.error("Error while saving product:", error);
+        await Promise.all(uploaded.map((i) => cloudinaryService.delete(i.filename).catch(() => { })));
         return res.redirect("/admin/pageerror");
     }
 };
@@ -138,7 +182,45 @@ const editProduct = async (req, res) => {
     try {
         const productId = req.query.id;
         const updatedData = req.body;
-        const variants = updatedData.variants || [];
+
+        // Basic validation
+        if (!updatedData.productName || typeof updatedData.productName !== "string" || !updatedData.productName.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.NAME_REQ);
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        if (!updatedData.description || typeof updatedData.description !== "string" || !updatedData.description.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.DESC_REQ);
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        if (!updatedData.brand || typeof updatedData.brand !== "string") {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.BRAND_REQ);
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        if (!updatedData.variants || !Array.isArray(updatedData.variants)) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.INVALID_VARIENT);
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        const variants = updatedData.variants;
+
+        if (variants.length === 0 || variants.some(v =>
+            !Number.isFinite(Number(v.price)) ||
+            !Number.isFinite(Number(v.salePrice)) ||
+            Number(v.price) <= 0 ||
+            Number(v.salePrice) <= 0
+        )) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.INVALID_VARIENT_PRICE);
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
+
+        if (updatedData.productOffer !== undefined &&
+            (!Number.isFinite(Number(updatedData.productOffer)) || Number(updatedData.productOffer) < 0)) {
+            req.flash("error", VALIDATION_MESSAGES.PRODUCT.INVALID_PROD_OFFER);
+            return res.redirect(`/admin/products/edit?id=${productId}`);
+        }
 
         const priceCheck = variants.some(v => Number(v.salePrice) > Number(v.price));
         if (priceCheck) {
@@ -167,10 +249,9 @@ const editProduct = async (req, res) => {
             return res.redirect(`/admin/products/edit?id=${productId}`);
         }
 
-
         const images = product.productImage.map(i => ({ path: i.path, filename: i.filename }));
-        const replaced = []; 
-        
+        const replaced = [];
+
         for (const file of req.files || []) {
             const match = file.originalname.match(/cropped-image-(\d+)\./);
             if (!match) continue;
@@ -191,21 +272,20 @@ const editProduct = async (req, res) => {
         product.description = updatedData.description;
         product.brand = updatedData.brand;
         product.category = category._id;
-        product.productImage = images.filter(Boolean); // no holes if a slot was skipped
+        product.productImage = images.filter(Boolean);
         product.variants = variants;
         product.productOffer = updatedData.productOffer || 0;
         product.status = updatedData.status || "Available";
 
         await product.save();
 
-        // delete the old images only after the save succeeded
-        await Promise.all(replaced.map(id => cloudinaryService.delete(id).catch(() => {})));
+        await Promise.all(replaced.map(id => cloudinaryService.delete(id).catch(() => { })));
 
         req.flash("success", SUCCESS_MESSAGES.PRODUCT_UPDATED);
         return res.redirect("/admin/products");
     } catch (error) {
         console.error("Error while updating the product:", error);
-        await Promise.all(uploaded.map(i => cloudinaryService.delete(i.filename).catch(() => {})));
+        await Promise.all(uploaded.map(i => cloudinaryService.delete(i.filename).catch(() => { })));
         return res.redirect("/admin/pageerror");
     }
 };
@@ -216,18 +296,18 @@ const productToggle = async (req, res) => {
         let { id } = req.query; // id of the brand
         const productStatus = await Product.findById(id);
         let flag = false;  // by default the user is already unblocked so flag as false
-        if(productStatus.isBlocked){ //if the user is blocked
-            productStatus.isBlocked=false; // make the user unblock
-            flag=false  // then set the flag as false
+        if (productStatus.isBlocked) { //if the user is blocked
+            productStatus.isBlocked = false; // make the user unblock
+            flag = false  // then set the flag as false
             await productStatus.save()
-        }else{ //  if the user is alrady blocked
-            productStatus.isBlocked=true; //  make the user as blocked by setting isblockd as true 
-            flag=true; // set the flag as true because user is blocked
+        } else { //  if the user is alrady blocked
+            productStatus.isBlocked = true; //  make the user as blocked by setting isblockd as true 
+            flag = true; // set the flag as true because user is blocked
             await productStatus.save();
         }
         res.json({ success: true, isBlocked: flag });  // return the json response with flag 
-        
-       
+
+
     } catch (error) {
         console.log("Error while listing category", error.message);
     }

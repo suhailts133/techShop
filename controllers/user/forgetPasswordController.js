@@ -19,14 +19,17 @@ const loadForgetPasswordPage = async (req, res) => {
 
 const forgetPasswordOtpSend = async (req, res) => {
     try {
-        const { email } = req.body;
-        const findUser = await User.findOne({ email });
+        if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            req.flash("error", VALIDATION_MESSAGES.ADMIN.EMAIL);
+            return res.redirect("/signup");
+        }
 
+        const findUser = await User.findOne({ email });
         if (!findUser) {
             req.flash("error", ERROR_MESSAGES.SIGNUP);
             return res.redirect("/signup");
         }
-        if(!findUser.password){
+        if (!findUser.password) {
             req.flash("error", ERROR_MESSAGES.GOOGLE_ACCOUNT);
             return res.redirect("/login");
         }
@@ -81,7 +84,7 @@ const verifyForgetPasswordOtp = async (req, res) => {
 
 const changePasswordpage = async (req, res) => {
     try {
-        res.render("changepassword", {title:"change password"})
+        res.render("changepassword", { title: "change password" })
     } catch (error) {
         console.log("error while loading change passworg page")
     }
@@ -90,17 +93,17 @@ const changePasswordpage = async (req, res) => {
 const changePassword = async (req, res) => {
     try {
         const { password, confirmPassword } = req.body;
-        const {email, id} = req.session.userData;
-        if(password !== confirmPassword ){
+        const { email, id } = req.session.userData;
+        if (password !== confirmPassword) {
             req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH);
             return res.redirect("/login");
         }
-        if(!email){
+        if (!email) {
             req.flash("error", ERROR_MESSAGES.EMAIL_NOT_FOUND)
             return res.redirect("/signup")
         }
         const passwordHash = await securePassword(password);
-        const findUser = await User.findByIdAndUpdate(id, {password:passwordHash});
+        const findUser = await User.findByIdAndUpdate(id, { password: passwordHash });
         req.flash("success", SUCCESS_MESSAGES.PASSWORD_CHANGED)
         res.redirect("/login");
     } catch (error) {

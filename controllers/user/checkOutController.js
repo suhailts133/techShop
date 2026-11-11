@@ -21,14 +21,15 @@ const Wallet = require("../../models/walletSchema.js");
 const Transaction = require("../../models/transactionSchema.js")
 const Category = require("../../models/categorySchema.js")
 
-const {getRandomCoupon} = require("../../helpers/couponsHelper.js")
-const {sendInvoiceEmail} = require("../../helpers/invoice.js")
+const { getRandomCoupon } = require("../../helpers/couponsHelper.js")
+const { sendInvoiceEmail } = require("../../helpers/invoice.js")
 const { v4: uuidv4 } = require("uuid");
 
 // constants
 const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
 const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
 const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js")
 
 // load the checkout page
 /*
@@ -41,18 +42,18 @@ const loadCheckOutPage = async (req, res) => {
         const { id } = req.session.user; // id of  the current user form the session
 
         const findUser = await User.findById(id).populate("address"); // find the user and populate with address
-        
+
         const cart = await Cart.findOne({ userId: id }).populate("items.productId"); // find the cart of the user and populate the items
-     
+
         if (!cart || cart.items.length === 0) { // check if the cart exists of if the cart is empty
             // then redirect them to the cart page with an error
             req.flash("error", ERROR_MESSAGES.CART_EMPTY);
             return res.redirect("/profile/cart");
         }
-       // cart quantity for the navbar
+        // cart quantity for the navbar
         let cartQuantity = 0;
-            const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
-            cartQuantity = cartItems?.items?.length || 0
+        const cartItems = await Cart.findOne({ userId: req.session.user.id }).lean()
+        cartQuantity = cartItems?.items?.length || 0
 
         res.render("checkout", {
             cart,
@@ -73,8 +74,8 @@ const loadCheckOutPage = async (req, res) => {
 const checkOut = async (req, res) => {
     try {
         const { id } = req.session.user; // user id from the session
-        const { shippingAddress, paymentMethod, couponCode,razorpay_payment_id } = req.body; 
-     
+        const { shippingAddress, paymentMethod, couponCode, razorpay_payment_id } = req.body;
+
         if (!shippingAddress || !paymentMethod) {
             req.flash("error", ERROR_MESSAGES.FIELDS_REQUIRED);
             return res.redirect("/checkout");
@@ -84,20 +85,20 @@ const checkOut = async (req, res) => {
             // show error that payment is not verified
             req.flash("error", ERROR_MESSAGES.PAYMENT_NOT_VERIFIED);
             return res.redirect("/checkout");
-          }
-// additional validtion on address if the address is not found
+        }
+        // additional validtion on address if the address is not found
         const user = await User.findById(id).populate("address");
         if (!user?.address?.length) {
             req.flash("error", ERROR_MESSAGES.NO_ADDRESSES_FOUND);
             return res.redirect("/profile/address");
         }
-// check if user mentioned address is listed
+        // check if user mentioned address is listed
         const address = user.address.find(a => a._id.toString() === shippingAddress);
         if (!address) {
             req.flash("error", ERROR_MESSAGES.INVALID_SHIPPING);
             return res.redirect("/checkout");
         }
-// find the cart
+        // find the cart
         const cart = await Cart.findOne({ userId: id }).populate("items.productId");
         if (!cart?.items?.length) {
             req.flash("error", ERROR_MESSAGES.CART_EMPTY);
@@ -115,19 +116,19 @@ const checkOut = async (req, res) => {
         length of the cart is used for the splitting the coupon amount order the order item
         */
         const lengthOfCart = cart.items.length;
-      // check if the coupon is provided by the user
+        // check if the coupon is provided by the user
         if (couponCode) {
             const coupon = await Coupon.findOne({ code: couponCode }); // find the coupons user entered form the coupon collection
             if (!coupon) { // if coupon is invalid
                 req.flash("error", ERROR_MESSAGES.INVALID_COUPON);
                 return res.redirect("/checkout");
             }
-            const userCoupon = user.coupons.find(c =>  
+            const userCoupon = user.coupons.find(c =>
                 c.couponId.equals(coupon._id) &&   // check if the user has the coupon by comparing the couponid in the user.coupons and the coupon user entered
                 !c.isUsed &&   // check if the coupon is already used
                 new Date() < c.expiresAt // check if the coupon is expired
             );
-// if the coupon is invalid or expired
+            // if the coupon is invalid or expired
             if (!userCoupon) {
                 req.flash("error", ERROR_MESSAGES.COUPON_INACTIVE);
                 return res.redirect("/checkout");
@@ -142,8 +143,8 @@ const checkOut = async (req, res) => {
             user.coupons.pull(userCoupon._id); // pull only one coupon with the id only one because user can have multiple coupon with same id
             usedCoupon = coupon;
         }
-        if(paymentMethod === "Wallet"){ // if the payment is wallet
-            if(user.wallet < totalAmount){ // check if wallet have sufficent balance for the transation
+        if (paymentMethod === "Wallet") { // if the payment is wallet
+            if (user.wallet < totalAmount) { // check if wallet have sufficent balance for the transation
                 req.flash("error", ERROR_MESSAGES.INSUFFICIENT_FUND);
                 return res.redirect("/checkout");
             }
@@ -152,20 +153,20 @@ const checkOut = async (req, res) => {
         await user.save();
         const items = cart.items.map(item => { // map the items in the cart for the order.items
             const variant = item.productId.variants.id(item.variantId);
-            
+
             if (!variant) {
                 throw new Error(ERROR_MESSAGES.VARIANT_NOT_FOUND);
             }
-            
+
             return {
                 productId: item.productId._id,
                 variantId: item.variantId,
                 product: item.productId.productName,
-                itemDiscount:allowedDiscount  || 0,
+                itemDiscount: allowedDiscount || 0,
                 ogRegularPrice: variant.price,
                 ogSalePrice: variant.salePrice,
                 quantity: item.quantity,
-                noDiscountPrice:item.price,
+                noDiscountPrice: item.price,
                 price: item.totalPrice - allowedDiscount,
                 orderStatus: "Pending"
             };
@@ -174,27 +175,27 @@ const checkOut = async (req, res) => {
         const order = new Order({
             orderId: uuidv4(),
             userId: id,
-            items: items, 
-            totalAmount: totalAmount, 
+            items: items,
+            totalAmount: totalAmount,
             shippingAddress: address._id,
             paymentMethod,
-            paymentId: paymentMethod === 'Wallet' ? 'wallet' : razorpay_payment_id || null, 
-            couponRefrence: usedCoupon?._id  || null,
+            paymentId: paymentMethod === 'Wallet' ? 'wallet' : razorpay_payment_id || null,
+            couponRefrence: usedCoupon?._id || null,
             couponUsed: usedCoupon ? true : false,
             discount: usedCoupon?.discountValue || 0
         });
-        
+
 
         await order.save();
 
-        
-        if(paymentMethod === "Wallet") {  // for wallet transation
+
+        if (paymentMethod === "Wallet") {  // for wallet transation
             const newWallet = new Wallet({
-                userId:user._id,
-                amount:totalAmount,
-                action:"Debited",
-                purpose:"Purchase",
-                orderId:order._id
+                userId: user._id,
+                amount: totalAmount,
+                action: "Debited",
+                purpose: "Purchase",
+                orderId: order._id
             })
 
             await newWallet.save()
@@ -220,26 +221,26 @@ const checkOut = async (req, res) => {
             }
         }
         // transcation for the ledger book
-        if(paymentMethod === "Wallet" || paymentMethod === "Razorpay"){
+        if (paymentMethod === "Wallet" || paymentMethod === "Razorpay") {
             const onlineTransaction = new Transaction({
-                orderId:order._id,
-                userId:user._id,
-                amount:order.totalAmount,
+                orderId: order._id,
+                userId: user._id,
+                amount: order.totalAmount,
                 paymentMethod,
-                paymentStatus:"Purchase",
-                action:"Credited"
+                paymentStatus: "Purchase",
+                action: "Credited"
             })
             await onlineTransaction.save()
         }
-         // transcation for the ledger book
-        if(paymentMethod === "COD"){
+        // transcation for the ledger book
+        if (paymentMethod === "COD") {
             const codTransaction = new Transaction({
-                orderId:order._id,
-                userId:user._id,
-                amount:order.totalAmount,
+                orderId: order._id,
+                userId: user._id,
+                amount: order.totalAmount,
                 paymentMethod,
-                paymentStatus:"Purchase",
-                action:"Pending"
+                paymentStatus: "Purchase",
+                action: "Pending"
             })
             await codTransaction.save()
         }
@@ -261,12 +262,12 @@ const checkOut = async (req, res) => {
             product.purchaseCount = (product.purchaseCount || 0) + item.quantity;
             await product.save()
             const category = await Category.findById(product.category);
-            if(category){
+            if (category) {
                 category.purchaseCount = (category.purchaseCount || 0) + item.quantity;
                 await category.save();
             }
-            const brand = await Brand.findOne({brandName: product.brand})
-            if(brand){
+            const brand = await Brand.findOne({ brandName: product.brand })
+            if (brand) {
                 brand.purchaseCount = (brand.purchaseCount || 0) + item.quantity;
                 await brand.save()
             }
@@ -285,14 +286,14 @@ const checkOut = async (req, res) => {
             items: orderPopulated.items.map(item => ({
                 productName: item.productId.productName,
                 quantity: item.quantity,
-                unitPrice:item.noDiscountPrice,
+                unitPrice: item.noDiscountPrice,
                 price: item.price,
             })),
             totalAmount: orderPopulated.totalAmount,
-            shippingAddress: address, 
+            shippingAddress: address,
             paymentMethod: orderPopulated.paymentMethod
         };
-        
+
         // Send confirmation email
         const emailSuccess = await sendInvoiceEmail(user.email, orderDetails);
         if (emailSuccess) {
@@ -311,15 +312,15 @@ const checkOut = async (req, res) => {
 const orderConfirmed = async (req, res) => {
     try {
         const id = req.session.orderId
-        console.log("orderid for confirmation",id)
+        console.log("orderid for confirmation", id)
         const order = await Order.findById(id).populate("userId").populate("items.productId").populate("shippingAddress");
         let cartQuantity = 0;
-        if(req.session.user){
-         
-        const cartItems = await Cart.findOne({userId:req.session.user.id}).lean()
-        cartQuantity = cartItems?.items?.length || 0
+        if (req.session.user) {
+
+            const cartItems = await Cart.findOne({ userId: req.session.user.id }).lean()
+            cartQuantity = cartItems?.items?.length || 0
         }
-        res.render("orderConfirmed", {title:"Order Placed", order, cartQuantity})
+        res.render("orderConfirmed", { title: "Order Placed", order, cartQuantity })
     } catch (error) {
         console.log("error while loading order confirmed page");
 
@@ -330,37 +331,50 @@ const orderConfirmed = async (req, res) => {
 // while entering the coupon code
 const validateCoupon = async (req, res) => {
     const { couponCode, cartTotal } = req.body;
-  
-    try {
-      const coupon = await Coupon.findOne({ code: couponCode, status: 'active' }); // find the coupon and check if it is active
-  
-      if (!coupon) { // if coupon not found send a error message
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON_INVALID });
-      }
-  
-      if (cartTotal < coupon.minPurchase) { // if the coupon min amount not reached send err msg
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
-          success: false, 
-          message: `Minimum purchase of ₹${coupon.minPurchase} required` 
-        });
-      }
-  
-      const now = new Date();
-      if (now > coupon.expiresAt) { // check if the coupon has expired by checking the current date
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON_EXPIRED });
-      }
-   // if all good display coupon is applied
-      res.status(HTTP_STATUS.OK).json({ 
-        success: true, 
-        discountAmount: coupon.discountValue,
-        message: SUCCESS_MESSAGES.COUPON_APPLIED 
-      });
-    } catch (error) {
-      console.error('Error validating coupon:', error.messge);
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.COUPON_VALIDATE });
-    }
-  };
 
+    try {
+        // Basic validation
+        if (typeof couponCode !== "string" || !couponCode.trim()) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: VALIDATION_MESSAGES.COUPON.CODE_REQUIRED
+            });
+        }
+
+        if (cartTotal === undefined || cartTotal === "" || !Number.isFinite(Number(cartTotal)) || Number(cartTotal) < 0) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: VALIDATION_MESSAGES.COUPON.CART_TOTAL_INVALID
+            });
+        }
+        const coupon = await Coupon.findOne({ code: couponCode, status: 'active' });
+
+        if (!coupon) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON_INVALID });
+        }
+
+        if (cartTotal < coupon.minPurchase) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: `Minimum purchase of ₹${coupon.minPurchase} required`
+            });
+        }
+
+        const now = new Date();
+        if (now > coupon.expiresAt) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ success: false, message: ERROR_MESSAGES.COUPON_EXPIRED });
+        }
+
+        res.status(HTTP_STATUS.OK).json({
+            success: true,
+            discountAmount: coupon.discountValue,
+            message: SUCCESS_MESSAGES.COUPON_APPLIED
+        });
+    } catch (error) {
+        console.error('Error validating coupon:', error.message);
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message: ERROR_MESSAGES.COUPON_VALIDATE });
+    }
+};
 module.exports = {
     loadCheckOutPage,
     checkOut,

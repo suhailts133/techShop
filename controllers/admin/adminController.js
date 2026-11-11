@@ -18,7 +18,8 @@ const HTTP_STATUS = require("../../constants/httpStatusCode.js")
 
 // schemas 
 const User = require("../../models/userSchema");
-const Order = require("../../models/orderSchema.js")
+const Order = require("../../models/orderSchema.js");
+const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js");
 // admin login page 
 const adminLoadLogin = async (req, res) => {
     try {
@@ -30,23 +31,39 @@ const adminLoadLogin = async (req, res) => {
 // verifying wheather the user is admin or not
 const adminLogin = async (req, res) => {
     try {
-        const { email, password } = req.body; // take email and pass form the body
-        const findAdmin = await User.findOne({ email, isAdmin: true }); // fetching the admin user
-        if (!findAdmin) { // if not admin 
+        const { email, password } = req.body;
+
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+        if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            req.flash("error", VALIDATION_MESSAGES.ADMIN.EMAIL);
+            return res.redirect("/admin/");
+        }
+
+        if (!password || typeof password !== "string" || !passwordPattern.test(password)) {
+            req.flash("error", VALIDATION_MESSAGES.ADMIN.WORNG_PASSWORD);
+            return res.redirect("/admin/");
+        }
+
+        const findAdmin = await User.findOne({ email, isAdmin: true });
+        if (!findAdmin) {
             req.flash("error", ERROR_MESSAGES.NOT_ADMIN);
             return res.redirect("/admin/")
         }
-        const passwordMatch = await bcrypt.compare(password, findAdmin.password); //  password checking
-        if (!passwordMatch) { // wrong password
+        const passwordMatch = await bcrypt.compare(password, findAdmin.password);
+        if (!passwordMatch) {
             req.flash("error", ERROR_MESSAGES.NOT_ADMIN)
             return res.redirect("/admin/")
         }
-        req.session.admin = { id: findAdmin._id, name: findAdmin.name }; // adding the admin session
-        res.redirect("/admin/dashboard"); // all good redirect to the dashboard
+        req.session.admin = { id: findAdmin._id, name: findAdmin.name };
+        res.redirect("/admin/dashboard");
     } catch (error) {
         console.log("error while logging in the admin", error.message)
     }
 }
+
+
+
 // loading dashboard with some default values for the chart generation and file generation
 const loadDashboard = async (req, res) => {
     try {
