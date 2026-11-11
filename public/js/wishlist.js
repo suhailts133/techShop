@@ -14,19 +14,19 @@ document.addEventListener("DOMContentLoaded", async function () {
         try {
             const response = await fetch(`/wishlistStatus?productId=${productId}&variantId=${variantId}`);
             const result = await response.json();
-        console.log(result);
-        
+            console.log(result);
+
             wishlistIcon.innerHTML = result.isInWishlist
-                ? '<i class="bi bi-heart-fill fs-3 text-danger"></i>'  
-                : '<i class="bi bi-heart fs-3 text-dark"></i>';  
+                ? '<i class="bi bi-heart-fill fs-3 text-danger"></i>'
+                : '<i class="bi bi-heart fs-3 text-dark"></i>';
         } catch (error) {
             console.error("Error while updating wishlist item status:", error.message);
         }
     }
-    
+
     await updateWishlistStatus();
 
-   
+
     variantSelect.addEventListener("change", async function () {
         variantId = this.value;
         await updateWishlistStatus();
@@ -41,15 +41,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             });
 
             if (response.status === 401) {
-                window.location.href = "/login";
+                const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+                window.location.href = `/login?returnTo=${returnTo}`;
                 return;
             }
 
             const result = await response.json();
             if (result.success) {
                 wishlistIcon.innerHTML = result.added
-                    ? '<i class="bi bi-heart-fill fs-3 text-danger"></i>'  
-                    : '<i class="bi bi-heart fs-3 text-dark"></i>';  
+                    ? '<i class="bi bi-heart-fill fs-3 text-danger"></i>'
+                    : '<i class="bi bi-heart fs-3 text-dark"></i>';
             } else {
                 alert(result.error);
             }

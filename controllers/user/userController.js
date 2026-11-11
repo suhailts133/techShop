@@ -124,7 +124,7 @@ const signup = async (req, res) => {
         // set otp in the session after sending the otp use this for otp verification
         req.session.userOtp = otp;
 
-       
+
         // set userdata in the session so that it can be use adding to db after otp verification
         req.session.userData = { name, phone, email, password, Referalcode };
 
@@ -149,7 +149,7 @@ const loadOtp = async (req, res) => {
 const verifyOtp = async (req, res) => {
     try {
         const { otp } = req.body;
-        
+
         // Check the OTP from the OTP page with the OTP in the session
         if (otp === req.session.userOtp) {
             const user = req.session.userData; // User data from the session
@@ -263,12 +263,12 @@ const resendOtp = async (req, res) => {
 // load login page
 const loadLogin = async (req, res) => {
     try {
-        res.render("login", { title: "login" })
+        res.render("login", { title: "login" });
     } catch (error) {
-        console.error("error while loadin login page", error.message)
+        console.error("error while loading login page", error.message);
         res.redirect("/pageNotFound");
     }
-}
+};
 // verify the user login credientails 
 const login = async (req, res) => {
     try {
@@ -294,8 +294,11 @@ const login = async (req, res) => {
             return res.redirect("/login");
         }
         req.session.user = { id: findUser._id, name: findUser.name, email: findUser.email };  // set the user details in the session name is used for the home page
-        console.log("session from login", req.session.user)
-        res.redirect("/");
+        const redirectTo = req.session.returnTo || "/";
+        console.log("session from login", req.session.user, req.session.returnTo)
+        delete req.session.returnTo;
+        return res.redirect(redirectTo);
+
     } catch (error) {
         console.log("error while loggin in the user", error.message)
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR)

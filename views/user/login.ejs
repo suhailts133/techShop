@@ -3,14 +3,14 @@
 
 <style>
   :root {
-    --primary-color: #FFFFFF;       /* Pure White */
-    --primary-light: #F4F7F1;      /* Light Matcha */
-    --accent-color: #A3B899;       /* Matcha Green */
-    --text-light: #2C352A;         /* Deep Green */
-    --text-muted: #8C9A86;         /* Muted Green */
-    --border-color: #E5EBE1;       /* Soft Green */
-    --success-color: #779668;      /* Forest Green */
-    --error-color: #B9937A;        /* Warm Brown */
+    --primary-color: #ffffff; /* Pure White */
+    --primary-light: #f4f7f1; /* Light Matcha */
+    --accent-color: #a3b899; /* Matcha Green */
+    --text-light: #2c352a; /* Deep Green */
+    --text-muted: #8c9a86; /* Muted Green */
+    --border-color: #e5ebe1; /* Soft Green */
+    --success-color: #779668; /* Forest Green */
+    --error-color: #b9937a; /* Warm Brown */
   }
 
   body {
@@ -104,43 +104,33 @@
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="form-container">
-        <h3 class="text-center mb-4" style="color: var(--accent-color);">Login</h3>
+        <h3 class="text-center mb-4" style="color: var(--accent-color)">Login</h3>
         <form id="loginForm" method="post" action="/login" novalidate>
           <!-- Email -->
           <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required autocomplete="email">
-            <div class="invalid-feedback">
-              Please enter a valid email address.
-            </div>
-            <div class="valid-feedback">
-              Looks good!
-            </div>
+            <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required autocomplete="email" />
+            <div class="invalid-feedback">Please enter a valid email address.</div>
+            <div class="valid-feedback">Looks good!</div>
           </div>
 
           <!-- Password -->
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
-            <div class="invalid-feedback">
-              Please enter your password.
-            </div>
-            <div class="valid-feedback">
-              Looks good!
-            </div>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password" />
+            <div class="invalid-feedback">Please enter your password.</div>
+            <div class="valid-feedback">Looks good!</div>
           </div>
-
+          <!-- Submit Button -->
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
           <!-- Google Login Button -->
           <div class="mb-3 text-center">
             <a href="/auth/google" class="btn btn-outline-dark w-100 d-flex align-items-center justify-content-center gap-2 google-button" aria-label="Login with Google">
-              <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" class="google-logo" width="20px">
+              <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" class="google-logo" width="20px" />
               <span>Login with Google</span>
             </a>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">Login</button>
           </div>
 
           <!-- Sign Up Link -->

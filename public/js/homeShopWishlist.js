@@ -14,7 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
                 if (response.status === 401) {
-                    window.location.href = "/login";
+                    const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+                    window.location.href = `/login?returnTo=${returnTo}`;
                     return;
                 }
 

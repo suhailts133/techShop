@@ -13,7 +13,8 @@ const checkOutController = require("../controllers/user/checkOutController.js")
 const shoppingPageController = require("../controllers/user/shoppingPageController.js")
 const wishlistController = require("../controllers/user/wishlistController.js")
 const env = require("dotenv").config();
-const { checkAuth,checkAuthUserLogin, checkAuthUserSignUp, checkAuthCart } = require("../middlewares/auth.js")
+const { checkAuth, checkAuthUserLogin, checkAuthUserSignUp, checkAuthCart } = require("../middlewares/auth.js");
+const { resetReturnTo, captureReturnTo } = require("../helpers/returnToUrl.js");
 
 // home route
 router.get("/", userController.loadHomePage);
@@ -22,29 +23,31 @@ router.post("/", userController.searchRecomendation)
 router.get("/shop", shoppingPageController.loadShoppingPage)
 
 // signup route
-router.get("/signup",checkAuthUserSignUp, userController.loadSignup)
-router.post("/signup", checkAuthUserSignUp,userController.signup)
+router.get("/signup", checkAuthUserSignUp, userController.loadSignup)
+router.post("/signup", checkAuthUserSignUp, userController.signup)
 // otp route
-router.get("/otp",checkAuthUserSignUp,  userController.loadOtp)
+router.get("/otp", checkAuthUserSignUp, userController.loadOtp)
 router.post("/verify-otp", checkAuthUserSignUp, userController.verifyOtp)
-router.post("/resend-otp",checkAuthUserSignUp, userController.resendOtp)
+router.post("/resend-otp", checkAuthUserSignUp, userController.resendOtp)
 // google authentication
 router.get("/auth/google", passport.authenticate('google', { scope: ["profile", "email"] }));
-router.get("/auth/google/callback", 
-  passport.authenticate('google', { failureRedirect: "/signup" }), 
+router.get("/auth/google/callback",
+  passport.authenticate('google', { failureRedirect: "/signup" ,keepSessionInfo:true}),
   (req, res) => {
-    req.session.user = { name: req.user.name, email: req.user.email,id:req.user._id };
-    
-    if(process.env.NODE_ENV === "production"){
-      res.redirect(process.env.PROD_URI);
-    }else{
-      res.redirect(process.env.DEV_URI);
-    }
+    req.session.user = { name: req.user.name, email: req.user.email, id: req.user._id };
+    console.log(req.session)
+    const returnTo = req.session.returnTo;
+    console.log(returnTo ,": from google login")
+    delete req.session.returnTo;
+
+    if (returnTo) return res.redirect(returnTo);
+
+    res.redirect(process.env.NODE_ENV === "production" ? process.env.PROD_URI : process.env.DEV_URI);
   }
 );
 // login logout route
-router.get("/login",checkAuthUserLogin, userController.loadLogin)
-router.post("/login",checkAuthUserLogin, userController.login)
+router.get("/login", checkAuthUserLogin,resetReturnTo,captureReturnTo, userController.loadLogin)
+router.post("/login", checkAuthUserLogin, userController.login)
 router.get("/logout", userController.logout)
 // page 404 page 
 
@@ -59,13 +62,13 @@ router.post("/changePassword", forgetPasswordController.changePassword);
 
 // product Details
 router.get("/productDetails", productController.getProductDetails);
-router.post("/updateVariant",  productController.updateVariantDetails)
+router.post("/updateVariant", productController.updateVariantDetails)
 // add to cart
-router.post("/addToCart",checkAuth,   productController.addToCart);
+router.post("/addToCart", checkAuth, productController.addToCart);
 //checkout
-router.get("/checkout",checkAuth, checkOutController.loadCheckOutPage)
-router.post("/checkout", checkAuth,checkOutController.checkOut)
-router.post("/checkout/validate-coupon",checkAuth, checkOutController.validateCoupon)
+router.get("/checkout", checkAuth, checkOutController.loadCheckOutPage)
+router.post("/checkout", checkAuth, checkOutController.checkOut)
+router.post("/checkout/validate-coupon", checkAuth, checkOutController.validateCoupon)
 // wishlist
 
 // razorpay payment
@@ -74,10 +77,10 @@ router.post('/create-razorpay-order', razorpayController.createRazorpayOrder);
 // Verify Razorpay payment
 router.post('/verify-payment', express.json(), razorpayController.verifyPayment);
 
-router.post("/wishlistToggle", checkAuth,wishlistController.addToWishlist)
+router.post("/wishlistToggle", checkAuth, wishlistController.addToWishlist)
 router.get("/wishlistStatus", checkAuth, wishlistController.wishlistStatusCheck)
 
-router.get("/orders",checkAuth, checkOutController.orderConfirmed)
+router.get("/orders", checkAuth, checkOutController.orderConfirmed)
 
 router.get("/pageNotFound", userController.pageError)
 module.exports = router

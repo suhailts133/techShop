@@ -13,12 +13,12 @@ function updateVariantDetails() {
     console.log("From JS - Product ID:", productId);
 
     $.ajax({
-        url: '/updateVariant', 
+        url: '/updateVariant',
         type: 'POST',
         data: { productId, variantId },
         success: function (response) {
-            console.log("response from updateVariable",response);
-            
+            console.log("response from updateVariable", response);
+
             document.getElementById('price').textContent = `${response.salePrice}`;
             document.getElementById('regular-price').textContent = `${response.originalPrice}`;
 
@@ -29,7 +29,7 @@ function updateVariantDetails() {
             } else {
                 discountBadge.style.display = 'none';
             }
-            
+
             const quantityElement = document.getElementById('quantity');
             const selectedQuantityElement = document.getElementById('selected-quantity');
             const decreaseButton = document.querySelector('button[onclick="changeQuantity(-1)"]');
@@ -37,7 +37,7 @@ function updateVariantDetails() {
             const addToCartButton = document.querySelector('button[onclick="addToCart()"]');
 
             if (response.quantity === 0) {
-                
+
                 quantityElement.textContent = 'Out of Stock';
                 quantityElement.classList.add('text-danger', 'fw-bold');
                 selectedQuantityElement.textContent = '0';
@@ -46,12 +46,12 @@ function updateVariantDetails() {
                 increaseButton.disabled = true;
                 addToCartButton.disabled = true;
             } else {
-             
+
                 quantityElement.innerHTML = response.quantity;
                 quantityElement.classList.remove('text-danger', 'fw-bold');
                 selectedQuantityElement.textContent = '1';
 
-       
+
                 decreaseButton.disabled = false;
                 increaseButton.disabled = false;
                 addToCartButton.disabled = false;
@@ -86,7 +86,7 @@ function changeQuantity(amount) {
         currentQuantity = newQuantity;
     } else if (newQuantity > maxAllowedQuantity) {
         errorEl.textContent = availableQuantity < 10
-            ? `Only ${availableQuantity} items available in stock.` 
+            ? `Only ${availableQuantity} items available in stock.`
             : 'Maximum quantity per order is 10.';
         errorEl.style.display = 'block';
     } else if (newQuantity < 1) {
@@ -119,7 +119,7 @@ async function addToCart() {
             quantity: quantity,
             productImage: productImage // Only the image filename
         };
-        
+
 
         // Send the data to the backend via POST request
         const response = await fetch('/addToCart', {
@@ -131,10 +131,10 @@ async function addToCart() {
             body: JSON.stringify(data)
         });
         if (response.status === 401) {
-            window.location.href = "/login";
+            const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?returnTo=${returnTo}`;
             return;
         }
-
 
         const result = await response.json();
         const messageEl = document.getElementById('cart-message');
@@ -150,40 +150,40 @@ async function addToCart() {
             if (result.redirectTo) {
                 setTimeout(() => {
                     console.log('Redirecting to:', result.redirectTo);
-                    window.location.href = result.redirectTo; 
-                }, 2000); 
+                    window.location.href = result.redirectTo;
+                }, 2000);
             }
         } else {
-          
+
             messageEl.innerHTML = `
                 <div class="alert alert-danger" role="alert">
                     ${message}
                 </div>`;
 
-           
+
             if (result.redirectTo) {
                 setTimeout(() => {
                     console.log('Redirecting to:', result.redirectTo);
-                    window.location.href = result.redirectTo; 
-                }, 2000); 
+                    window.location.href = result.redirectTo;
+                }, 2000);
             }
         }
 
-       
+
         setTimeout(() => {
             messageEl.innerHTML = '';
         }, 2000);
     } catch (error) {
         console.error('Error:', error);
 
-      
+
         const messageEl = document.getElementById('cart-message');
         messageEl.innerHTML = `
             <div class="alert alert-danger" role="alert">
                 An error occurred while adding the product to the cart. Please try again later.
             </div>`;
 
-       
+
         setTimeout(() => {
             messageEl.innerHTML = '';
         }, 2000);

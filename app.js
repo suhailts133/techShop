@@ -50,7 +50,7 @@ app.use(session({
 }))
 
 app.use(flash());
-app.use(morgan("tiny"))
+// app.use(morgan("tiny"))
 app.use(passport.initialize());
 app.use(passport.session())
 
