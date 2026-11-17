@@ -1,62 +1,66 @@
-<footer class="footer bg-dark text-white py-5">
+<footer class="footer bg-dark text-white pt-5 pb-4">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="row gy-4">
+            <div class="col-lg-5 col-md-12">
                 <div class="footer__about">
-                    <div class="footer__logo">
-                        Tech Shop
+                    <div class="footer__logo fs-3 fw-bold mb-3">
+                        <img src="/favicon.svg" alt="Tech Shop logo" width="32" height="32" class="me-2">Tech Shop
                     </div>
-                    <p>The customer is at the heart of our unique business model, which includes design.</p>
+                    <p class="footer__text">Tech Shop is an online store for the latest electronics, including mobiles, laptops and earphones. We bring together popular brands and a wide range of products in one place, so you can browse, compare and buy with confidence. Create an account to save your details, place orders quickly and keep track of your purchases.</p>
                 </div>
             </div>
-            <div class="col-lg-2 offset-lg-1 col-md-3 col-sm-6">
-                <div class="footer__widget">
-                    <h6>Shopping</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Phones</a></li>
-                        <li><a href="#" class="text-white">Laptop</a></li>
-                        <li><a href="#" class="text-white">Accessories</a></li>
-                        <li><a href="#" class="text-white">Sale</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-lg-2 col-md-3 col-sm-6">
-                <div class="footer__widget">
-                    <h6>Shopping</h6>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Contact Us</a></li>
-                        <li><a href="#" class="text-white">Payment Methods</a></li>
-                        <li><a href="#" class="text-white">Delivery</a></li>
-                        <li><a href="#" class="text-white">Return & Exchanges</a></li>
-                    </ul>
-                </div>
-            </div>
+
             <div class="col-lg-3 offset-lg-1 col-md-6 col-sm-6">
                 <div class="footer__widget">
-                    <h6>NewLetter</h6>
-                    <div class="footer__newslatter">
-                        <p>Be the first to know about new arrivals, look books, sales & promos!</p>
-                        <form action="#">
-                            <input type="text" class="form-control" placeholder="Your email">
-                            <button type="submit" class="btn btn-light mt-2">
-                                <span class="icon_mail_alt"></span>
-                            </button>
-                        </form>
-                    </div>
+                    <h6 class="footer__heading">Quick Links</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><a href="/login" class="footer__link"><i class="fa fa-angle-right me-2"></i>Login</a></li>
+                        <li><a href="/signup" class="footer__link"><i class="fa fa-angle-right me-2"></i>Sign Up</a></li>
+                        <li><a href="/shop" class="footer__link"><i class="fa fa-angle-right me-2"></i>Shop</a></li>
+                    </ul>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12 text-center">
-                <div class="footer__copyright__text">
-                    <p>Copyright ©
-                        <script>
-                            document.write(new Date().getFullYear());
-                        </script>2020
-                        All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank" class="text-white">Colorlib</a>
-                    </p>
+
+            <div class="col-lg-3 col-md-6 col-sm-6">
+                <div class="footer__widget">
+                    <h6 class="footer__heading">What We Sell</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><a href="/shop?category=6ac89dd93a9b28740d98b7b8&amp;brand=&amp;sort=&amp;page=1" class="footer__link"><i class="fa fa-mobile me-2"></i>Mobiles</a></li>
+                        <li><a href="/shop?category=6ac89df13a9b28740d98b7bd&amp;brand=&amp;sort=&amp;page=1" class="footer__link"><i class="fa fa-laptop me-2"></i>Laptops</a></li>
+                        <li><a href="/shop?category=6ac7a367edbbc7a263c5446e&amp;brand=&amp;sort=&amp;page=1" class="footer__link"><i class="fa fa-headphones me-2"></i>Earphones</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </footer>
+<style>
+    .footer { border-top: 3px solid #fff; }
+    .footer__text { color: rgba(255, 255, 255, 0.7); line-height: 1.8; }
+    .footer__heading {
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+        margin-bottom: 1.2rem;
+        padding-bottom: 0.6rem;
+        position: relative;
+    }
+    .footer__heading::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 35px;
+        height: 2px;
+        background: #fff;
+    }
+    .footer__link,
+    .footer__item {
+        display: block;
+        padding: 0.35rem 0;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+    }
+    .footer__link { transition: color 0.2s ease, padding-left 0.2s ease; }
+    .footer__link:hover { color: #fff; padding-left: 6px; }
+</style>
