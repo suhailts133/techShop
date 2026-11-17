@@ -13,8 +13,8 @@ const PDFDocument = require('pdfkit');
 const env = require("dotenv").config();
 
 // constants
-const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/adminErrorMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 // schemas 
 const User = require("../../models/userSchema");

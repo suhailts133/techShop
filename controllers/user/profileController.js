@@ -7,18 +7,18 @@ const { securePassword } = require("../../helpers/userAuthendication.js"); // au
 const Wallet = require("../../models/walletSchema.js");
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const { ERROR_MESSAGES } = require("../../constants/userErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/userSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 
 const loadProfilePage = async (req, res) => {
     try {
-        if(!req.session.user){
+        if (!req.session.user) {
             req.flash("error", ERROR_MESSAGES.LOGIN)
             return res.redirect("/")
         }
-        const {id} = req.session.user;
+        const { id } = req.session.user;
         const findUser = await User.findById(id);
 
         res.render("profilePage", { title: "profilePage", user: findUser })
@@ -30,12 +30,12 @@ const loadProfilePage = async (req, res) => {
 const loadEditProfilePage = async (req, res) => {
     try {
         const findUser = await User.findById(req.session.user.id);
-        
+
         res.render("editProfile", {
-             title: "edit profile",
-             name: findUser.name || null,
-             phone: findUser.phone || null
-             })
+            title: "edit profile",
+            name: findUser.name || null,
+            phone: findUser.phone || null
+        })
     } catch (error) {
         console.log("error while loading edit profile page", error.message)
     }
@@ -45,6 +45,23 @@ const editProfilePage = async (req, res) => {
     try {
         const { name, phone } = req.body;
         const { id } = req.session.user;
+
+        if (typeof name !== "string" || !name.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.NAME_REQUIRED);
+            return res.redirect("/profile/");
+        }
+        if (!/^[A-Za-z\s]{2,50}$/.test(name.trim())) {
+            req.flash("error", VALIDATION_MESSAGES.USER.INVALID_NAME);
+            return res.redirect("/profile/");
+        }
+        if (typeof phone !== "string" || !phone.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.PHONE_REQUIRED);
+            return res.redirect("/profile/");
+        }
+        if (!/^[6-9]\d{9}$/.test(phone.trim())) {
+            req.flash("error", VALIDATION_MESSAGES.USER.INVALID_PHONE);
+            return res.redirect("/profile/");
+        }
 
         const updatedUser = await User.findByIdAndUpdate(id, { name, phone });
         req.session.user.name = name
@@ -64,9 +81,17 @@ const loadChangePasswordCheck = async (req, res) => {
 const changePasswordCheck = async (req, res) => {
     try {
         const { password } = req.body;
+
+        if (typeof password !== "string" || !password.trim()) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ // 400 Bad Request
+                success: false,
+                message: VALIDATION_MESSAGES.USER.CURRENT_PASSWORD_REQUIRED
+            });
+        }
+
         const { id } = req.session.user;
         const findUser = await User.findById(id);
-        
+
         if (!findUser.password) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ // 400 Bad Request
                 success: false,
@@ -82,10 +107,10 @@ const changePasswordCheck = async (req, res) => {
             });
         }
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             redirectTo: "/profile/changePassword",
-            message: "Redirecting to password change page..." 
+            message: "Redirecting to password change page..."
         });
     } catch (error) {
         console.error("Error in changePasswordCheck:", error.message);
@@ -107,6 +132,20 @@ const changePassword = async (req, res) => {
     try {
         const { id } = req.session.user;
         const { password, confirmPassword } = req.body;
+        if (typeof password !== "string" || !password.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.PASSWORD_REQUIRED);
+            return res.redirect("/profile/changePassword");
+        }
+        if (typeof confirmPassword !== "string" || !confirmPassword.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.CONFIRM_PASSWORD_REQUIRED);
+            return res.redirect("/profile/changePassword");
+        }
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+            req.flash("error", VALIDATION_MESSAGES.USER.WEAK_PASSWORD);
+            return res.redirect("/profile/changePassword");
+        }
+
+
         if (password !== confirmPassword) {
             req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH);
             return res.redirect("/profile/changePassword");
@@ -277,16 +316,16 @@ const updateCartItem = async (req, res) => {
         const { quantity } = req.body; // Extract quantity from the body
 
         if (!quantity || quantity < 1) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
-                success: false, 
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
                 message: ERROR_MESSAGES.QUANTITY,
             });
         }
 
         const cart = await Cart.findOne({ userId: id });
         if (!cart) {
-            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
-                success: false, 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
+                success: false,
                 message: ERROR_MESSAGES.CART_NOT_FOUND
             });
         }
@@ -294,32 +333,32 @@ const updateCartItem = async (req, res) => {
 
         const cartItem = cart.items.find(item => item._id.toString() === itemId);
         if (!cartItem) {
-            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
-                success: false, 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
+                success: false,
                 message: ERROR_MESSAGES.ITEM_NOT_FOUND
             });
         }
 
         const product = await Product.findById(cartItem.productId);
         if (!product) {
-            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
-                success: false, 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
+                success: false,
                 message: ERROR_MESSAGES.PRODUCT_NOT_FOUND
             });
         }
 
         const variant = product.variants.id(cartItem.variantId);
         if (!variant) {
-            return res.status(HTTP_STATUS.NOT_FOUND).json({ 
-                success: false, 
+            return res.status(HTTP_STATUS.NOT_FOUND).json({
+                success: false,
                 message: ERROR_MESSAGES.VARIANT_NOT_FOUND
             });
         }
 
         if (parseInt(quantity) > variant.quantity) {
-            return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
-                success: false, 
-                itemPrice: cartItem.totalPrice, 
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                itemPrice: cartItem.totalPrice,
                 totalAmount: cart.totalAmount,
                 message: ERROR_MESSAGES.LIMITED_STOCK
             });
@@ -330,10 +369,10 @@ const updateCartItem = async (req, res) => {
         cart.totalAmount = cart.items.reduce((total, item) => total + item.totalPrice, 0);
         await cart.save();
 
-        res.json({ 
-            success: true, 
-            itemPrice:cartItem.totalPrice,
-            totalAmount:cart.totalAmount,
+        res.json({
+            success: true,
+            itemPrice: cartItem.totalPrice,
+            totalAmount: cart.totalAmount,
             message: SUCCESS_MESSAGES.CART_QUANTITY
         });
 
@@ -353,7 +392,7 @@ const displayWallet = async (req, res) => {
 
         const userId = req.session.user.id;
         const page = parseInt(req.query.page) || 1;
-        const limit = 5; 
+        const limit = 5;
         const walletAmount = await User.findById(userId);
         const totalWalletCount = await Wallet.countDocuments({ userId });
         const totalPages = Math.ceil(totalWalletCount / limit);
@@ -362,12 +401,12 @@ const displayWallet = async (req, res) => {
             .skip((page - 1) * limit)
             .limit(limit);
 
-       
+
         res.render("wallet", {
             walletDetails,
             currentPage: page,
             totalPages,
-            wallet:walletAmount.wallet,
+            wallet: walletAmount.wallet,
             title: "Wallet Transactions"
         });
     } catch (error) {

@@ -10,9 +10,9 @@ const Coupon = require("../../models/couponsSchema.js");
 // modules
 const { v4: uuidv4 } = require("uuid");
 // constants
-const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/adminErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/adminSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 
 const allCoupons = async (req, res) => {

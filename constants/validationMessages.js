@@ -20,6 +20,22 @@ const VALIDATION_MESSAGES = Object.freeze({
         CODE_REQUIRED: "Valid coupon code is required",
         CART_TOTAL_INVALID: "Valid cart total is required",
     },
+    USER: {
+        PASSWORD_REQUIRED: "Password is required",
+        CONFIRM_PASSWORD_REQUIRED: "Confirm password is required",
+        WEAK_PASSWORD: "Password must be at least 8 characters with uppercase, lowercase, number, and special character.",
+        NAME_REQUIRED: "Name is required",
+        INVALID_NAME: "Name must be 2 to 50 characters and contain only letters and spaces",
+        PHONE_REQUIRED: "Phone number is required",
+        INVALID_PHONE: "Please enter a valid 10 digit phone number",
+        CURRENT_PASSWORD_REQUIRED: "Current password is required",
+        EMAIL_REQUIRED: "Email is required",
+        INVALID_EMAIL: "Please enter a valid email",
+        INVALID_REFERRAL_FORMAT: "Referral code must be 8 characters (0-9, A-F)",
+    },
+    ORDER: {
+        REASON_REQUIRED: "Reason must be at least 5 characters long",
+    },
 });
 
 module.exports = {

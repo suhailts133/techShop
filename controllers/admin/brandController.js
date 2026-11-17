@@ -14,8 +14,8 @@ const Brand = require("../../models/brandSchema.js");
 const cloudinaryService = require("../../services/cloudinaryService.js");
 
 // constants
-const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js");
+const {ERROR_MESSAGES} = require("../../constants/adminErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/adminSuccessMessages.js");
 const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js");
 
 // displaying brand details

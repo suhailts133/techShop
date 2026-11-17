@@ -5,9 +5,9 @@ const fs = require("fs");
 const path = require("path");
 const cloudinaryService = require("../../services/cloudinaryService.js");
 // constants
-const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js");
+const {ERROR_MESSAGES} = require("../../constants/adminErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/adminSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js");
 const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js");
 
 

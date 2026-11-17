@@ -3,8 +3,8 @@ const crypto = require("crypto")
 const env = require("dotenv").config();
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 const createRazorpayOrder = async (req, res) => {
     try {

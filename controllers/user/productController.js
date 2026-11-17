@@ -4,9 +4,9 @@ const User = require("../../models/userSchema.js")
 const Wishlist = require("../../models/wishlishSchema.js")
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/userSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 const getProductDetails = async (req, res) => {
     try {

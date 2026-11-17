@@ -4,9 +4,8 @@ const Product = require("../../models/productSchema.js");
 const mongoose = require("mongoose")
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 const addToWishlist = async (req, res) => {
     try {

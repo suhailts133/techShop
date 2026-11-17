@@ -35,8 +35,8 @@ const ERROR_MESSAGES = Object.freeze({
     COUPON_VALIDITY_REQUIRED: "Validity duration is required",
     COUPON_STATUS_REQUIRED: "Status is required",
     COUPON_DISCOUNT_INVALID: "Discount should be a positive number",
-    COUPON_VALIDITY_DAYS_INSUFFICIENT:
-        "Validity days are insufficient",
+    COUPON_VALIDITY_DAYS_INSUFFICIENT:"Validity days are insufficient",
+    COUPON_INVALID:"Invalid coupon data",
 
     // Product Errors
     PRODUCT_NOT_FOUND: "Product not found",

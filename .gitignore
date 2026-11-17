@@ -2,3 +2,4 @@
 node_modules
 public/uploads/product-images/
 public/uploads/re-image/
+.env

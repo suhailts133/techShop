@@ -16,8 +16,8 @@ const User = require("../../models/userSchema.js");
 const Transaction = require("../../models/transactionSchema.js")
 const Wallet = require("../../models/walletSchema.js");
 // constants
-const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/adminSuccessMessages.js")
+const {ERROR_MESSAGES} = require("../../constants/adminErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/adminSuccessMessages.js")
 
 const orderManagment = async (req, res) => {
   try {

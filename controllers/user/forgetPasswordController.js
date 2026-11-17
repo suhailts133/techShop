@@ -1,9 +1,10 @@
 const User = require("../../models/userSchema.js");
 const { generateOtp, securePassword, sendVerificationEmail } = require("../../helpers/userAuthendication.js") // authentication helper
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/userSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js");
+const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js");
 
 const loadForgetPasswordPage = async (req, res) => {
     try {
@@ -94,6 +95,20 @@ const changePassword = async (req, res) => {
     try {
         const { password, confirmPassword } = req.body;
         const { email, id } = req.session.userData;
+
+        if (typeof password !== "string" || !password.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.PASSWORD_REQUIRED);
+            return res.redirect("/login");
+        }
+        if (typeof confirmPassword !== "string" || !confirmPassword.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.CONFIRM_PASSWORD_REQUIRED);
+            return res.redirect("/login");
+        }
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+            req.flash("error", VALIDATION_MESSAGES.USER.WEAK_PASSWORD);
+            return res.redirect("/login");
+        }
+
         if (password !== confirmPassword) {
             req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH);
             return res.redirect("/login");

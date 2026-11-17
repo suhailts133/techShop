@@ -12,9 +12,9 @@ const { generateOtp, securePassword, sendVerificationEmail } = require("../../he
 const Coupon = require("../../models/couponsSchema.js")
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/userSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 const loadHomePage = async (req, res) => {
     try {
@@ -86,11 +86,53 @@ const loadSignup = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 }
-
 // verifying user deatil while registering
 const signup = async (req, res) => {
     try {
         const { name, phone, email, password, confirmPassword, Referalcode } = req.body;
+
+        if (typeof name !== "string" || !name.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.NAME_REQUIRED);
+            return res.redirect("/signup");
+        }
+        if (!/^[A-Za-z\s]{2,50}$/.test(name.trim())) {
+            req.flash("error", VALIDATION_MESSAGES.USER.INVALID_NAME);
+            return res.redirect("/signup");
+        }
+        if (typeof phone !== "string" || !phone.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.PHONE_REQUIRED);
+            return res.redirect("/signup");
+        }
+        if (!/^[6-9]\d{9}$/.test(phone.trim())) {
+            req.flash("error", VALIDATION_MESSAGES.USER.INVALID_PHONE);
+            return res.redirect("/signup");
+        }
+        if (typeof email !== "string" || !email.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.EMAIL_REQUIRED);
+            return res.redirect("/signup");
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            req.flash("error", VALIDATION_MESSAGES.USER.INVALID_EMAIL);
+            return res.redirect("/signup");
+        }
+        if (typeof password !== "string" || !password.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.PASSWORD_REQUIRED);
+            return res.redirect("/signup");
+        }
+        if (typeof confirmPassword !== "string" || !confirmPassword.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.CONFIRM_PASSWORD_REQUIRED);
+            return res.redirect("/signup");
+        }
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/.test(password)) {
+            req.flash("error", VALIDATION_MESSAGES.USER.WEAK_PASSWORD);
+            return res.redirect("/signup");
+        }
+        if (Referalcode) { // optional field, only validated when provided
+            if (typeof Referalcode !== "string" || !/^[0-9A-F]{8}$/.test(Referalcode)) {
+                req.flash("error", VALIDATION_MESSAGES.USER.INVALID_REFERRAL_FORMAT);
+                return res.redirect("/signup");
+            }
+        }
 
         if (password !== confirmPassword) { // checking password and confirm password is same
             req.flash("error", ERROR_MESSAGES.PASSWORD_NOT_MATCH)
@@ -273,6 +315,20 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (typeof email !== "string" || !email.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.EMAIL_REQUIRED);
+            return res.redirect("/login");
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            req.flash("error", VALIDATION_MESSAGES.USER.INVALID_EMAIL);
+            return res.redirect("/login");
+        }
+        if (typeof password !== "string" || !password.trim()) {
+            req.flash("error", VALIDATION_MESSAGES.USER.PASSWORD_REQUIRED);
+            return res.redirect("/login");
+        }
+
         const findUser = await User.findOne({ email });  // find the user from the db
         if (!findUser) {  // check if the email exists in the db
             req.flash("error", ERROR_MESSAGES.CREDENTIALS);

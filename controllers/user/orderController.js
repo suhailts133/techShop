@@ -3,24 +3,24 @@ const Product = require("../../models/productSchema.js")
 const Review = require('../../models/reviewSchema.js')
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/userSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 const getUserOrders = async (req, res) => {
     try {
         const userId = req.session.user.id;
-        const page = parseInt(req.query.page)  || 1
+        const page = parseInt(req.query.page) || 1
         const limit = 4
         const skip = (page - 1) * limit
-        const totalOrders = await Order.countDocuments({userId})
+        const totalOrders = await Order.countDocuments({ userId })
         const orders = await Order.find({ userId })
             .populate('items.productId')
-            .sort({createdAt:-1})
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
 
-        
+
         orders.forEach(order => {
             order.items.forEach(item => {
                 const product = item.productId;
@@ -53,15 +53,16 @@ const getItemDetails = async (req, res) => {
 
         const order = await Order.findOne({ orderId }).populate("items.productId");
         const item = order.items.id(itemId);
-    
-        if (!item) {-
+
+        if (!item) {
+            -
             req.flash("error", ERROR_MESSAGES.ORDER_ITEM);
             return res.redirect("/profile/orders");
         }
-        item.paymentOption = order.paymentMethod; 
+        item.paymentOption = order.paymentMethod;
         item.couponUsed = order.couponUsed;
 
- 
+
         const product = item.productId;
         const variant = product.variants.find(v => v._id.toString() === item.variantId.toString());
 
@@ -123,13 +124,19 @@ const requestCancel = async (req, res) => {
         const { orderId, itemId } = req.query;
         const { reason } = req.body;
 
- 
+       
+        if (typeof reason !== "string" || reason.trim().length < 5) {
+            req.flash("error", VALIDATION_MESSAGES.ORDER.REASON_REQUIRED);
+            return res.redirect("/profile/orders");
+        }
+
+
         if (!orderId || !itemId) {
             req.flash("error", ERROR_MESSAGES.ORDER_DETAILS);
             return res.redirect("/profile/orders");
         }
 
- 
+
         const order = await Order.findById(orderId);
         if (!order) {
             req.flash("error", ERROR_MESSAGES.ORDER_NOT_FOUND);
@@ -142,7 +149,7 @@ const requestCancel = async (req, res) => {
             return res.redirect("/profile/orders");
         }
 
-      
+
         if (item.orderStatus !== "Pending" && item.orderStatus !== "Shipped") {
             req.flash("error", ERROR_MESSAGES.CANCEL_STATUS);
             return res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
@@ -164,35 +171,35 @@ const createReview = async (req, res) => {
     try {
         const { orderId, itemId } = req.query;
         const { rating, review } = req.body;
-    
+
         // Find the order and item
         const order = await Order.findById(orderId);
-        if(!order){
+        if (!order) {
             return res.status(HTTP_STATUS.BAD_REQUEST).send(ERROR_MESSAGES.ORDER_NOT_FOUND)
         }
         const item = order.items.id(itemId);
-        if(!item){
+        if (!item) {
             return res.status(BAD_REQUEST).send(ERROR_MESSAGES.ITEM_NOT_FOUND)
         }
-        
+
         // Verify eligibility
         if (item.orderStatus !== "Delivered" || item.review) {
-          return res.status(BAD_REQUEST).send(ERROR_MESSAGES.REVIEW);
+            return res.status(BAD_REQUEST).send(ERROR_MESSAGES.REVIEW);
         }
-    
+
         // Create review
         const newReview = new Review({
-          product: item.productId,
-          user: order.userId,
-          order: orderId,
-          orderItem: itemId,
-          rating,
-          review
+            product: item.productId,
+            user: order.userId,
+            order: orderId,
+            orderItem: itemId,
+            rating,
+            review
         });
         await newReview.save();
-        
-        const  product = await Product.findById(item.productId);
-        if(!product){
+
+        const product = await Product.findById(item.productId);
+        if (!product) {
             return res.status(HTTP_STATUS.BAD_REQUEST).send(ERROR_MESSAGES.PRODUCT_NOT_FOUND);
         }
         product.reviews.push(newReview._id);
@@ -205,14 +212,14 @@ const createReview = async (req, res) => {
         // Mark item as reviewed
         item.review = true;
         await order.save();
-    
-        
+
+
         req.flash("review isERROR_MESSAGES. provided for this item")
         res.redirect(`/profile/orders/orderDetails?orderId=${orderId}&itemId=${itemId}`);
-      } catch (err) {
+    } catch (err) {
         console.error(err);
         res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(ERROR_MESSAGES.SERVER_ERROR);
-      }
+    }
 }
 
 module.exports = {

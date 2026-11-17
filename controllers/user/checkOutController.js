@@ -26,9 +26,9 @@ const { sendInvoiceEmail } = require("../../helpers/invoice.js")
 const { v4: uuidv4 } = require("uuid");
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const SUCCESS_MESSAGES = require("../../constants/userSuccessMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {SUCCESS_MESSAGES} = require("../../constants/userSuccessMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 const { VALIDATION_MESSAGES } = require("../../constants/validationMessages.js")
 
 // load the checkout page

@@ -16,8 +16,8 @@ const Category = require("../../models/categorySchema.js")
 const Product = require("../../models/productSchema.js")
 const Transaction = require("../../models/transactionSchema.js")
 // constants
-const ERROR_MESSAGES = require("../../constants/adminErrorMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/adminErrorMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 const bestSelling = async (req, res) => {
     try {

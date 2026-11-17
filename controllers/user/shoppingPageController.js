@@ -5,8 +5,8 @@ const Wishlist = require("../../models/wishlishSchema.js");
 const Cart = require("../../models/cartSchema.js")
 
 // constants
-const ERROR_MESSAGES = require("../../constants/userErrorMessages.js")
-const HTTP_STATUS = require("../../constants/httpStatusCode.js")
+const {ERROR_MESSAGES} = require("../../constants/userErrorMessages.js")
+const {HTTP_STATUS} = require("../../constants/httpStatusCode.js")
 
 
 const loadShoppingPage = async (req, res) => {
